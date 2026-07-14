@@ -4,11 +4,12 @@ import { useBooks } from "../../data/books";  // ← changed
 import BooksFilters from "./BooksFilters";
 import BooksTable from "./BooksTable";
 import BooksPagination from "./BooksPagination";
+import BookModal from "./BookModal";
 
 const ITEMS_PER_PAGE = 14;
 
 export default function Books() {
-    const { books, loading, error } = useBooks();  // ← changed
+    const { books, loading, error, refreshBooks } = useBooks();  // ← changed
     const categories = useMemo(() => {
         return ["All Categories", ...Array.from(new Set(books.map((b) => b.category)))];
     }, [books]);
@@ -16,6 +17,7 @@ export default function Books() {
     const [selectedCategory, setSelectedCategory] = useState("All Categories");
     const [selectedStatus, setSelectedStatus] = useState("All Status");
     const [currentPage, setCurrentPage] = useState(1);
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     const filtered = useMemo(() => {
         return books.filter((b) => {
@@ -50,7 +52,7 @@ export default function Books() {
                     <p className="text-sm text-gray-400 mt-0.5">Manage and organize all library books</p>
                 </div>
                 <div className="flex gap-2">
-                    <button className="flex items-center gap-1.5 bg-violet-600 hover:bg-violet-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors shadow-sm">
+                    <button onClick={() => setIsModalOpen(true)} className="flex items-center gap-1.5 bg-violet-600 hover:bg-violet-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors shadow-sm">
                         <Plus size={16} />
                         Add New Book
                     </button>
@@ -84,6 +86,12 @@ export default function Books() {
                     onPageChange={setCurrentPage}
                 />
             </div>
+            
+            <BookModal 
+                isOpen={isModalOpen} 
+                onClose={() => setIsModalOpen(false)} 
+                onSuccess={refreshBooks} 
+            />
         </div>
     );
 }

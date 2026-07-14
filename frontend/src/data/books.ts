@@ -22,14 +22,19 @@ export function useBooks() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-    useEffect(() => {
+    const fetchBooks = () => {
+        setLoading(true);
         api.get("/api/books/")
             .then((res) => setBooks(res.data))
             .catch((err) => setError(err.message))
             .finally(() => setLoading(false));
+    };
+
+    useEffect(() => {
+        fetchBooks();
     }, []);
 
-    return { books, loading, error };
+    return { books, loading, error, refreshBooks: fetchBooks };
 }
 
 export const booksStats = [
