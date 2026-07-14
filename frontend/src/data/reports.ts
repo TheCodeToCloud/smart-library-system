@@ -1,0 +1,98 @@
+import {
+    FileText,
+    TrendingUp,
+    UserPlus,
+    BookOpen,
+    Repeat,
+} from "lucide-react";
+
+export const reportStats = [
+    {
+        title: "Total Reports",
+        value: "156",
+        subtitle: "Across all time",
+        icon: FileText,
+        iconBg: "bg-purple-100",
+        iconColor: "text-purple-600",
+    },
+    {
+        title: "Books Issued",
+        value: "842",
+        subtitle: "This month",
+        icon: TrendingUp,
+        iconBg: "bg-blue-100",
+        iconColor: "text-blue-600",
+    },
+    {
+        title: "New Members",
+        value: "23",
+        subtitle: "This month",
+        icon: UserPlus,
+        iconBg: "bg-green-100",
+        iconColor: "text-green-600",
+    },
+    {
+        title: "Overdue Books",
+        value: "37",
+        subtitle: "Currently",
+        icon: BookOpen,
+        iconBg: "bg-orange-100",
+        iconColor: "text-orange-500",
+    },
+    {
+        title: "Returned Books",
+        value: "689",
+        subtitle: "This month",
+        icon: Repeat,
+        iconBg: "bg-pink-100",
+        iconColor: "text-pink-500",
+    },
+];
+
+export const reports = [
+    {
+        id: 1,
+        name: "Member Summary Report",
+        type: "Members",
+        dateRange: "01 May, 2026 - 20 May, 2026",
+        generatedOn: "20 May, 2026 10:30 AM",
+        generatedBy: "Yogesh Rai",
+        status: "Completed",
+    },
+    {
+        id: 2,
+        name: "Books Issued Report",
+        type: "Books",
+        dateRange: "01 May, 2026 - 20 May, 2026",
+        generatedOn: "20 May, 2026 09:15 AM",
+        generatedBy: "Roshan Karki",
+        status: "Completed",
+    },
+    {
+        id: 3,
+        name: "Overdue Books Report",
+        type: "Books",
+        dateRange: "01 May, 2026 - 20 May, 2026",
+        generatedOn: "20 May, 2026 08:45 AM",
+        generatedBy: "Alok Gupta",
+        status: "Completed",
+    },
+    {
+        id: 4,
+        name: "Books Returned Report",
+        type: "Books",
+        dateRange: "01 May, 2026 - 20 May, 2026",
+        generatedOn: "20 May, 2026 08:20 AM",
+        generatedBy: "Safal Pokhrel",
+        status: "Completed",
+    },
+    {
+        id: 5,
+        name: "Fine Collection Report",
+        type: "Finance",
+        dateRange: "01 May, 2026 - 20 May, 2026",
+        generatedOn: "19 May, 2026 05:30 PM",
+        generatedBy: "Jessica Rai",
+        status: "Completed",
+    },
+];

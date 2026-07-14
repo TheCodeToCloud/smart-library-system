@@ -1,0 +1,173 @@
+import {
+    Download,
+    Eye,
+    Search,
+    Plus,
+    Filter
+} from "lucide-react";
+import StatsCards from "../StatsCards";
+
+import {
+    reports,
+} from "../../data/reports";
+
+const statuses = ["All Status", "Available", "Issued", "Overdue"];
+
+type Props = {
+    search: string;
+    onSearch: (value: string) => void;
+    selectedCategory: string;
+    onCategory: (value: string) => void;
+    selectedStatus: string;
+    onStatus: (value: string) => void;
+    categories: string[];  // ← added: receive from parent
+};
+
+export default function Reports({
+    search,
+    onSearch,
+    selectedCategory,
+    onCategory,
+    selectedStatus,
+    onStatus,
+    categories,  // ← added
+}: Props) {
+    return (
+        <div className="p-6 bg-slate-50 min-h-screen">
+            {/* Header */}
+
+            <div className="flex items-center justify-between">
+                <div>
+                    <h2 className="text-2xl font-bold text-violet-600">
+                        Reports
+                    </h2>
+
+                    <p className="text-gray-500 text-sm mt-2">
+                        View and manage library activity reports
+                    </p>
+                </div>
+
+                <div className="flex items-center justify-between mt-3">
+                    <div className="flex gap-2">
+                        <button className="flex items-center gap-1.5 bg-violet-600 hover:bg-violet-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors shadow-lg">
+                            <Plus size={16} />
+                            Add New Report
+                        </button>
+                        <button className="flex items-center gap-1.5 border border-gray-200 bg-white hover:bg-gray-50 text-gray-600 text-sm font-medium px-4 py-2 rounded-lg transition-colors shadow-sm">
+                            <Download size={16} />
+                            Export
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div className="mb-4">
+                <StatsCards />
+            </div>
+
+            {/* Filters */}
+
+            <div className="flex items-center gap-3 p-4 border-b border-gray-100">
+                <div className="relative flex-1 max-w-sm">
+                    <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+                    <input
+                        type="text"
+                        value={search}
+                        onChange={(e) => onSearch(e.target.value)}
+                        placeholder="Search Report"
+                        className="w-full pl-9 pr-4 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-violet-200 focus:border-violet-400 bg-gray-50 placeholder:text-gray-400"
+                    />
+                </div>
+
+                <div className="ml-auto flex items-center gap-2 ">
+                    <select
+                        value={selectedCategory}
+                        onChange={(e) => onCategory(e.target.value)}
+                        className="text-sm border border-gray-200 rounded-lg px-3 py-2 bg-white text-gray-600 focus:outline-none focus:ring-2 focus:ring-violet-200 cursor-pointer"
+                    >
+                        {categories.map((c) => <option key={c}>{c}</option>)}
+                    </select>
+
+                    <select
+                        value={selectedStatus}
+                        onChange={(e) => onStatus(e.target.value)}
+                        className="text-sm border border-gray-200 rounded-lg px-3 py-2 bg-white text-gray-600 focus:outline-none focus:ring-2 focus:ring-violet-200 cursor-pointer"
+                    >
+                        {statuses.map((s) => <option key={s}>{s}</option>)}
+                    </select>
+
+                    <button className="flex items-center gap-1.5 border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-600 bg-white hover:bg-gray-50 transition-colors">
+                        <Filter size={14} />
+                        Filters
+                    </button>
+                </div>
+            </div>
+
+            {/* Table */}
+
+            <div className="bg-white rounded-xl border border-gray-100 overflow-hidden shadow-sm">
+                <table className="w-full">
+                    <thead>
+                        <tr className="bg-white text-[11px] text-gray-400 border-b border-gray-100">
+                            <th className="text-left p-4">#</th>
+                            <th className="text-left p-4">Report Name</th>
+                            <th className="text-left p-4">Report Type</th>
+                            <th className="text-left p-4">Date Range</th>
+                            <th className="text-left p-4">Generated On</th>
+                            <th className="text-left p-4">Generated By</th>
+                            <th className="text-left p-4">Status</th>
+                            <th className="text-center p-4">Actions</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        {reports.map((report) => (
+                            <tr
+                                key={report.id}
+                                className="border-b border-gray-100 hover:bg-gray-50"
+                            >
+                                <td className="p-4 text-sm text-gray-500">{report.id}</td>
+
+                                <td className="p-4 font-medium text-sm">
+                                    {report.name}
+                                </td>
+
+                                <td className="p-4 text-sm text-gray-600">{report.type}</td>
+
+                                <td className="p-4 text-sm text-gray-600">
+                                    {report.dateRange}
+                                </td>
+
+                                <td className="p-4 text-sm text-gray-600">
+                                    {report.generatedOn}
+                                </td>
+
+                                <td className="p-4 text-sm text-gray-600;">
+                                    {report.generatedBy}
+                                </td>
+
+                                <td className="p-4">
+                                    <span className="px-3 py-1 text-xs rounded-full bg-green-100 text-green-600 font-medium">
+                                        {report.status}
+                                    </span>
+                                </td>
+
+                                <td className="p-4">
+                                    <div className="flex justify-center gap-2">
+                                        <button className="w-10 h-10 border rounded-lg flex items-center justify-center">
+                                            <Eye size={16} />
+                                        </button>
+
+                                        <button className="w-10 h-10 border rounded-lg flex items-center justify-center">
+                                            <Download size={16} />
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    );
+}
