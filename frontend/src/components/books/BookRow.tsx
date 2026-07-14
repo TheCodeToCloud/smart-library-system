@@ -58,17 +58,17 @@ export default function BookRow({ book, index }: Props) {
             </td>
 
             {/* Author */}
-            <td className="px-4 py-3 text-gray-600">{book.author}</td>
+            <td className="hidden md:table-cell px-4 py-3 text-gray-600">{book.author}</td>
 
             {/* Category */}
-            <td className="px-4 py-3">
-                <span className={`inline-block px-2.5 py-1 rounded-md text-xs font-medium ${categoryColor}`}>  {/* ← was book.categoryColor */}
+            <td className="hidden sm:table-cell px-4 py-3">
+                <span className={`inline-block px-2.5 py-1 rounded-md text-xs font-medium ${categoryColor}`}>
                     {book.category}
                 </span>
             </td>
 
             {/* ISBN */}
-            <td className="px-4 py-3 text-gray-500 font-mono text-xs">{book.isbn}</td>
+            <td className="hidden lg:table-cell px-4 py-3 text-gray-500 font-mono text-xs">{book.isbn}</td>
 
             {/* Copies */}
             <td className="px-4 py-3 text-gray-700 font-medium">
@@ -76,15 +76,15 @@ export default function BookRow({ book, index }: Props) {
             </td>
 
             {/* Status */}
-            <td className="px-4 py-3">
+            <td className="hidden sm:table-cell px-4 py-3">
                 <span className={`inline-block px-2.5 py-1 rounded-md text-xs font-semibold ${statusStyles[status]}`}>
-                    {status}   {/* ← derived from available_copies */}
+                    {status}
                 </span>
             </td>
 
             {/* Added On */}
-            <td className="px-4 py-3 text-gray-500 text-xs whitespace-nowrap">
-                {new Date(book.created_at).toLocaleDateString()}   {/* ← was book.addedOn */}
+            <td className="hidden lg:table-cell px-4 py-3 text-gray-500 text-xs whitespace-nowrap">
+                {new Date(book.created_at).toLocaleDateString()}
             </td>
 
             {/* Actions */}

@@ -25,14 +25,11 @@ function AppLayout() {
     <div className="bg-stone-100 min-h-screen flex">
       <Nav isOpen={isOpen} setIsOpen={setIsOpen} />
 
-      <div
-        className={`flex flex-col flex-1 pt-3 transition-all duration-300 mr-3 ml-3 ${isOpen ? "ml-64" : ""
-          }`}
-      >
+      <div className="flex flex-col flex-1 pt-3 transition-all duration-300 min-w-0">
         <Header isOpen={isOpen} setIsOpen={setIsOpen} />
 
-        <div className="flex flex-1">
-          <main className="flex-1 overflow-y-auto p-5">
+        <div className="flex flex-1 min-w-0">
+          <main className="flex-1 overflow-y-auto p-3 md:p-5 min-w-0">
             <Routes>
               <Route
                 path="/"
@@ -54,10 +51,13 @@ function AppLayout() {
             </Routes>
           </main>
 
-          <RightSidebar />
+          {/* Right sidebar: hidden on mobile, visible on xl screens */}
+          <div className="hidden xl:block">
+            <RightSidebar />
+          </div>
         </div>
 
-        <footer className="text-center text-xs text-gray-600 border-t border-gray-200 py-3">
+        <footer className="text-center text-xs text-gray-600 border-t border-gray-200 py-3 px-3">
           © 2026 Uni_Library · Built by Yogesh gandu & his Super hero Team · All
           rights reserved.
         </footer>
