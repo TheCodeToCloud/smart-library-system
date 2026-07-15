@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 
 interface AuthContextType {
     isAuthenticated: boolean;
-    login: (token: string) => void;
+    login: (token: string, refreshToken?: string) => void;
     logout: () => void;
 }
 
@@ -14,13 +14,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         !!localStorage.getItem("token")
     );
 
-    const login = (token: string) => {
+    const login = (token: string, refreshToken?: string) => {
         localStorage.setItem("token", token);
+        if (refreshToken) {
+            localStorage.setItem("refreshToken", refreshToken);
+        }
         setIsAuthenticated(true);
     };
 
     const logout = () => {
         localStorage.removeItem("token");
+        localStorage.removeItem("refreshToken");
         setIsAuthenticated(false);
     };
 

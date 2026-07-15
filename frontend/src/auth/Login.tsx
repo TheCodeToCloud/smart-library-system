@@ -216,7 +216,7 @@ export default function Login() {
         password: form.password,
       });
 
-      login(response.data.access);
+      login(response.data.access, response.data.refresh);
 
       navigate("/", { replace: true });
 
@@ -227,6 +227,8 @@ export default function Login() {
       }
 
       alert("Login failed");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -416,7 +418,7 @@ export default function Login() {
                     idToken: credentialResponse.credential,
                   });
 
-                  login(response.data.token);
+                  login(response.data.access, response.data.refresh);
 
                   navigate("/", { replace: true });
 
