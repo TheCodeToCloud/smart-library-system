@@ -12,6 +12,7 @@ export type Book = {
     available_copies: number;
     cover_image: string;
     created_at: string;
+    qr_code: string;
     // Keep these for UI compatibility
     categoryColor?: string;
     status?: "Available" | "Issued" | "Overdue";

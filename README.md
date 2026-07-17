@@ -70,9 +70,22 @@ source venv/bin/activate
 ```bash
 pip install -r requirements.txt
 python manage.py migrate
+python seed_data.py   # Optional: Seeds the database with sample books and an admin user
 python manage.py runserver
 ```
-The backend API will run on `http://127.0.0.0:8000/`.
+The backend API will run on `http://127.0.0.1:8000/`.
+
+**Default Credentials:**
+If you run `python seed_data.py`, an admin user will be created. The default email is `admin@library.com`. You can set the password by adding `ADMIN_DEFAULT_PASSWORD=yourpassword` to your `backend/.env` file. If not set, it will auto-generate a secure password and print it to the console.
+
+---
+
+### 🧠 What Makes This "SMART"?
+This system isn't just a standard CRUD application. It includes several intelligent features built for modern library workflows:
+- **KYC-Gated Borrowing:** Students must upload their ID proof and have their KYC reviewed and approved by an admin/librarian before they can borrow books.
+- **QR-Based Issue/Return:** Each book generates a unique QR code. The built-in scanner allows instant lookups for borrowing or returning books using a device camera.
+- **Automated Escalating Reminders:** A cron-compatible scheduled job sends overdue reminders via email, escalating the tone (gentle → warning → fine notice) based on how many days the book is overdue.
+- **Content-Based Recommendations:** The student dashboard recommends books using a content-based filtering algorithm that matches overlapping categories and authors from their borrow history, ranked by overall popularity and availability.
 
 ---
 

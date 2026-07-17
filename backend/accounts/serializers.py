@@ -52,22 +52,20 @@ class RegisterSerializer(serializers.ModelSerializer):
             )
         return user
     
+    def validate(self, attrs):
+        role = attrs.get("role")
 
-def validate(self, attrs):
+        if role == "student":
+            if not attrs.get("roll_no"):
+                raise serializers.ValidationError({
+                    "roll_no": "This field is required."
+                })
 
-    role = attrs.get("role")
-
-    if role == "student":
-        if not attrs.get("roll_no"):
-            raise serializers.ValidationError({
-                "roll_no": "This field is required."
-            })
-
-        if not attrs.get("department"):
-            raise serializers.ValidationError({
-                "department": "This field is required."
-            })
-    return attrs
+            if not attrs.get("department"):
+                raise serializers.ValidationError({
+                    "department": "This field is required."
+                })
+        return attrs
    
 class UserSerializer(serializers.ModelSerializer):
 
@@ -92,6 +90,7 @@ class MemberSerializer(serializers.ModelSerializer):
     department = serializers.SerializerMethodField()
     roll_no = serializers.SerializerMethodField()
     kyc_status = serializers.SerializerMethodField()
+    id_proof = serializers.SerializerMethodField()
     joined_at = serializers.DateTimeField(source='date_joined', read_only=True)
 
     class Meta:
@@ -107,6 +106,7 @@ class MemberSerializer(serializers.ModelSerializer):
             'department',
             'roll_no',
             'kyc_status',
+            'id_proof',
             'joined_at',
         )
 
@@ -136,6 +136,16 @@ class MemberSerializer(serializers.ModelSerializer):
             return obj.student_profile.kyc_status
         except Exception:
             return 'N/A'
+
+    def get_id_proof(self, obj):
+        request = self.context.get('request')
+        try:
+            if obj.student_profile.id_proof and request:
+                return request.build_absolute_uri(obj.student_profile.id_proof.url)
+        except Exception:
+            pass
+        return None
+
 
 
 class LoginSerializer(serializers.Serializer):

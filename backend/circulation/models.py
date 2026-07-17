@@ -12,6 +12,12 @@ class IssueBook(models.Model):
         ('rejected', 'Rejected'),  # Request rejected
     )
 
+    FINE_STATUS_CHOICES = (
+        ('unpaid', 'Unpaid'),
+        ('paid', 'Paid'),
+        ('waived', 'Waived'),
+    )
+
     # Book being requested/issued
     book = models.ForeignKey(
         Book,
@@ -57,11 +63,30 @@ class IssueBook(models.Model):
         default='pending'
     )
 
-    # Fine charged for late return
+    # Fine charged for late return (Rs. 5/day)
     fine_amount = models.DecimalField(
         max_digits=10,
         decimal_places=2,
         default=0
+    )
+
+    # Payment status of the fine
+    fine_status = models.CharField(
+        max_length=10,
+        choices=FINE_STATUS_CHOICES,
+        default='unpaid'
+    )
+
+    # Date when fine was marked as paid
+    fine_paid_date = models.DateField(
+        null=True,
+        blank=True
+    )
+
+    # Timestamp of the last reminder email sent
+    last_reminder_sent = models.DateTimeField(
+        null=True,
+        blank=True
     )
 
     def __str__(self):

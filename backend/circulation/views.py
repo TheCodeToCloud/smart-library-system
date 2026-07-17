@@ -20,6 +20,38 @@ from rest_framework.permissions import IsAuthenticated
 from .reminders import send_overdue_reminders
 
 
+class StudentStatsView(APIView):
+    """Return personalised stats for the logged-in student."""
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        today = date.today()
+
+        # All borrow records for this student
+        all_borrows = IssueBook.objects.filter(member=user)
+
+        currently_borrowed = all_borrows.filter(status="issued").count()
+        overdue_count = all_borrows.filter(
+            status="issued", due_date__lt=today
+        ).count()
+        due_soon_count = all_borrows.filter(
+            status="issued",
+            due_date__gte=today,
+            due_date__lte=today + timedelta(days=3)
+        ).count()
+        total_fine = sum(
+            b.fine_amount for b in all_borrows.filter(fine_amount__gt=0)
+        )
+
+        return Response({
+            "currently_borrowed": currently_borrowed,
+            "overdue": overdue_count,
+            "due_soon": due_soon_count,
+            "total_fine": total_fine,
+        })
+
+
 class BorrowRequestView(generics.CreateAPIView):
     
     # Only logged-in users can borrow books
@@ -45,24 +77,21 @@ class BorrowRequestView(generics.CreateAPIView):
                 status=status.HTTP_404_NOT_FOUND
             )
         
-        # try:
-        #     # Fetch member from database
-        #     member = Member.objects.get(id=member_id)
+        # KYC check: student must have an approved KYC before borrowing
+        try:
+            kyc_status = request.user.student_profile.kyc_status
+        except Exception:
+            kyc_status = None
 
-        # except Member.DoesNotExist:
-        #     return Response(
-        #         {"error": "Member not found"},
-        #         status=status.HTTP_404_NOT_FOUND
-        #     )
-
-        # # Check KYC status
-        # if member.kyc_status != 'approved':
-        #     return Response(
-        #         {
-        #             "error":"Member KYC is not approved. Book cannot be issued."
-        #         },
-        #         status=status.HTTP_400_BAD_REQUEST
-        #     )
+        if kyc_status != 'approved':
+            label = kyc_status if kyc_status in ('pending', 'rejected') else 'not submitted'
+            return Response(
+                {
+                    "error": f"Your KYC verification is {label}. "
+                             f"Please wait for admin approval before borrowing books."
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
         # Check if book is available
         if book.available_copies <= 0:
@@ -442,13 +471,81 @@ class RecentTransactionsView(generics.ListAPIView):
         )[:10]
     
 class SendReminderView(APIView):
+    permission_classes = [IsAdminOrLibrarian]
 
     def post(self, request):
-
         result = send_overdue_reminders()
+        return Response({"message": result})
 
-        return Response({
-            "message": result
-        })
-    
+
+class AllFinesView(generics.ListAPIView):
+    """Admin/Librarian: all IssueBook records that have a fine."""
+    serializer_class = IssueBookSerializer
+    permission_classes = [IsAdminOrLibrarian]
+
+    def get_queryset(self):
+        return IssueBook.objects.filter(
+            fine_amount__gt=0
+        ).order_by('-fine_amount')
+
+
+class MyFinesView(generics.ListAPIView):
+    """Student: their own fined records."""
+    serializer_class = IssueBookSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return IssueBook.objects.filter(
+            member=self.request.user,
+            fine_amount__gt=0
+        ).order_by('-fine_amount')
+
+
+class PayFineView(APIView):
+    """Mark a fine as paid."""
+    permission_classes = [IsAdminOrLibrarian]
+
+    def post(self, request, issue_id):
+        try:
+            issue = IssueBook.objects.get(id=issue_id)
+        except IssueBook.DoesNotExist:
+            return Response({"error": "Record not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        if issue.fine_amount <= 0:
+            return Response({"error": "No fine on this record."}, status=status.HTTP_400_BAD_REQUEST)
+
+        issue.fine_status = 'paid'
+        issue.fine_paid_date = date.today()
+        issue.save()
+        return Response({"message": "Fine marked as paid."})
+
+
+class WaiveFineView(APIView):
+    """Waive a fine (forgive without payment)."""
+    permission_classes = [IsAdminOrLibrarian]
+
+    def post(self, request, issue_id):
+        try:
+            issue = IssueBook.objects.get(id=issue_id)
+        except IssueBook.DoesNotExist:
+            return Response({"error": "Record not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        if issue.fine_amount <= 0:
+            return Response({"error": "No fine on this record."}, status=status.HTTP_400_BAD_REQUEST)
+
+        issue.fine_status = 'waived'
+        issue.save()
+        return Response({"message": "Fine waived."})
+
+
+from .recommendations import get_smart_recommendations
+
+class RecommendationsView(APIView):
+    """Student: Get smart book recommendations."""
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        recommendations = get_smart_recommendations(request.user)
+        return Response(recommendations)
+
 

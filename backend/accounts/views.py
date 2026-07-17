@@ -3,9 +3,9 @@ from google.oauth2 import id_token
 from google.auth.transport import requests
 
 from rest_framework import generics
-from accounts.permissions import IsAdmin
+from accounts.permissions import IsAdmin, IsAdminOrLibrarian
 from .serializers import RegisterSerializer, UserSerializer, LoginSerializer, GoogleLoginSerializer, MemberSerializer
-from .models import User
+from .models import User, StudentProfile
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework import status
 from rest_framework.views import APIView
@@ -87,8 +87,13 @@ class GoogleLoginView(generics.GenericAPIView):
 
     def post(self, request):
 
+        # Handle camelCase idToken from frontend
+        data = request.data.copy()
+        if "idToken" in data and "id_token" not in data:
+            data["id_token"] = data.pop("idToken")
+
         # Validate incoming data
-        serializer = self.get_serializer(data=request.data)
+        serializer = self.get_serializer(data=data)
         serializer.is_valid(raise_exception=True)
 
         # Extract Google ID token
@@ -138,3 +143,33 @@ class GoogleLoginView(generics.GenericAPIView):
             },
             status=status.HTTP_200_OK
         )
+
+
+class KYCApproveView(APIView):
+    """Approve a student's KYC — sets kyc_status to 'approved'."""
+    permission_classes = [IsAdminOrLibrarian]
+
+    def post(self, request, user_id):
+        try:
+            profile = StudentProfile.objects.get(user__id=user_id)
+        except StudentProfile.DoesNotExist:
+            return Response({"error": "Student profile not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        profile.kyc_status = 'approved'
+        profile.save()
+        return Response({"message": f"KYC approved for {profile.user.username}."})
+
+
+class KYCRejectView(APIView):
+    """Reject a student's KYC — sets kyc_status to 'rejected'."""
+    permission_classes = [IsAdminOrLibrarian]
+
+    def post(self, request, user_id):
+        try:
+            profile = StudentProfile.objects.get(user__id=user_id)
+        except StudentProfile.DoesNotExist:
+            return Response({"error": "Student profile not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        profile.kyc_status = 'rejected'
+        profile.save()
+        return Response({"message": f"KYC rejected for {profile.user.username}."})

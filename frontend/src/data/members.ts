@@ -30,14 +30,19 @@ export function useMembers() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-    useEffect(() => {
-        api.get("/api/members/")
+    const fetchMembers = () => {
+        setLoading(true);
+        api.get("/api/accounts/members/")
             .then((res) => setMembers(res.data))
             .catch((err) => setError(err.message))
             .finally(() => setLoading(false));
+    };
+
+    useEffect(() => {
+        fetchMembers();
     }, []);
 
-    return { members, loading, error };
+    return { members, loading, error, refreshMembers: fetchMembers };
 }
 
 // Helper to get avatar color per member

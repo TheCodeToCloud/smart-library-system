@@ -17,6 +17,9 @@ import Settings from "./components/settings/Settings";
 import { AuthProvider } from "./auth/AuthContext";
 import { ProtectedRoute } from "./auth/ProtectedRoute";
 import Login from "./auth/Login";
+import Register from "./auth/Register";
+
+import Unauthorized from "./auth/Unauthorized";
 
 function AppLayout() {
   const [isOpen, setIsOpen] = useState(false);
@@ -31,6 +34,7 @@ function AppLayout() {
         <div className="flex flex-1 min-w-0">
           <main className="flex-1 overflow-y-auto p-3 md:p-5 min-w-0">
             <Routes>
+              {/* All roles */}
               <Route
                 path="/"
                 element={
@@ -41,13 +45,17 @@ function AppLayout() {
                   </>
                 }
               />
-
               <Route path="/books" element={<Books />} />
-              <Route path="/members" element={<Members />} />
               <Route path="/issue-return" element={<IssueReturn />} />
-              <Route path="/reports" element={<ReportsPage />} />
-              <Route path="/Fine manager" element={<FineManager />} />
-              <Route path="/settings" element={<Settings />} />
+              <Route path="/unauthorized" element={<Unauthorized />} />
+
+              {/* Admin and Librarian only */}
+              <Route element={<ProtectedRoute allowedRoles={["admin", "librarian"]} />}>
+                <Route path="/members" element={<Members />} />
+                <Route path="/reports" element={<ReportsPage />} />
+                <Route path="/Fine manager" element={<FineManager />} />
+                <Route path="/settings" element={<Settings />} />
+              </Route>
             </Routes>
           </main>
 
@@ -71,6 +79,7 @@ export default function App() {
     <AuthProvider>
       <Routes>
         <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
 
         <Route element={<ProtectedRoute />}>
           <Route path="/*" element={<AppLayout />} />

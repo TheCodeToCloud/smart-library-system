@@ -1,5 +1,7 @@
-import { Eye, Pencil, Trash2 } from "lucide-react";
+import { Eye, Pencil, Trash2, LibraryBig, QrCode } from "lucide-react";
 import type { Book } from "../../data/books";
+import { useAuth } from "../../data/useAuth";
+import api from "../../data/api";
 
 // Derive status from available_copies since API has no status field
 function getStatus(book: Book): "Available" | "Issued" | "Overdue" {
@@ -32,6 +34,26 @@ type Props = {
 export default function BookRow({ book, index }: Props) {
     const status = getStatus(book);
     const categoryColor = categoryColors[book.category] ?? "bg-gray-100 text-gray-600";
+    const { user } = useAuth();
+    const isAdminOrLibrarian = user?.role === 'admin' || user?.role === 'librarian';
+
+    const handleBorrow = async () => {
+        try {
+            await api.post("/api/circulation/borrow/", { book: book.id });
+            alert("Book borrowed successfully!");
+        } catch (error: any) {
+            console.error(error);
+            alert(error.response?.data?.error || "Failed to borrow book");
+        }
+    };
+
+    const handlePrintQR = () => {
+        if (book.qr_code) {
+            window.open(book.qr_code, "_blank");
+        } else {
+            alert("No QR code available for this book.");
+        }
+    };
 
     return (
         <tr className="border-b border-gray-50 hover:bg-violet-50/30 transition-colors group">
@@ -42,7 +64,7 @@ export default function BookRow({ book, index }: Props) {
             <td className="px-4 py-3">
                 <div className="flex items-center gap-3">
                     <img
-                        src={book.cover_image}   // ← only this line changed
+                        src={book.cover_image}
                         alt={book.title}
                         loading="lazy"
                         className="w-9 h-12 object-cover rounded shadow-sm flex-shrink-0 bg-gray-100"
@@ -52,7 +74,7 @@ export default function BookRow({ book, index }: Props) {
                     />
                     <div>
                         <p className="font-semibold text-gray-800 leading-tight">{book.title}</p>
-                        <p className="text-xs text-gray-400 mt-0.5">{book.isbn}</p>  {/* ← was book.edition (not in API) */}
+                        <p className="text-xs text-gray-400 mt-0.5">{book.isbn}</p>
                     </div>
                 </div>
             </td>
@@ -72,7 +94,7 @@ export default function BookRow({ book, index }: Props) {
 
             {/* Copies */}
             <td className="px-4 py-3 text-gray-700 font-medium">
-                {book.available_copies} / {book.total_copies}   {/* ← was book.copies */}
+                {book.available_copies} / {book.total_copies}
             </td>
 
             {/* Status */}
@@ -90,15 +112,31 @@ export default function BookRow({ book, index }: Props) {
             {/* Actions */}
             <td className="px-4 py-3">
                 <div className="flex items-center gap-1.5">
-                    <button className="p-1.5 rounded-lg text-blue-400 hover:bg-blue-50 transition-colors" title="View">
-                        <Eye size={15} />
-                    </button>
-                    <button className="p-1.5 rounded-lg text-amber-400 hover:bg-amber-50 transition-colors" title="Edit">
-                        <Pencil size={15} />
-                    </button>
-                    <button className="p-1.5 rounded-lg text-red-400 hover:bg-red-50 transition-colors" title="Delete">
-                        <Trash2 size={15} />
-                    </button>
+                    {isAdminOrLibrarian ? (
+                        <>
+                            <button onClick={handlePrintQR} className="p-1.5 rounded-lg text-purple-500 hover:bg-purple-50 transition-colors" title="Print QR">
+                                <QrCode size={15} />
+                            </button>
+                            <button className="p-1.5 rounded-lg text-blue-400 hover:bg-blue-50 transition-colors" title="View">
+                                <Eye size={15} />
+                            </button>
+                            <button className="p-1.5 rounded-lg text-amber-400 hover:bg-amber-50 transition-colors" title="Edit">
+                                <Pencil size={15} />
+                            </button>
+                            <button className="p-1.5 rounded-lg text-red-400 hover:bg-red-50 transition-colors" title="Delete">
+                                <Trash2 size={15} />
+                            </button>
+                        </>
+                    ) : (
+                        <button 
+                            onClick={handleBorrow} 
+                            className="p-1.5 rounded-lg text-green-500 hover:bg-green-50 transition-colors flex items-center gap-1 text-xs font-semibold" 
+                            title="Borrow this book"
+                        >
+                            <LibraryBig size={15} />
+                            Borrow
+                        </button>
+                    )}
                 </div>
             </td>
         </tr>

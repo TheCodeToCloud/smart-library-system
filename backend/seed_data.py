@@ -8,8 +8,14 @@ from books.models import Book
 
 # Create admin superuser
 if not User.objects.filter(username='admin').exists():
-    User.objects.create_superuser('admin', 'admin@library.com', 'admin123')
-    print('Admin created: admin@library.com / admin123')
+    import secrets
+    password = os.environ.get('ADMIN_DEFAULT_PASSWORD')
+    if not password:
+        password = secrets.token_urlsafe(12)
+        print(f'Admin created: admin@library.com / {password} (auto-generated)')
+    else:
+        print('Admin created: admin@library.com / [hidden from env]')
+    User.objects.create_superuser('admin', 'admin@library.com', password)
 else:
     print('Admin already exists')
 

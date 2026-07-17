@@ -414,8 +414,8 @@ export default function Login() {
             <GoogleLogin
               onSuccess={async (credentialResponse) => {
                 try {
-                  const response = await api.post("/api/auth/google-login/", {
-                    idToken: credentialResponse.credential,
+                  const response = await api.post("/api/accounts/google-login/", {
+                    id_token: credentialResponse.credential,
                   });
 
                   login(response.data.access, response.data.refresh);
@@ -436,8 +436,12 @@ export default function Login() {
           {/* Contact Admin */}
           <p className="text-center text-sm text-gray-500 mt-6">
             Don't have an account?{" "}
-            <button className="text-purple-600 font-semibold hover:underline">
-              Contact Administrator
+            <button 
+              type="button"
+              onClick={() => navigate("/register")}
+              className="text-purple-600 font-semibold hover:underline"
+            >
+              Register
             </button>
           </p>
         </div>

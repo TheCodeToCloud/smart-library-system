@@ -18,12 +18,20 @@ class BookInfoSerializer(serializers.ModelSerializer):
 # User information
 class UserInfoSerializer(serializers.ModelSerializer):
 
+    full_name = serializers.SerializerMethodField()
+
+    def get_full_name(self, obj):
+        name = f"{obj.first_name} {obj.last_name}".strip()
+        return name if name else obj.username
+
     class Meta:
         model = User
         fields = [
             "id",
             "username",
+            "full_name",
             "role",
+            "email",
         ]
 
 # Used when creating a borrow request

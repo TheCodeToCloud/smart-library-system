@@ -6,11 +6,11 @@ from rest_framework.permissions import IsAuthenticated
 from accounts.permissions import IsAdminOrLibrarian, IsStudent
 
 # Models
-from django.db.models import Count
+from django.db.models import Count, Q
 from books.models import Book
 from accounts.models import User
 from circulation.models import IssueBook
-from datetime import date
+from datetime import date, timedelta
 
 class DashboardStatsView(APIView):
 
@@ -44,12 +44,29 @@ class DashboardStatsView(APIView):
             due_date__lt=date.today()
         ).count()
 
+        total_members = total_students + total_librarians
+        
+        current_month = date.today().month
+        current_year = date.today().year
+
+        new_books_this_month = Book.objects.filter(created_at__year=current_year, created_at__month=current_month).count()
+        new_members_this_month = User.objects.filter(date_joined__year=current_year, date_joined__month=current_month).exclude(role="admin").count()
+        
+        issued_this_month = IssueBook.objects.filter(issue_date__year=current_year, issue_date__month=current_month).count()
+        overdue_this_month = IssueBook.objects.filter(status='issued', due_date__lt=date.today(), due_date__year=current_year, due_date__month=current_month).count()
+
         return Response({
             "total_students": total_students,
             "total_librarians": total_librarians,
             "total_admins": total_admins,
             "books_issued": books_issued,
             "overdue_books": overdue_books,
+            "total_books": total_books,
+            "total_members": total_members,
+            "new_books_this_month": new_books_this_month,
+            "new_members_this_month": new_members_this_month,
+            "issued_this_month": issued_this_month,
+            "overdue_this_month": overdue_this_month,
         })
 
 class RecentIssuesView(APIView):
@@ -90,31 +107,29 @@ class PopularBooksView(APIView):
     permission_classes = [IsAdminOrLibrarian]
 
     def get(self, request):
+        # Optional ?period=30d to filter to last 30 days
+        period = request.query_params.get('period', None)
 
-        books = Book.objects.annotate(
-            issue_count=
-            Count('issuebook')
-        ).order_by(
-            '-issue_count'
-        )[:5]
+        if period == '30d':
+            since = date.today() - timedelta(days=30)
+            books = Book.objects.annotate(
+                issue_count=Count(
+                    'issuebook',
+                    filter=Q(issuebook__issue_date__gte=since)
+                )
+            ).order_by('-issue_count')[:5]
+        else:
+            books = Book.objects.annotate(
+                issue_count=Count('issuebook')
+            ).order_by('-issue_count')[:5]
 
         data = []
-
         for book in books:
-
             data.append({
-
                 "title": book.title,
-
                 "author": book.author,
-
-                "times_issued":book.issue_count,
-
-                "cover_image":
-                    book.cover_image
-                    if book.cover_image
-                    else None
-
+                "times_issued": book.issue_count,
+                "cover_image": book.cover_image if book.cover_image else None
             })
 
         return Response(data)
@@ -231,3 +246,30 @@ class IssueReturnChartView(APIView):
             "issued": issued,
             "returned": returned
         })
+
+
+class TopReadersView(APIView):
+    """Top 5 students by total books borrowed (all-time)."""
+    permission_classes = [IsAdminOrLibrarian]
+
+    def get(self, request):
+        from django.db.models import Count
+
+        top_students = (
+            User.objects.filter(role='student')
+            .annotate(borrow_count=Count('issuebook'))
+            .order_by('-borrow_count')[:5]
+        )
+
+        data = []
+        for rank, student in enumerate(top_students, start=1):
+            data.append({
+                "rank": rank,
+                "id": student.id,
+                "full_name": student.full_name,
+                "email": student.email,
+                "borrow_count": student.borrow_count,
+                "badge": "🏆 Top Reader" if rank == 1 else f"#{rank} Reader",
+            })
+
+        return Response(data)

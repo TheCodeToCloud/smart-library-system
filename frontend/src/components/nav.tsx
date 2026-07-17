@@ -16,7 +16,7 @@ export default function Nav({ isOpen, setIsOpen }: NavProps) {
 
   {/* yo chai useState + array dis-structuring ho*/ }
   const [isActive, setIsActive] = useState("dashboard");
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
   const navigate = useNavigate();
 
 
@@ -93,30 +93,36 @@ export default function Nav({ isOpen, setIsOpen }: NavProps) {
                 Books
               </NavLink>
 
-              <NavLink to="/members" className={({ isActive }) => `w-full flex items-center gap-3 px-4 py-3 rounded-xl text-white ${isActive ? "bg-blue-500" : "hover:bg-black"}`}>
-                <img src="../img3.svg" alt="Members" />
-                Members
-              </NavLink>
+              {(user?.role === 'admin' || user?.role === 'librarian') && (
+                <NavLink to="/members" className={({ isActive }) => `w-full flex items-center gap-3 px-4 py-3 rounded-xl text-white ${isActive ? "bg-blue-500" : "hover:bg-black"}`}>
+                  <img src="../img3.svg" alt="Members" />
+                  Members
+                </NavLink>
+              )}
 
               <NavLink to="/Issue-Return" className={({ isActive }) => `w-full flex items-center gap-3 px-4 py-3 rounded-xl text-white ${isActive ? "bg-blue-500" : "hover:bg-black"}`}>
                 <img src="img6.svg" alt="return" />
                 Issue / Return
               </NavLink>
 
-              <NavLink to="/reports" className={({ isActive }) => `w-full flex items-center gap-3 px-4 py-3 rounded-xl text-white ${isActive ? "bg-blue-500" : "hover:bg-black"}`}>
-                <img src="report.svg" className="h-8 w-8" alt="report" />
-                Reports
-              </NavLink>
+              {(user?.role === 'admin' || user?.role === 'librarian') && (
+                <>
+                  <NavLink to="/reports" className={({ isActive }) => `w-full flex items-center gap-3 px-4 py-3 rounded-xl text-white ${isActive ? "bg-blue-500" : "hover:bg-black"}`}>
+                    <img src="report.svg" className="h-8 w-8" alt="report" />
+                    Reports
+                  </NavLink>
 
-              <NavLink to="/Fine Manager" className={({ isActive }) => `w-full flex items-center gap-3 px-4 py-3 rounded-xl text-white ${isActive ? "bg-blue-500" : "hover:bg-black"}`}>
-                <img src="fine.svg" className="h-8 w-8" alt="fine" />
-                Fine Manager
-              </NavLink>
+                  <NavLink to="/Fine Manager" className={({ isActive }) => `w-full flex items-center gap-3 px-4 py-3 rounded-xl text-white ${isActive ? "bg-blue-500" : "hover:bg-black"}`}>
+                    <img src="fine.svg" className="h-8 w-8" alt="fine" />
+                    Fine Manager
+                  </NavLink>
 
-              <NavLink to="/settings" className={({ isActive }) => `w-full flex items-center gap-3 px-4 py-3 rounded-xl text-white ${isActive ? "bg-blue-500" : "hover:bg-black"}`}>
-                <img src="img4.svg" className="h-8 w-8" alt="settings" />
-                Settings
-              </NavLink>
+                  <NavLink to="/settings" className={({ isActive }) => `w-full flex items-center gap-3 px-4 py-3 rounded-xl text-white ${isActive ? "bg-blue-500" : "hover:bg-black"}`}>
+                    <img src="img4.svg" className="h-8 w-8" alt="settings" />
+                    Settings
+                  </NavLink>
+                </>
+              )}
             </nav>
           </div>
 
