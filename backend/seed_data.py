@@ -6,18 +6,30 @@ django.setup()
 from accounts.models import User
 from books.models import Book
 
-# Create admin superuser
-if not User.objects.filter(username='admin').exists():
-    import secrets
-    password = os.environ.get('ADMIN_DEFAULT_PASSWORD')
-    if not password:
-        password = secrets.token_urlsafe(12)
-        print(f'Admin created: admin@library.com / {password} (auto-generated)')
-    else:
-        print('Admin created: admin@library.com / [hidden from env]')
-    User.objects.create_superuser('admin', 'admin@library.com', password)
+# Create or update admin superuser
+password = os.environ.get('ADMIN_DEFAULT_PASSWORD', 'admin123')
+admin_user, created = User.objects.get_or_create(
+    username='admin',
+    defaults={'email': 'admin@library.com', 'role': 'admin', 'is_superuser': True, 'is_staff': True}
+)
+admin_user.set_password(password)
+admin_user.save()
+if created:
+    print(f'Admin created: admin@library.com / {password}')
 else:
-    print('Admin already exists')
+    print(f'Admin password reset to: {password}')
+
+# Create default librarian
+lib_user, lib_created = User.objects.get_or_create(
+    username='librarian',
+    defaults={'email': 'librarian@library.com', 'role': 'librarian', 'is_staff': True}
+)
+lib_user.set_password('librarian123')
+lib_user.save()
+if lib_created:
+    print('Librarian created: librarian@library.com / librarian123')
+else:
+    print('Librarian password reset to: librarian123')
 
 # Add sample books
 books_data = [
