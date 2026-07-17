@@ -1,7 +1,8 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Plus, Download } from "lucide-react";
 import { useAuth } from "../../data/useAuth";
 import { useBooks } from "../../data/books";  // ← changed
+import { useSearchParams } from "react-router-dom";
 import BooksFilters from "./BooksFilters";
 import BooksTable from "./BooksTable";
 import BooksPagination from "./BooksPagination";
@@ -12,14 +13,22 @@ const ITEMS_PER_PAGE = 14;
 export default function Books() {
     const { user } = useAuth();
     const { books, loading, error, refreshBooks } = useBooks();  // ← changed
+    const [searchParams] = useSearchParams();
     const categories = useMemo(() => {
         return ["All Categories", ...Array.from(new Set(books.map((b) => b.category)))];
     }, [books]);
-    const [search, setSearch] = useState("");
+    const [search, setSearch] = useState(searchParams.get("q") || "");
     const [selectedCategory, setSelectedCategory] = useState("All Categories");
     const [selectedStatus, setSelectedStatus] = useState("All Status");
     const [currentPage, setCurrentPage] = useState(1);
     const [isModalOpen, setIsModalOpen] = useState(false);
+
+    // Sync search with URL param when it changes (e.g., nav search)
+    useEffect(() => {
+        const q = searchParams.get("q") || "";
+        setSearch(q);
+        setCurrentPage(1);
+    }, [searchParams]);
 
     const filtered = useMemo(() => {
         return books.filter((b) => {
