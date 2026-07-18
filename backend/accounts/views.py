@@ -48,7 +48,7 @@ class MemberListView(generics.ListAPIView):
     """Returns all users with full member details (including student profile)"""
     queryset = User.objects.select_related('student_profile').order_by('id')
     serializer_class = MemberSerializer
-    permission_classes = [IsAdmin]
+    permission_classes = [IsAdminOrLibrarian]
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
