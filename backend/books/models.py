@@ -51,6 +51,7 @@ class Book(models.Model):
 
             buffer = BytesIO()
             qr_img.save(buffer, format="PNG")
+            buffer.seek(0)
 
             self.qr_code.save(
                 f"book_{self.id}.png",
