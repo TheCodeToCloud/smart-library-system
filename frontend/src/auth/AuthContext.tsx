@@ -7,8 +7,7 @@ interface UserProfile {
     username: string;
     email: string;
     role: string;
-    first_name?: string;
-    last_name?: string;
+    full_name?: string;
     profile_picture?: string;
 }
 
@@ -18,6 +17,7 @@ interface AuthContextType {
     user: UserProfile | null;
     login: (token: string, refreshToken?: string) => void;
     logout: () => void;
+    fetchUser: () => Promise<void>;
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -70,6 +70,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 user,
                 login,
                 logout,
+                fetchUser,
             }}
         >
             {children}

@@ -1,6 +1,8 @@
 import { Fragment } from "react/jsx-runtime";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../auth/useAuth";
+import api from "../data/api";
 
 
 type NavProps = {
@@ -14,6 +16,32 @@ export default function Header({ isOpen, setIsOpen }: NavProps) {
     const [isShow, setIsShow] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
     const navigate = useNavigate();
+    const { user, fetchUser } = useAuth();
+    const fileInputRef = useRef<HTMLInputElement>(null);
+    const [isUploading, setIsUploading] = useState(false);
+
+    const handleProfilePicChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (!e.target.files || e.target.files.length === 0) return;
+        const file = e.target.files[0];
+        
+        setIsUploading(true);
+        const formData = new FormData();
+        formData.append('profile_picture', file);
+
+        try {
+            await api.post('/api/accounts/profile-picture/', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            });
+            await fetchUser(); // refresh user info
+        } catch (err) {
+            console.error("Failed to upload profile picture", err);
+            alert("Failed to upload profile picture.");
+        } finally {
+            setIsUploading(false);
+        }
+    };
 
     const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
         if (e.key === "Enter" && searchQuery.trim()) {
@@ -67,11 +95,33 @@ export default function Header({ isOpen, setIsOpen }: NavProps) {
                             </div>
                         )}
                     </div>
-                    <div className="flex cursor-pointer mt-2 hover:text-green-500 duration-[1.5s] items-center gap-2 bg-white px-3 mr-2 py-2 rounded-xl shadow-sm">
-                        <div className="w-8 h-8 md:w-10 md:h-10 bg-blue-200 rounded-full shrink-0">
-                            <img src="card.webp" alt="profile-2" className="rounded-full" />
+                    <div 
+                        className="flex cursor-pointer mt-2 hover:bg-gray-50 duration-300 items-center gap-2 bg-white px-3 mr-2 py-2 rounded-xl shadow-sm border border-gray-100"
+                        onClick={() => fileInputRef.current?.click()}
+                        title="Click to change profile picture"
+                    >
+                        <input 
+                            type="file" 
+                            ref={fileInputRef} 
+                            className="hidden" 
+                            accept="image/*"
+                            onChange={handleProfilePicChange}
+                        />
+                        <div className="w-8 h-8 md:w-10 md:h-10 bg-blue-100 rounded-full shrink-0 overflow-hidden relative border-2 border-green-500">
+                            <img 
+                                src={user?.profile_picture || "card.webp"} 
+                                alt="profile" 
+                                className={`w-full h-full object-cover ${isUploading ? 'opacity-50' : ''}`} 
+                            />
+                            {isUploading && (
+                                <div className="absolute inset-0 flex items-center justify-center bg-black/20">
+                                    <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                </div>
+                            )}
                         </div>
-                        <span className="font-nav2 font-semibold hidden md:block">Librarian</span>
+                        <span className="font-nav2 font-semibold hidden md:block capitalize text-gray-700">
+                            {user?.full_name || user?.username || "User"}
+                        </span>
                     </div>
                 </div>
             </header>

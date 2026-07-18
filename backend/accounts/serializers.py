@@ -68,20 +68,31 @@ class RegisterSerializer(serializers.ModelSerializer):
         return attrs
    
 class UserSerializer(serializers.ModelSerializer):
+    full_name = serializers.SerializerMethodField()
+    profile_picture = serializers.SerializerMethodField()
 
     class Meta:
         model = User
-        
         fields = (
             'id',
             'username',
             'email',
-            'role'
+            'role',
+            'full_name',
+            'profile_picture',
         )
-
         read_only_fields = (
             'id',
         )
+
+    def get_full_name(self, obj):
+        return obj.full_name
+
+    def get_profile_picture(self, obj):
+        request = self.context.get('request')
+        if obj.profile_picture and request:
+            return request.build_absolute_uri(obj.profile_picture.url)
+        return None
 
 class MemberSerializer(serializers.ModelSerializer):
     """Serializer for member list — includes student profile fields"""

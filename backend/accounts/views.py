@@ -11,6 +11,7 @@ from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.parsers import MultiPartParser, FormParser
 
 
 
@@ -173,3 +174,19 @@ class KYCRejectView(APIView):
         profile.kyc_status = 'rejected'
         profile.save()
         return Response({"message": f"KYC rejected for {profile.user.username}."})
+
+class UploadProfilePictureView(APIView):
+    """Allow authenticated users to upload/update their profile picture"""
+    permission_classes = [IsAuthenticated]
+    parser_classes = [MultiPartParser, FormParser]
+
+    def post(self, request):
+        if 'profile_picture' not in request.FILES:
+            return Response({"error": "No file uploaded."}, status=status.HTTP_400_BAD_REQUEST)
+        
+        user = request.user
+        user.profile_picture = request.FILES['profile_picture']
+        user.save()
+        
+        serializer = UserSerializer(user, context={'request': request})
+        return Response(serializer.data, status=status.HTTP_200_OK)
