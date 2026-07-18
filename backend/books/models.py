@@ -25,8 +25,13 @@ class Book(models.Model):
 
     available_copies = models.IntegerField()
     
-    # Book cover image
+    # Book cover image — can be either a URL or uploaded file (stored in Cloudinary)
     cover_image = models.URLField(blank=True, null=True)
+    cover_image_file = models.ImageField(
+        upload_to='book_covers/',
+        blank=True,
+        null=True
+    )
 
     created_at = models.DateField(auto_now_add=True)
 

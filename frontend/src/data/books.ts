@@ -10,7 +10,9 @@ export type Book = {
     isbn: string;
     total_copies: number;
     available_copies: number;
-    cover_image: string;
+    cover_image: string | null;
+    cover_image_file: string | null;
+    best_cover: string | null;  // uploaded file URL > plain URL
     created_at: string;
     qr_code: string;
     // Keep these for UI compatibility

@@ -4,9 +4,7 @@ import { RecommendedBooks, TrendingBooks } from "./SmartInsights";
 export default function Dashboard() {
     const { user } = useAuth();
 
-    const displayName = user?.first_name
-        ? `${user.first_name}${user.last_name ? " " + user.last_name : ""}`
-        : user?.username ?? "there";
+    const displayName = user?.full_name || user?.username || "there";
 
     const subtitle =
         user?.role === "student"

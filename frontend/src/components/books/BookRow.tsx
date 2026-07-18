@@ -64,7 +64,7 @@ export default function BookRow({ book, index }: Props) {
             <td className="px-4 py-3">
                 <div className="flex items-center gap-3">
                     <img
-                        src={book.cover_image}
+                        src={book.best_cover || book.cover_image || "https://placehold.co/36x48?text=📚"}
                         alt={book.title}
                         loading="lazy"
                         className="w-9 h-12 object-cover rounded shadow-sm flex-shrink-0 bg-gray-100"
