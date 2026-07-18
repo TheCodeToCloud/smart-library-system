@@ -29,11 +29,7 @@ export default function Header({ isOpen, setIsOpen }: NavProps) {
         formData.append('profile_picture', file);
 
         try {
-            await api.post('/api/accounts/profile-picture/', formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data'
-                }
-            });
+            await api.post('/api/accounts/profile-picture/', formData);
             await fetchUser(); // refresh user info
         } catch (err) {
             console.error("Failed to upload profile picture", err);
