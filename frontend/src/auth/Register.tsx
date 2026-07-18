@@ -67,7 +67,16 @@ export default function Register() {
       navigate("/login", { replace: true });
     } catch (err: any) {
       console.error(err);
-      alert(err.response?.data?.error || "Registration failed");
+      let errorMsg = "Registration failed";
+      if (err.response?.data) {
+        if (err.response.data.error) {
+          errorMsg = err.response.data.error;
+        } else {
+          // Handle DRF serializer errors which are usually objects: { username: ["Already exists"] }
+          errorMsg = Object.values(err.response.data).flat().join('\n');
+        }
+      }
+      alert(errorMsg);
     } finally {
       setLoading(false);
     }
@@ -132,7 +141,15 @@ export default function Register() {
               </div>
               <div>
                 <label className={labelClass}>Department</label>
-                <input type="text" name="department" value={form.department} onChange={handleChange} required className={inputClass} placeholder="Computer Science" />
+                <select name="department" value={form.department} onChange={handleChange as any} required className={inputClass}>
+                  <option value="" disabled>Select a department</option>
+                  <option value="Computer Science">Computer Science</option>
+                  <option value="Electrical Engineering">Electrical Engineering</option>
+                  <option value="Civil Engineering">Civil Engineering</option>
+                  <option value="Mechanical Engineering">Mechanical Engineering</option>
+                  <option value="Business Administration">Business Administration</option>
+                  <option value="Information Technology">Information Technology</option>
+                </select>
               </div>
               <div className="md:col-span-2">
                 <label className={labelClass}>ID Proof (Image/PDF)</label>
