@@ -31,9 +31,10 @@ export default function Header({ isOpen, setIsOpen }: NavProps) {
         try {
             await api.post('/api/accounts/profile-picture/', formData);
             await fetchUser(); // refresh user info
-        } catch (err) {
+        } catch (err: any) {
             console.error("Failed to upload profile picture", err);
-            alert("Failed to upload profile picture.");
+            const backendError = err.response?.data?.error || err.message;
+            alert(`Upload Failed: ${backendError}`);
         } finally {
             setIsUploading(false);
         }

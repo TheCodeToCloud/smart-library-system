@@ -184,9 +184,15 @@ class UploadProfilePictureView(APIView):
         if 'profile_picture' not in request.FILES:
             return Response({"error": "No file uploaded."}, status=status.HTTP_400_BAD_REQUEST)
         
-        user = request.user
-        user.profile_picture = request.FILES['profile_picture']
-        user.save()
-        
-        serializer = UserSerializer(user, context={'request': request})
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        try:
+            user = request.user
+            user.profile_picture = request.FILES['profile_picture']
+            user.save()
+            
+            serializer = UserSerializer(user, context={'request': request})
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except Exception as e:
+            import traceback
+            error_msg = str(e) + "\n" + traceback.format_exc()
+            print("CLOUDINARY UPLOAD ERROR:", error_msg)
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
