@@ -18,6 +18,7 @@ interface AuthContextType {
     login: (token: string, refreshToken?: string) => void;
     logout: () => void;
     fetchUser: () => Promise<void>;
+    setUser: React.Dispatch<React.SetStateAction<UserProfile | null>>;
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -71,6 +72,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 login,
                 logout,
                 fetchUser,
+                setUser,
             }}
         >
             {children}

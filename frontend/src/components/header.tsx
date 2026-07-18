@@ -16,7 +16,7 @@ export default function Header({ isOpen, setIsOpen }: NavProps) {
     const [isShow, setIsShow] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
     const navigate = useNavigate();
-    const { user, fetchUser } = useAuth();
+    const { user, setUser } = useAuth();
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [isUploading, setIsUploading] = useState(false);
 
@@ -30,8 +30,12 @@ export default function Header({ isOpen, setIsOpen }: NavProps) {
 
         try {
             const res = await api.post('/api/accounts/profile-picture/', formData);
-            await fetchUser(); // refresh user info
-            alert("Upload Successful! New Image URL: " + res.data.profile_picture);
+            // Append timestamp to force browser to reload the image, bypassing cache
+            const newImageUrl = res.data.profile_picture + "?t=" + new Date().getTime();
+            
+            if (user) {
+                setUser({ ...user, profile_picture: newImageUrl });
+            }
         } catch (err: any) {
             console.error("Failed to upload profile picture", err);
             const backendError = err.response?.data?.error || err.message;
