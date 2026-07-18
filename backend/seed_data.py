@@ -6,18 +6,13 @@ django.setup()
 from accounts.models import User
 from books.models import Book
 
-# Create or update admin superuser
-password = os.environ.get('ADMIN_DEFAULT_PASSWORD', 'admin123')
-admin_user, created = User.objects.get_or_create(
-    username='admin',
-    defaults={'email': 'admin@library.com', 'role': 'admin', 'is_superuser': True, 'is_staff': True}
-)
-admin_user.set_password(password)
-admin_user.save()
-if created:
-    print(f'Admin created: admin@library.com / {password}')
-else:
-    print(f'Admin password reset to: {password}')
+# Ensure admin user is deleted (as requested by user)
+try:
+    admin_to_delete = User.objects.get(username='admin')
+    admin_to_delete.delete()
+    print('Admin user deleted successfully.')
+except User.DoesNotExist:
+    pass
 
 # Create default librarian
 lib_user, lib_created = User.objects.get_or_create(
