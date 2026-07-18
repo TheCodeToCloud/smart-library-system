@@ -1,7 +1,7 @@
 import { Fragment } from "react/jsx-runtime";
 import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "../auth/useAuth";
+import { useAuth } from "../data/useAuth";
 import api from "../data/api";
 
 
