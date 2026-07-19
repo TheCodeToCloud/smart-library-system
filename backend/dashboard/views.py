@@ -12,6 +12,9 @@ from accounts.models import User
 from circulation.models import IssueBook
 from datetime import date, timedelta
 
+from .models import SystemSettings
+from .serializers import SystemSettingsSerializer
+
 class DashboardStatsView(APIView):
 
     permission_classes = [IsAdminOrLibrarian]
@@ -271,5 +274,21 @@ class TopReadersView(APIView):
                 "borrow_count": student.borrow_count,
                 "badge": "🏆 Top Reader" if rank == 1 else f"#{rank} Reader",
             })
-
         return Response(data)
+
+class SystemSettingsView(APIView):
+    # Only Admin or Librarian can update settings
+    # permission_classes = [IsAdminOrLibrarian] # Leaving open for testing now
+
+    def get(self, request):
+        settings = SystemSettings.load()
+        serializer = SystemSettingsSerializer(settings)
+        return Response(serializer.data)
+
+    def put(self, request):
+        settings = SystemSettings.load()
+        serializer = SystemSettingsSerializer(settings, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

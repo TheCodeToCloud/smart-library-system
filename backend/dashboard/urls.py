@@ -1,6 +1,7 @@
 from django.urls import path
 from .views import (CategoryDistributionView, DashboardStatsView, IssueReturnChartView,
-                    NotificationsView, PopularBooksView, RecentIssuesView, TopReadersView)
+                    NotificationsView, PopularBooksView, RecentIssuesView, TopReadersView,
+                    SystemSettingsView)
 
 urlpatterns = [
     path('stats/', DashboardStatsView.as_view(), name='dashboard-stats'),
@@ -10,4 +11,5 @@ urlpatterns = [
     path('category-distribution/', CategoryDistributionView.as_view()),
     path('issue-return-chart/', IssueReturnChartView.as_view()),
     path('top-readers/', TopReadersView.as_view(), name='top-readers'),
+    path('settings/', SystemSettingsView.as_view(), name='system-settings'),
 ]
