@@ -13,6 +13,7 @@ urlpatterns = [
     path('api/books/',include('books.urls')),
     path('api/circulation/', include('circulation.urls')),
     path('api/dashboard/', include('dashboard.urls')),
+    path('api/reports/', include('reports.urls')),
      # Login
     path("api/login/",LoginView.as_view(),name="login"),
     # path('api/login/',TokenObtainPairView.as_view(),name='token_obtain_pair'),

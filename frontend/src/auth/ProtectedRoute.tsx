@@ -8,16 +8,17 @@ interface ProtectedRouteProps {
 export function ProtectedRoute({ allowedRoles }: ProtectedRouteProps) {
     const { isAuthenticated, isLoading, user } = useAuth();
 
-    if (!isAuthenticated) {
-        return <Navigate to="/login" replace />;
-    }
-
+    // Wait for auth to resolve before making routing decisions
     if (isLoading) {
         return (
             <div className="h-screen w-full flex items-center justify-center">
                 <p className="text-gray-500 font-semibold animate-pulse">Loading...</p>
             </div>
         );
+    }
+
+    if (!isAuthenticated) {
+        return <Navigate to="/login" replace />;
     }
 
     if (allowedRoles && user && !allowedRoles.includes(user.role)) {

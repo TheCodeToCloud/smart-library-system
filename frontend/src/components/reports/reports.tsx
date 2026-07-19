@@ -7,11 +7,10 @@ import {
 } from "lucide-react";
 import StatsCards from "../StatsCards";
 
-import {
-    reports,
-} from "../../data/reports";
+import { useReports } from "../../data/reportsAPI";
+import AddReportModal from "./AddReportModal";
 
-const statuses = ["All Status", "Available", "Issued", "Overdue"];
+const statuses = ["All Status", "Completed", "Failed"];
 
 type Props = {
     search: string;
@@ -32,8 +31,15 @@ export default function Reports({
     onStatus,
     categories,  // ← added
 }: Props) {
+    const { data: reports, loading, refresh } = useReports();
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
     const filteredReports = reports.filter(r => {
         if (selectedCategory !== "All Categories" && r.type !== selectedCategory) return false;
+        if (selectedStatus !== "All Status" && r.status !== selectedStatus) return false;
+        if (search && !r.name.toLowerCase().includes(search.toLowerCase())) return false;
+        return true;
+    });
         if (search && !r.name.toLowerCase().includes(search.toLowerCase())) return false;
         return true;
     });
@@ -52,13 +58,27 @@ export default function Reports({
         const url = URL.createObjectURL(blob);
         const link = document.createElement("a");
         link.setAttribute("href", url);
-        link.setAttribute("download", `reports_export_${new Date().toISOString().split('T')[0]}.csv`);
+        link.setAttribute("download", `reports_metadata_export_${new Date().toISOString().split('T')[0]}.csv`);
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
     };
+
+    const handleDownloadReport = (fileUrl: string | null) => {
+        if (!fileUrl) {
+            alert("No file available for this report.");
+            return;
+        }
+        window.open(fileUrl, "_blank");
+    };
+
     return (
         <div className="p-6 bg-slate-50 min-h-screen">
+            <AddReportModal 
+                isOpen={isModalOpen} 
+                onClose={() => setIsModalOpen(false)} 
+                onSuccess={refresh}
+            />
             {/* Header */}
 
             <div className="flex items-center justify-between">
@@ -75,7 +95,7 @@ export default function Reports({
                 <div className="flex items-center justify-between mt-3">
                     <div className="flex gap-2">
                         <button 
-                            onClick={() => alert("Report generation engine will be available in the next backend update!")}
+                            onClick={() => setIsModalOpen(true)}
                             className="flex items-center gap-1.5 bg-violet-600 hover:bg-violet-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors shadow-lg"
                         >
                             <Plus size={16} />
@@ -152,50 +172,56 @@ export default function Reports({
                     </thead>
 
                     <tbody>
-                        {filteredReports.map((report) => (
-                            <tr
-                                key={report.id}
-                                className="border-b border-gray-100 hover:bg-gray-50"
-                            >
-                                <td className="p-4 text-sm text-gray-500">{report.id}</td>
+                        {loading ? (
+                            <tr><td colSpan={8} className="text-center p-8 text-gray-500">Loading reports...</td></tr>
+                        ) : filteredReports.length === 0 ? (
+                            <tr><td colSpan={8} className="text-center p-8 text-gray-500">No reports found.</td></tr>
+                        ) : (
+                            filteredReports.map((report, idx) => (
+                                <tr
+                                    key={report.id}
+                                    className="border-b border-gray-100 hover:bg-gray-50"
+                                >
+                                    <td className="p-4 text-sm text-gray-500">{idx + 1}</td>
 
-                                <td className="p-4 font-medium text-sm">
-                                    {report.name}
-                                </td>
+                                    <td className="p-4 font-medium text-sm">
+                                        {report.name}
+                                    </td>
 
-                                <td className="p-4 text-sm text-gray-600">{report.type}</td>
+                                    <td className="p-4 text-sm text-gray-600">{report.type}</td>
 
-                                <td className="p-4 text-sm text-gray-600">
-                                    {report.dateRange}
-                                </td>
+                                    <td className="p-4 text-sm text-gray-600">
+                                        {report.dateRange}
+                                    </td>
 
-                                <td className="p-4 text-sm text-gray-600">
-                                    {report.generatedOn}
-                                </td>
+                                    <td className="p-4 text-sm text-gray-600">
+                                        {report.generatedOn}
+                                    </td>
 
-                                <td className="p-4 text-sm text-gray-600;">
-                                    {report.generatedBy}
-                                </td>
+                                    <td className="p-4 text-sm text-gray-600">
+                                        {report.generatedBy}
+                                    </td>
 
-                                <td className="p-4">
-                                    <span className="px-3 py-1 text-xs rounded-full bg-green-100 text-green-600 font-medium">
-                                        {report.status}
-                                    </span>
-                                </td>
+                                    <td className="p-4">
+                                        <span className={`px-3 py-1 text-xs rounded-full font-medium ${report.status === "Completed" ? "bg-green-100 text-green-600" : "bg-red-100 text-red-600"}`}>
+                                            {report.status}
+                                        </span>
+                                    </td>
 
-                                <td className="p-4">
-                                    <div className="flex justify-center gap-2">
-                                        <button className="w-10 h-10 border rounded-lg flex items-center justify-center">
-                                            <Eye size={16} />
-                                        </button>
-
-                                        <button className="w-10 h-10 border rounded-lg flex items-center justify-center">
-                                            <Download size={16} />
-                                        </button>
-                                    </div>
-                                </td>
-                            </tr>
-                        ))}
+                                    <td className="p-4">
+                                        <div className="flex justify-center gap-2">
+                                            <button 
+                                                onClick={() => handleDownloadReport(report.file)}
+                                                className="w-10 h-10 border rounded-lg flex items-center justify-center hover:bg-gray-100 transition"
+                                                title="Download CSV"
+                                            >
+                                                <Download size={16} />
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))
+                        )}
                     </tbody>
                 </table>
             </div>

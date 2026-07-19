@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'circulation',
     'dashboard',
     'accounts',
+    'reports',
 ]
 
 GOOGLE_CLIENT_ID = (
