@@ -40,9 +40,6 @@ export default function Reports({
         if (search && !r.name.toLowerCase().includes(search.toLowerCase())) return false;
         return true;
     });
-        if (search && !r.name.toLowerCase().includes(search.toLowerCase())) return false;
-        return true;
-    });
 
     const handleExport = () => {
         if (filteredReports.length === 0) {
