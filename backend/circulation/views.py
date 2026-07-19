@@ -321,7 +321,9 @@ class DirectIssueView(generics.CreateAPIView):
         issue = IssueBook.objects.create(
             book=book,
             member=member,
-            status="issued"
+            status="issued",
+            issue_date=date.today(),
+            due_date=date.today() + timedelta(days=14)
         )
 
         # Reduce available copies
