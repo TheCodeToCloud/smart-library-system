@@ -30,7 +30,8 @@ class MeView(APIView):
     def get(self, request):
 
         serializer = UserSerializer(
-            request.user
+            request.user,
+            context={'request': request}
         )
 
         return Response(
