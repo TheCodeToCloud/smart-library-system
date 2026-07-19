@@ -1,8 +1,8 @@
 export const quickActions = [
-    { id: 1, label: "Add New Book", icon: "📚", color: "text-blue-500" },
-    { id: 2, label: "Add New Member", icon: "👥", color: "text-green-500" },
-    { id: 3, label: "Issue Book", icon: "📤", color: "text-purple-500" },
-    { id: 4, label: "Return Book", icon: "📥", color: "text-orange-500" },
+    { id: 1, label: "Add New Book", icon: "📚", color: "text-blue-500", path: "/books" },
+    { id: 2, label: "Add New Member", icon: "👥", color: "text-green-500", path: "/members" },
+    { id: 3, label: "Issue Book", icon: "📤", color: "text-purple-500", path: "/issue-return" },
+    { id: 4, label: "Return Book", icon: "📥", color: "text-orange-500", path: "/issue-return" },
 ];
 
 export const notifications = [
