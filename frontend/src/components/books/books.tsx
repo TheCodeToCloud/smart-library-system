@@ -62,6 +62,27 @@ export default function Books() {
     const handleCategory = (value: string) => { setSelectedCategory(value); setCurrentPage(1); };
     const handleStatus = (value: string) => { setSelectedStatus(value); setCurrentPage(1); };
 
+    const handleExport = () => {
+        if (filtered.length === 0) {
+            alert("No books available to export.");
+            return;
+        }
+
+        const headers = ["ID,Title,Author,Category,ISBN,Total Copies,Available Copies,Added On"];
+        const rows = filtered.map(b => 
+            `"${b.id}","${b.title.replace(/"/g, '""')}","${b.author.replace(/"/g, '""')}","${b.category}","${b.isbn}","${b.total_copies}","${b.available_copies}","${b.created_at}"`
+        );
+        const csvContent = headers.concat(rows).join("\n");
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.setAttribute("href", url);
+        link.setAttribute("download", `books_export_${new Date().toISOString().split('T')[0]}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+
     if (loading) return <p className="p-6 text-gray-400">Loading books...</p>;
     if (error) return <p className="p-6 text-red-500">Error: {error}</p>;
 
@@ -79,7 +100,7 @@ export default function Books() {
                             Add New Book
                         </button>
                     )}
-                    <button className="flex items-center gap-1.5 border border-gray-200 bg-white hover:bg-gray-50 text-gray-600 text-sm font-medium px-4 py-2 rounded-lg transition-colors shadow-sm">
+                    <button onClick={handleExport} className="flex items-center gap-1.5 border border-gray-200 bg-white hover:bg-gray-50 text-gray-600 text-sm font-medium px-4 py-2 rounded-lg transition-colors shadow-sm">
                         <Download size={16} />
                         Export
                     </button>
