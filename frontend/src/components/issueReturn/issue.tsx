@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import {
     useIssuedBooks,
     usePendingRequests,
@@ -215,10 +215,13 @@ function AdminIssueView() {
         document.body.removeChild(link);
     };
 
-    // Clear search params after reading them once so they don't stick around unnecessarily
-    if (searchParams.has("action") || searchParams.has("tab")) {
-        setSearchParams({});
-    }
+    // Clear search params after reading them once to avoid stale URLs
+    useEffect(() => {
+        if (searchParams.has("action") || searchParams.has("tab")) {
+            setSearchParams({});
+        }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     const refreshAll = () => {
         issued.refresh();
