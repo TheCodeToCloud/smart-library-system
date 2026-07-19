@@ -39,7 +39,14 @@ function makeHook(endpoint: string) {
             setLoading(true);
             setError(null);
             api.get(endpoint)
-                .then((res) => setData(res.data))
+                .then((res) => {
+                    if (Array.isArray(res.data)) {
+                        setData(res.data);
+                    } else {
+                        console.error(`Expected array from ${endpoint} but got:`, res.data);
+                        setData([]);
+                    }
+                })
                 .catch((err) => setError(err.message))
                 .finally(() => setLoading(false));
         }, []);

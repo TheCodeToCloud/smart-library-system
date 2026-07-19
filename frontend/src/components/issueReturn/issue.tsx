@@ -253,9 +253,9 @@ function AdminIssueView() {
         if (!search) return source;
         const q = search.toLowerCase();
         return source.filter(r =>
-            (r.member.full_name || r.member.username).toLowerCase().includes(q) ||
-            r.book.title.toLowerCase().includes(q) ||
-            r.member.email.toLowerCase().includes(q)
+            (r?.member?.full_name || r?.member?.username || "")?.toLowerCase().includes(q) ||
+            (r?.book?.title || "")?.toLowerCase().includes(q) ||
+            (r?.member?.email || "")?.toLowerCase().includes(q)
         );
     }, [activeTab, search, allRecords, issued.data, pending.data, overdue.data, returnedRecords]);
 
