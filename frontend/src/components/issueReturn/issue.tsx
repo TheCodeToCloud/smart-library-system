@@ -10,6 +10,7 @@ import {
     type IssueBookRecord,
 } from "../../data/circulation";
 import { useAuth } from "../../data/useAuth";
+import { useSearchParams } from "react-router-dom";
 import IssueBookModal from "./IssueBookModal";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -184,10 +185,16 @@ function AdminIssueView() {
     const issued   = useIssuedBooks();
     const pending  = usePendingRequests();
     const overdue  = useOverdueBooks();
+    const [searchParams, setSearchParams] = useSearchParams();
 
-    const [activeTab, setActiveTab] = useState(TAB_ALL);
+    const [activeTab, setActiveTab] = useState(searchParams.get("tab") || TAB_ALL);
     const [search, setSearch] = useState("");
-    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isModalOpen, setIsModalOpen] = useState(searchParams.get("action") === "issue");
+
+    // Clear search params after reading them once so they don't stick around unnecessarily
+    if (searchParams.has("action") || searchParams.has("tab")) {
+        setSearchParams({});
+    }
 
     const refreshAll = () => {
         issued.refresh();

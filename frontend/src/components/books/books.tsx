@@ -13,7 +13,7 @@ const ITEMS_PER_PAGE = 14;
 export default function Books() {
     const { user } = useAuth();
     const { books, loading, error, refreshBooks } = useBooks();  // ← changed
-    const [searchParams] = useSearchParams();
+    const [searchParams, setSearchParams] = useSearchParams();
     const categories = useMemo(() => {
         return ["All Categories", ...Array.from(new Set(books.map((b) => b.category)))];
     }, [books]);
@@ -21,7 +21,17 @@ export default function Books() {
     const [selectedCategory, setSelectedCategory] = useState("All Categories");
     const [selectedStatus, setSelectedStatus] = useState("All Status");
     const [currentPage, setCurrentPage] = useState(1);
-    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isModalOpen, setIsModalOpen] = useState(searchParams.get("action") === "add");
+
+    // Clear search params after reading action so it doesn't stick around unnecessarily
+    useEffect(() => {
+        if (searchParams.has("action")) {
+            const newParams = new URLSearchParams(searchParams);
+            newParams.delete("action");
+            // @ts-ignore
+            setSearchParams(newParams);
+        }
+    }, [searchParams, setSearchParams]);
 
     // Sync search with URL param when it changes (e.g., nav search)
     useEffect(() => {
