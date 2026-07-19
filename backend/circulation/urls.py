@@ -3,7 +3,7 @@ from django.urls import path
 from .views import (BorrowRequestView, IssuedBooksView, MyBorrowHistoryView, OverdueBooksView,
                     PendingBorrowRequestView, RecentTransactionsView, ReturnBookView, SendReminderView,
                     ApproveBorrowRequestView, RejectBorrowRequestView, DirectIssueView, StudentStatsView,
-                    AllFinesView, MyFinesView, PayFineView, WaiveFineView, RecommendationsView)
+                    AllFinesView, MyFinesView, PayFineView, WaiveFineView, RecommendationsView, DebugBackdateView)
 
 urlpatterns = [
     # Borrow / Approve / Reject / Return
@@ -30,4 +30,7 @@ urlpatterns = [
     path('my-fines/',                   MyFinesView.as_view(),               name='my-fines'),
     path('pay-fine/<int:issue_id>/',    PayFineView.as_view(),               name='pay-fine'),
     path('waive-fine/<int:issue_id>/',  WaiveFineView.as_view(),             name='waive-fine'),
+    
+    # Debug
+    path('debug-backdate/',             DebugBackdateView.as_view(),         name='debug-backdate'),
 ]

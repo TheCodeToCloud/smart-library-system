@@ -539,6 +539,25 @@ class WaiveFineView(APIView):
         issue.save()
         return Response({"message": "Fine waived."})
 
+class DebugBackdateView(APIView):
+    """Temporary endpoint to backdate all issued books by 10 days for testing fines."""
+    def get(self, request):
+        from datetime import date, timedelta
+        issues = IssueBook.objects.filter(status='issued')
+        count = 0
+        for issue in issues:
+            # Make it 10 days overdue
+            issue.due_date = date.today() - timedelta(days=10)
+            if not issue.issue_date:
+                issue.issue_date = date.today() - timedelta(days=24)
+            issue.save()
+            count += 1
+        return Response({
+            "message": f"Success! {count} issued books have been backdated by 10 days.",
+            "instruction": "Now go to the main website, Return the book, and check the Fine Manager!"
+        })
+
+
 
 from .recommendations import get_smart_recommendations
 
