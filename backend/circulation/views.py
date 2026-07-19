@@ -286,14 +286,7 @@ class DirectIssueView(generics.CreateAPIView):
                 status=status.HTTP_404_NOT_FOUND
             )
 
-        # Only students can borrow books
-        if member.role != "student":
-            return Response(
-                {
-                    "error": "Books can only be issued to students."
-                },
-                status=status.HTTP_400_BAD_REQUEST
-            )
+        # Admins/Librarians/Students can all borrow books for testing
 
         # Book availability
         if book.available_copies <= 0:

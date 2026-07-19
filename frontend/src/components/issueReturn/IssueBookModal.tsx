@@ -118,7 +118,6 @@ export default function IssueBookModal({ isOpen, onClose, onSuccess }: IssueBook
                                 <select value={selectedMember} onChange={(e) => setSelectedMember(e.target.value)} className={inputCls} required>
                                     <option value="">Select a member</option>
                                     {(Array.isArray(members) ? members : [])
-                                        .filter((m) => m?.role === "student")
                                         .map((m) => (
                                             <option key={m?.id} value={m?.id}>
                                                 {m?.full_name || m?.username} — {m?.email}
