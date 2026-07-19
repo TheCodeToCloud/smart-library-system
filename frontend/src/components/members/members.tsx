@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useMembers, getAvatarColor, getInitialsFromName } from "../../data/members";
 import BooksPagination from "../books/BooksPagination";
 import api from "../../data/api";
+import AddMemberModal from "./AddMemberModal";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -25,6 +26,7 @@ export default function Members() {
     const [statusFilter, setStatusFilter] = useState("All Status");
     const [currentPage, setCurrentPage] = useState(1);
     const [busyId, setBusyId] = useState<number | null>(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     const filtered = members.filter(m => {
         const matchSearch =
@@ -47,6 +49,27 @@ export default function Members() {
 
     const handleSearch = (value: string) => { setSearch(value); setCurrentPage(1); };
     const handleStatus = (value: string) => { setStatusFilter(value); setCurrentPage(1); };
+
+    const handleExport = () => {
+        if (filtered.length === 0) {
+            alert("No members available to export.");
+            return;
+        }
+
+        const headers = ["ID,Name,Email,Phone,Department,Role,KYC Status,Joined On"];
+        const rows = filtered.map(m => 
+            `"${m.id}","${m.full_name || m.username}","${m.email}","${m.phone || ''}","${m.department || ''}","${m.role}","${m.kyc_status}","${m.date_joined || ''}"`
+        );
+        const csvContent = headers.concat(rows).join("\n");
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.setAttribute("href", url);
+        link.setAttribute("download", `members_export_${new Date().toISOString().split('T')[0]}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
 
     async function handleKYC(userId: number, action: "approve" | "reject") {
         if (!confirm(`${action === "approve" ? "Approve" : "Reject"} this student's KYC?`)) return;
@@ -74,10 +97,10 @@ export default function Members() {
                     <p className="text-sm text-gray-400">Manage and organize library members</p>
                 </div>
                 <div className="flex gap-3">
-                    <button className="flex items-center gap-2 bg-purple-600 text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-purple-700">
+                    <button onClick={() => setIsModalOpen(true)} className="flex items-center gap-2 bg-purple-600 text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-purple-700">
                         + Add New Member
                     </button>
-                    <button className="flex items-center gap-2 border border-gray-300 px-4 py-2 rounded-xl text-sm font-semibold hover:bg-gray-50">
+                    <button onClick={handleExport} className="flex items-center gap-2 border border-gray-300 px-4 py-2 rounded-xl text-sm font-semibold hover:bg-gray-50">
                         ↓ Export
                     </button>
                 </div>
@@ -215,6 +238,12 @@ export default function Members() {
                 totalItems={filtered.length}
                 itemsPerPage={ITEMS_PER_PAGE}
                 onPageChange={setCurrentPage}
+            />
+
+            <AddMemberModal 
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                onSuccess={refreshMembers}
             />
         </div>
     );
