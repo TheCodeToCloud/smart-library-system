@@ -36,8 +36,9 @@ export default function IssueBookModal({ isOpen, onClose, onSuccess }: IssueBook
             .finally(() => setMembersLoading(false));
     }, [isOpen]);
 
-    if (!isOpen) return null;
+    const [isScanning, setIsScanning] = useState(false);
 
+    if (!isOpen) return null;
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!selectedMember || !selectedBook) {
@@ -62,7 +63,7 @@ export default function IssueBookModal({ isOpen, onClose, onSuccess }: IssueBook
         }
     };
 
-    const [isScanning, setIsScanning] = useState(false);
+
 
     const handleScan = async (text: string) => {
         setIsScanning(false);
