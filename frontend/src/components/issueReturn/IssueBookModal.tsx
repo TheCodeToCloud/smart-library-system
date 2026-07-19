@@ -116,11 +116,11 @@ export default function IssueBookModal({ isOpen, onClose, onSuccess }: IssueBook
                             ) : (
                                 <select value={selectedMember} onChange={(e) => setSelectedMember(e.target.value)} className={inputCls} required>
                                     <option value="">Select a member</option>
-                                    {members
-                                        .filter((m) => m.role === "student")
+                                    {(Array.isArray(members) ? members : [])
+                                        .filter((m) => m?.role === "student")
                                         .map((m) => (
-                                            <option key={m.id} value={m.id}>
-                                                {m.full_name || m.username} — {m.email}
+                                            <option key={m?.id} value={m?.id}>
+                                                {m?.full_name || m?.username} — {m?.email}
                                             </option>
                                         ))}
                                 </select>
@@ -139,11 +139,11 @@ export default function IssueBookModal({ isOpen, onClose, onSuccess }: IssueBook
                             ) : (
                                 <select value={selectedBook} onChange={(e) => setSelectedBook(e.target.value)} className={inputCls} required>
                                     <option value="">Select a book</option>
-                                    {books
-                                        .filter((b) => b.available_copies > 0 || b.id.toString() === selectedBook) // Keep visible if selected
+                                    {(Array.isArray(books) ? books : [])
+                                        .filter((b) => b?.available_copies > 0 || (b?.id && b.id.toString() === selectedBook)) // Keep visible if selected
                                         .map((b) => (
-                                            <option key={b.id} value={b.id}>
-                                                {b.title} — {b.author} ({b.available_copies} left)
+                                            <option key={b?.id} value={b?.id}>
+                                                {b?.title} — {b?.author} ({b?.available_copies} left)
                                             </option>
                                         ))}
                                 </select>
