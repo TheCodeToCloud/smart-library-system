@@ -4,6 +4,7 @@ import BooksPagination from "../books/BooksPagination";
 import api from "../../data/api";
 import AddMemberModal from "./AddMemberModal";
 import { toast } from "react-toastify";
+import ConfirmModal from "../ConfirmModal";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -28,6 +29,7 @@ export default function Members() {
     const [currentPage, setCurrentPage] = useState(1);
     const [busyId, setBusyId] = useState<number | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [confirmAction, setConfirmAction] = useState<{userId: number, action: "approve" | "reject"} | null>(null);
 
     const filtered = members.filter(m => {
         const matchSearch =
@@ -72,8 +74,10 @@ export default function Members() {
         document.body.removeChild(link);
     };
 
-    async function handleKYC(userId: number, action: "approve" | "reject") {
-        if (!confirm(`${action === "approve" ? "Approve" : "Reject"} this student's KYC?`)) return;
+    const executeKYCAction = async () => {
+        if (!confirmAction) return;
+        const { userId, action } = confirmAction;
+        setConfirmAction(null); // Close modal
         setBusyId(userId);
         try {
             await api.post(`/api/accounts/kyc/${userId}/${action}/`);
@@ -84,6 +88,10 @@ export default function Members() {
         } finally {
             setBusyId(null);
         }
+    };
+
+    function handleKYC(userId: number, action: "approve" | "reject") {
+        setConfirmAction({ userId, action });
     }
 
     if (loading) return <p className="p-5 text-gray-400">Loading members...</p>;
@@ -246,6 +254,13 @@ export default function Members() {
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
                 onSuccess={refreshMembers}
+            />
+
+            <ConfirmModal
+                isOpen={confirmAction !== null}
+                message={`Are you sure you want to ${confirmAction?.action === "approve" ? "approve" : "reject"} this student's KYC?`}
+                onConfirm={executeKYCAction}
+                onCancel={() => setConfirmAction(null)}
             />
         </div>
     );

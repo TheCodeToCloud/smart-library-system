@@ -3,6 +3,7 @@ import { Download, Search, Filter } from "lucide-react";
 import { useFines, useMyFines, payFine, waiveFine, type FineRecord } from "../../data/fines";
 import { useAuth } from "../../data/useAuth";
 import { toast } from "react-toastify";
+import ConfirmModal from "../ConfirmModal";
 
 const statusStyles: Record<string, string> = {
     "unpaid": "bg-red-100 text-red-500",
@@ -45,14 +46,30 @@ function SummaryCard({ label, value, icon, iconBg }: { label: string; value: str
 
 function ActionButtons({ row, onDone }: { row: FineRecord; onDone: () => void }) {
     const [busy, setBusy] = useState(false);
+    const [confirmAction, setConfirmAction] = useState<{fn: () => Promise<any>, label: string} | null>(null);
 
-    async function act(fn: () => Promise<any>, label: string) {
-        if (!confirm(`${label}?`)) return;
+    const executeAction = async () => {
+        if (!confirmAction) return;
+        const { fn, label } = confirmAction;
+        setConfirmAction(null);
         setBusy(true);
         try { await fn(); onDone(); }
         catch (e: any) { toast.error(e.response?.data?.error || `${label} failed`); }
         finally { setBusy(false); }
+    };
+
+    function act(fn: () => Promise<any>, label: string) {
+        setConfirmAction({ fn, label });
     }
+
+    const modal = (
+        <ConfirmModal
+            isOpen={confirmAction !== null}
+            message={`Are you sure you want to ${confirmAction?.label?.toLowerCase()}?`}
+            onConfirm={executeAction}
+            onCancel={() => setConfirmAction(null)}
+        />
+    );
 
     if (row.fine_status === "unpaid") {
         return (
@@ -65,6 +82,7 @@ function ActionButtons({ row, onDone }: { row: FineRecord; onDone: () => void })
                     className="px-2 py-1 text-xs font-semibold bg-orange-100 text-orange-700 rounded-lg hover:bg-orange-200 disabled:opacity-50 transition">
                     Waive
                 </button>
+                {modal}
             </div>
         );
     }

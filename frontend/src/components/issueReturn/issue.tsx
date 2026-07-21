@@ -13,6 +13,7 @@ import { useAuth } from "../../data/useAuth";
 import { useSearchParams } from "react-router-dom";
 import IssueBookModal from "./IssueBookModal";
 import { toast } from "react-toastify";
+import ConfirmModal from "../ConfirmModal";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -48,14 +49,30 @@ function avatarColor(id: number) { return avatarColors[id % avatarColors.length]
 
 function ActionButtons({ row, onDone }: { row: IssueBookRecord; onDone: () => void }) {
     const [busy, setBusy] = useState(false);
+    const [confirmAction, setConfirmAction] = useState<{fn: () => Promise<any>, label: string} | null>(null);
 
-    async function act(fn: () => Promise<any>, label: string) {
-        if (!confirm(`${label}?`)) return;
+    const executeAction = async () => {
+        if (!confirmAction) return;
+        const { fn, label } = confirmAction;
+        setConfirmAction(null);
         setBusy(true);
         try { await fn(); onDone(); }
         catch (e: any) { toast.error(e.response?.data?.error || `${label} failed`); }
         finally { setBusy(false); }
+    };
+
+    function act(fn: () => Promise<any>, label: string) {
+        setConfirmAction({ fn, label });
     }
+
+    const modal = (
+        <ConfirmModal
+            isOpen={confirmAction !== null}
+            message={`Are you sure you want to ${confirmAction?.label?.toLowerCase()}?`}
+            onConfirm={executeAction}
+            onCancel={() => setConfirmAction(null)}
+        />
+    );
 
     if (row.status === "pending") return (
         <div className="flex gap-1">
@@ -67,14 +84,18 @@ function ActionButtons({ row, onDone }: { row: IssueBookRecord; onDone: () => vo
                 className="px-2 py-1 text-xs font-semibold bg-red-100 text-red-600 rounded-lg hover:bg-red-200 disabled:opacity-50 transition">
                 ✗ Reject
             </button>
+            {modal}
         </div>
     );
 
-    if (row.status === "issued") return (
-        <button disabled={busy} onClick={() => act(() => returnBook(row.id), "Mark this book as returned")}
-            className="px-2 py-1 text-xs font-semibold bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 disabled:opacity-50 transition">
-            ↩ Return
-        </button>
+    if (row.status === "issued" || row.status === "overdue") return (
+        <div>
+            <button disabled={busy} onClick={() => act(() => returnBook(row.id), "Mark as Returned")}
+                className="px-2 py-1 text-xs font-semibold bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 disabled:opacity-50 transition">
+                ↩ Return
+            </button>
+            {modal}
+        </div>
     );
 
     return <span className="text-xs text-gray-400">—</span>;
