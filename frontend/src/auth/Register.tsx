@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../data/useAuth";
 import api from "../data/api";
 import { GoogleLogin } from "@react-oauth/google";
+import { toast } from "react-toastify";
 
 const UniLibraryLogo = () => (
   <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-16 h-16 mx-auto mb-4">
@@ -47,11 +48,11 @@ export default function Register() {
                   navigate("/", { replace: true });
                 } catch (error) {
                   console.error(error);
-                  alert("Google Registration Failed");
+                  toast.error("Google Registration Failed");
                 }
               }}
               onError={() => {
-                alert("Google Sign-In was cancelled or failed.");
+                toast.warning("Google Sign-In was cancelled or failed.");
               }}
               useOneTap
             />

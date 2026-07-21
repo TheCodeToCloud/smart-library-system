@@ -9,6 +9,7 @@ import BooksPagination from "./BooksPagination";
 import BookModal from "./BookModal";
 import SubmitKYCModal from "./SubmitKYCModal";
 import type { Book } from "../../data/books";
+import { toast } from "react-toastify";
 
 const ITEMS_PER_PAGE = 14;
 
@@ -67,7 +68,7 @@ export default function Books() {
 
     const handleExport = () => {
         if (filtered.length === 0) {
-            alert("No books available to export.");
+            toast.warning("No books available to export.");
             return;
         }
 

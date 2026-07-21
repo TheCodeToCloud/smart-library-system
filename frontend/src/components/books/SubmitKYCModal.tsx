@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { UploadCloud, CheckCircle2, UserCheck } from "lucide-react";
 import api from "../../data/api";
 import { useAuth } from "../../data/useAuth";
+import { toast } from "react-toastify";
 
 interface Props {
     isOpen: boolean;
@@ -58,7 +59,7 @@ export default function SubmitKYCModal({ isOpen, onClose }: Props) {
         e.preventDefault();
         
         if (!file) {
-            alert("Please upload your ID Card photo.");
+            toast.warning("Please upload your ID Card photo.");
             return;
         }
 
@@ -77,12 +78,12 @@ export default function SubmitKYCModal({ isOpen, onClose }: Props) {
                 }
             });
             
-            alert("KYC submitted successfully! Please wait for admin approval.");
-            await fetchUser(); // Refresh user state to update kyc_status
+            toast.success("KYC submitted successfully! Please wait for admin approval.");
+            await fetchUser();
             onClose();
         } catch (error: any) {
             console.error(error);
-            alert(error.response?.data?.error || "Failed to submit KYC");
+            toast.error(error.response?.data?.error || "Failed to submit KYC");
         } finally {
             setIsSubmitting(false);
         }

@@ -3,6 +3,7 @@ import type { Tab } from "../../data/Settingsdata";
 import { defaultGeneral, defaultLibraryInfo, defaultNotifications, defaultBackup } from "../../data/Settingsdata";
 import { useSettings } from "../../data/settingsAPI";
 import SettingsPanel from "./SettingsPanel";
+import { toast } from "react-toastify";
 import SettingsRightSidebar from "./SettingsRightSidebar";
 
 export default function Settings() {
@@ -82,11 +83,12 @@ export default function Settings() {
 
         try {
             await updateSettings(payload);
+            toast.success("Settings saved successfully!");
             setSaved(true);
             setTimeout(() => setSaved(false), 2500);
         } catch (err) {
             console.error("Failed to save settings", err);
-            alert("Failed to save settings.");
+            toast.error("Failed to save settings.");
         }
     };
 

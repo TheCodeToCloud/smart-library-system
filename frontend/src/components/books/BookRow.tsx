@@ -2,6 +2,7 @@ import { Eye, Pencil, Trash2, LibraryBig, QrCode } from "lucide-react";
 import type { Book } from "../../data/books";
 import { useAuth } from "../../data/useAuth";
 import api from "../../data/api";
+import { toast } from "react-toastify";
 
 // Derive status from available_copies since API has no status field
 function getStatus(book: Book): "Available" | "Issued" | "Overdue" {
@@ -41,14 +42,14 @@ export default function BookRow({ book, index, onKycRequired }: Props) {
     const handleBorrow = async () => {
         try {
             await api.post("/api/circulation/borrow/", { book: book.id });
-            alert("Book borrowed successfully!");
+            toast.success("Book borrowed successfully!");
         } catch (error: any) {
             console.error(error);
             const msg = error.response?.data?.error || "Failed to borrow book";
             if (msg.includes("not submitted") || msg.includes("rejected")) {
                 onKycRequired();
             } else {
-                alert(msg);
+                toast.error(msg);
             }
         }
     };
@@ -57,7 +58,7 @@ export default function BookRow({ book, index, onKycRequired }: Props) {
         if (book.qr_code) {
             window.open(book.qr_code, "_blank");
         } else {
-            alert("No QR code available for this book.");
+            toast.warning("No QR code available for this book.");
         }
     };
 

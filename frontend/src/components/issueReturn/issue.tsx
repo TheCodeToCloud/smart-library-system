@@ -12,6 +12,7 @@ import {
 import { useAuth } from "../../data/useAuth";
 import { useSearchParams } from "react-router-dom";
 import IssueBookModal from "./IssueBookModal";
+import { toast } from "react-toastify";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -52,7 +53,7 @@ function ActionButtons({ row, onDone }: { row: IssueBookRecord; onDone: () => vo
         if (!confirm(`${label}?`)) return;
         setBusy(true);
         try { await fn(); onDone(); }
-        catch (e: any) { alert(e.response?.data?.error || `${label} failed`); }
+        catch (e: any) { toast.error(e.response?.data?.error || `${label} failed`); }
         finally { setBusy(false); }
     }
 
@@ -187,7 +188,7 @@ function AdminIssueView() {
 
     const handleExport = () => {
         if (filtered.length === 0) {
-            alert("No records available to export.");
+            toast.warning("No records available to export.");
             return;
         }
 

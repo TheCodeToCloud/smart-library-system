@@ -3,6 +3,7 @@ import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../data/useAuth";
 import api from "../data/api";
+import { toast } from "react-toastify";
 
 type NavProps = {
     isOpen: boolean;
@@ -52,7 +53,7 @@ export default function Header({ isOpen, setIsOpen }: NavProps) {
             }
         } catch (err: any) {
             const backendError = err.response?.data?.error || err.message;
-            alert(`Upload Failed: ${backendError}`);
+            toast.error(`Upload Failed: ${backendError}`);
         } finally {
             setIsUploading(false);
         }

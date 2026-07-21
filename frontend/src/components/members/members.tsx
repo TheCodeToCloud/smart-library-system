@@ -3,6 +3,7 @@ import { useMembers, getAvatarColor, getInitialsFromName } from "../../data/memb
 import BooksPagination from "../books/BooksPagination";
 import api from "../../data/api";
 import AddMemberModal from "./AddMemberModal";
+import { toast } from "react-toastify";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -52,7 +53,7 @@ export default function Members() {
 
     const handleExport = () => {
         if (filtered.length === 0) {
-            alert("No members available to export.");
+            toast.warning("No members available to export.");
             return;
         }
 
@@ -76,9 +77,10 @@ export default function Members() {
         setBusyId(userId);
         try {
             await api.post(`/api/accounts/kyc/${userId}/${action}/`);
+            toast.success(`KYC ${action === "approve" ? "Approved" : "Rejected"} successfully!`);
             refreshMembers();
         } catch (e: any) {
-            alert(e.response?.data?.error || "KYC action failed.");
+            toast.error(e.response?.data?.error || "KYC action failed.");
         } finally {
             setBusyId(null);
         }

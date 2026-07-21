@@ -4,6 +4,7 @@ import { useAuth } from "../data/useAuth";
 import api from "../data/api";
 import axios from "axios";
 import { GoogleLogin } from "@react-oauth/google";
+import { toast } from "react-toastify";
 
 // ─── Icons ────────────────────────────────────────────────────────────────────
 
@@ -226,7 +227,7 @@ export default function Login() {
         console.error("Response:", err.response?.data);
       }
 
-      alert("Login failed");
+      toast.error("Login failed. Please check your email and password.");
     } finally {
       setLoading(false);
     }
@@ -424,11 +425,11 @@ export default function Login() {
 
                 } catch (error) {
                   console.error(error);
-                  alert("Google Login Failed");
+                  toast.error("Google Login Failed");
                 }
               }}
               onError={() => {
-                alert("Google Sign-In was cancelled or failed.");
+                toast.warning("Google Sign-In was cancelled or failed.");
               }}
             />
           </form>

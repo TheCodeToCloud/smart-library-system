@@ -2,6 +2,7 @@ import { useState, useMemo } from "react";
 import { Download, Search, Filter } from "lucide-react";
 import { useFines, useMyFines, payFine, waiveFine, type FineRecord } from "../../data/fines";
 import { useAuth } from "../../data/useAuth";
+import { toast } from "react-toastify";
 
 const statusStyles: Record<string, string> = {
     "unpaid": "bg-red-100 text-red-500",
@@ -49,7 +50,7 @@ function ActionButtons({ row, onDone }: { row: FineRecord; onDone: () => void })
         if (!confirm(`${label}?`)) return;
         setBusy(true);
         try { await fn(); onDone(); }
-        catch (e: any) { alert(e.response?.data?.error || `${label} failed`); }
+        catch (e: any) { toast.error(e.response?.data?.error || `${label} failed`); }
         finally { setBusy(false); }
     }
 
