@@ -101,7 +101,6 @@ function IssueTable({ rows, showActions, onDone }: {
                         <th className="text-left text-xs font-semibold text-gray-400 px-4 py-3">Issue Date</th>
                         <th className="text-left text-xs font-semibold text-gray-400 px-4 py-3">Due Date</th>
                         <th className="text-left text-xs font-semibold text-gray-400 px-4 py-3">Return Date</th>
-                        <th className="text-left text-xs font-semibold text-gray-400 px-4 py-3">Last Reminder</th>
                         <th className="text-left text-xs font-semibold text-gray-400 px-4 py-3">Fine</th>
                         <th className="text-left text-xs font-semibold text-gray-400 px-4 py-3">Status</th>
                         {showActions && <th className="text-left text-xs font-semibold text-gray-400 px-4 py-3">Actions</th>}
@@ -135,11 +134,6 @@ function IssueTable({ rows, showActions, onDone }: {
                             <td className="px-4 py-3 text-xs text-gray-500 whitespace-nowrap">{fmt(row.issue_date)}</td>
                             <td className="px-4 py-3 text-xs text-gray-500 whitespace-nowrap">{fmt(row.due_date)}</td>
                             <td className="px-4 py-3 text-xs text-gray-500 whitespace-nowrap">{fmt(row.return_date)}</td>
-
-                            {/* Last Reminder */}
-                            <td className="px-4 py-3 text-xs text-gray-500 whitespace-nowrap">
-                                {row.last_reminder_sent ? fmt(row.last_reminder_sent) : "—"}
-                            </td>
 
                             {/* Fine */}
                             <td className="px-4 py-3 text-xs font-semibold">
