@@ -54,7 +54,7 @@ INSTALLED_APPS = [
 ]
 
 GOOGLE_CLIENT_ID = (
-    "274837741563-556t85mhp13fms180r127o40htfmco2g.apps.googleusercontent.com"
+    "831719135953-mmsiph8rtv9vcguthctg66kf6gamfu81.apps.googleusercontent.com"
 )
 
 AUTH_USER_MODEL = 'accounts.User'
