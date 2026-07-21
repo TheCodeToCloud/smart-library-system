@@ -66,8 +66,7 @@ function AppLayout() {
         </div>
 
         <footer className="text-center text-xs text-gray-600 border-t border-gray-200 py-3 px-3">
-          © 2026 Uni_Library · Built by Yogesh gandu & his Super hero Team · All
-          rights reserved.
+          © 2026 Uni_Library Management System · All rights reserved.
         </footer>
       </div>
     </div>

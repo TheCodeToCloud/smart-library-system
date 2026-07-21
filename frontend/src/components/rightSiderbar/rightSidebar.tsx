@@ -1,9 +1,10 @@
-import { useAnnouncements, popularBooks } from "../../data/rightside";
+import { useAnnouncements, usePopularBooks } from "../../data/rightside";
 import MiniCalendar from "./miniCalendar";
 import { useState } from "react";
 
 export default function RightSidebar() {
     const { announcements, loading } = useAnnouncements();
+    const { books: popularBooks, loading: booksLoading } = usePopularBooks();
     const [editedItems, setEditedItems] = useState<Record<number, string>>({});
     const [editingId, setEditingId] = useState<number | null>(null);
     const [editText, setEditText] = useState("");
@@ -93,22 +94,30 @@ export default function RightSidebar() {
                     <button className="text-xs text-blue-500 hover:underline">View all</button>
                 </div>
                 <div className="flex flex-col gap-3">
-                    {popularBooks.map(book => (
-                        <div key={book.id} className="flex items-center gap-3">
-                            <img
-                                src={book.img}
-                                alt={book.title}
-                                className="w-10 h-14 object-cover rounded-md shrink-0 cursor-pointer"
-                            />
-                            <div className="flex-1 min-w-0">
-                                <p className="text-sm font-semibold text-gray-800 truncate">{book.title}</p>
-                                <p className="text-xs text-gray-400">{book.author}</p>
+                    {booksLoading ? (
+                        <p className="text-sm text-gray-400">Loading...</p>
+                    ) : popularBooks.length === 0 ? (
+                        <p className="text-sm text-gray-400">No books found.</p>
+                    ) : (
+                        popularBooks.map((book, idx) => (
+                            <div key={idx} className="flex items-center gap-3">
+                                <div className="w-10 h-14 bg-gray-100 rounded-md shrink-0 overflow-hidden flex items-center justify-center">
+                                    {book.cover_image ? (
+                                        <img src={book.cover_image} alt={book.title} className="w-full h-full object-cover" />
+                                    ) : (
+                                        <span className="text-2xl">📚</span>
+                                    )}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                    <p className="text-sm font-semibold text-gray-800 truncate">{book.title}</p>
+                                    <p className="text-xs text-gray-400">{book.author}</p>
+                                </div>
+                                <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full shrink-0">
+                                    {book.times_issued} Issues
+                                </span>
                             </div>
-                            <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full shrink-0">
-                                {book.copies} Copies
-                            </span>
-                        </div>
-                    ))}
+                        ))
+                    )}
                 </div>
             </div>
 

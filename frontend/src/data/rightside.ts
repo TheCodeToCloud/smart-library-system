@@ -21,15 +21,26 @@ const typeStyles: Record<string, { color: string; icon: string }> = {
     overdue: { color: "bg-red-50 border-red-200", icon: "⚠️" },
 };
 
-export const popularBooks = [
-    { id: 1, title: "The Alchemist", author: "Paulo Coelho", copies: 12, img: "https://m.media-amazon.com/images/S/compressed.photo.goodreads.com/books/1654371463i/18144590.jpg" },
-    { id: 2, title: "Atomic Habits", author: "James Clear", copies: 10, img: "https://prh.imgix.net/articles/atomichabits-1600x800-05.jpg" },
-    { id: 3, title: "Think and Grow Rich", author: "Napoleon Hill", copies: 8, img: "https://covers.openlibrary.org/b/id/7898836-M.jpg" },
-    { id: 4, title: "The Power of Habit", author: "Charles Duhigg", copies: 6, img: "https://books.google.com/books/content?vid=ISBN9780812981605&printsec=frontcover&img=1&zoom=1" },
-    { id: 5, title: "The Psychology of Money", author: "Morgan Housel", copies: 3, img: "https://media.thuprai.com/front_covers/psychology-of-money.jpg" },
-    { id: 6, title: "Think and Grow Rich", author: "Napoleon Hill", copies: 5, img: "https://books.google.com/books/content?vid=ISBN9781640951287&printsec=frontcover&img=1&zoom=1" },
-    { id: 7, title: "Thinking, Fast and Slow", author: "Daniel Kahneman", copies: 2, img: "https://covers.openlibrary.org/b/id/15129456-L.jpg" },
-];
+export type PopularBook = {
+    title: string;
+    author: string;
+    times_issued: number;
+    cover_image: string | null;
+};
+
+export function usePopularBooks() {
+    const [books, setBooks] = useState<PopularBook[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        api.get("/api/dashboard/popular-books/")
+            .then(res => setBooks(Array.isArray(res.data) ? res.data : []))
+            .catch(() => setBooks([]))
+            .finally(() => setLoading(false));
+    }, []);
+
+    return { books, loading };
+}
 
 export function useAnnouncements() {
     const [announcements, setAnnouncements] = useState<Announcement[]>([]);
