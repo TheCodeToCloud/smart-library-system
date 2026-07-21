@@ -1,6 +1,7 @@
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../data/useAuth";
 import api from "../data/api";
+import { GoogleLogin } from "@react-oauth/google";
 
 const UniLibraryLogo = () => (
   <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-16 h-16 mx-auto mb-4">
@@ -16,163 +17,60 @@ const UniLibraryLogo = () => (
 );
 
 export default function Register() {
-  const [form, setForm] = useState({
-    username: "",
-    email: "",
-    password: "",
-    first_name: "",
-    last_name: "",
-    phone: "",
-    address: "",
-    roll_no: "",
-    department: "",
-  });
-  const [idProof, setIdProof] = useState<File | null>(null);
-  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setIdProof(e.target.files[0]);
-    }
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-
-    try {
-      const formData = new FormData();
-      Object.entries(form).forEach(([key, value]) => {
-        formData.append(key, value);
-      });
-      formData.append("role", "student"); // enforce student role
-      
-      if (idProof) {
-        formData.append("id_proof", idProof);
-      }
-
-      await api.post("/api/accounts/register/", formData, {
-        headers: {
-          "Content-Type": "multipart/form-data",
-        },
-      });
-
-      alert("Registration successful! Please login.");
-      navigate("/login", { replace: true });
-    } catch (err: any) {
-      console.error(err);
-      let errorMsg = "Registration failed";
-      if (err.response?.data) {
-        if (err.response.data.error) {
-          errorMsg = err.response.data.error;
-        } else {
-          // Handle DRF serializer errors which are usually objects: { username: ["Already exists"] }
-          errorMsg = Object.values(err.response.data).flat().join('\n');
-        }
-      }
-      alert(errorMsg);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const inputClass = "w-full border border-gray-200 rounded-xl px-3 py-2.5 text-sm focus:border-purple-400 focus:ring-1 focus:ring-purple-300 outline-none transition";
-  const labelClass = "block text-sm font-semibold text-gray-800 mb-1.5";
+  const { login } = useAuth();
 
   return (
     <div className="min-h-screen flex font-sans bg-gray-50 items-center justify-center py-10 px-4">
-      <div className="bg-white rounded-3xl shadow-xl w-full max-w-3xl px-8 py-10">
+      <div className="bg-white rounded-3xl shadow-xl w-full max-w-md px-8 py-10">
         
         <div className="text-center mb-8">
           <UniLibraryLogo />
           <h2 className="text-3xl font-bold text-gray-900">
             Create an <span className="text-purple-600">Account</span>
           </h2>
-          <p className="text-sm text-gray-400 mt-2">
-            Register as a student to access the library
+          <p className="text-sm text-gray-400 mt-2 leading-relaxed">
+            Register securely using your Google account to access the library. This ensures you receive important updates and fine reminders.
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            <div>
-              <label className={labelClass}>Username</label>
-              <input type="text" name="username" value={form.username} onChange={handleChange} required className={inputClass} placeholder="johndoe" />
-            </div>
-            <div>
-              <label className={labelClass}>Email Address</label>
-              <input type="email" name="email" value={form.email} onChange={handleChange} required className={inputClass} placeholder="john@example.com" />
-            </div>
-            <div>
-              <label className={labelClass}>First Name</label>
-              <input type="text" name="first_name" value={form.first_name} onChange={handleChange} required className={inputClass} placeholder="John" />
-            </div>
-            <div>
-              <label className={labelClass}>Last Name</label>
-              <input type="text" name="last_name" value={form.last_name} onChange={handleChange} required className={inputClass} placeholder="Doe" />
-            </div>
-            <div>
-              <label className={labelClass}>Password</label>
-              <input type="password" name="password" value={form.password} onChange={handleChange} required className={inputClass} placeholder="••••••••" />
-            </div>
-            <div>
-              <label className={labelClass}>Phone</label>
-              <input type="text" name="phone" value={form.phone} onChange={handleChange} required className={inputClass} placeholder="+1234567890" />
-            </div>
-            <div className="md:col-span-2">
-              <label className={labelClass}>Address</label>
-              <input type="text" name="address" value={form.address} onChange={handleChange} required className={inputClass} placeholder="123 Main St, City" />
-            </div>
+        <div className="flex flex-col items-center justify-center space-y-6">
+          <div className="w-full max-w-xs flex justify-center">
+            <GoogleLogin
+              onSuccess={async (credentialResponse) => {
+                try {
+                  const response = await api.post("/api/accounts/google-login/", {
+                    id_token: credentialResponse.credential,
+                  });
+
+                  login(response.data.access, response.data.refresh);
+                  navigate("/", { replace: true });
+                } catch (error) {
+                  console.error(error);
+                  alert("Google Registration Failed");
+                }
+              }}
+              onError={() => {
+                alert("Google Sign-In was cancelled or failed.");
+              }}
+              useOneTap
+            />
           </div>
 
-          <div className="border-t border-gray-100 pt-6 mt-6">
-            <h3 className="text-lg font-bold text-gray-800 mb-4">Student Details</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-              <div>
-                <label className={labelClass}>Roll Number</label>
-                <input type="text" name="roll_no" value={form.roll_no} onChange={handleChange} required className={inputClass} placeholder="CS-2026-001" />
-              </div>
-              <div>
-                <label className={labelClass}>Department</label>
-                <select name="department" value={form.department} onChange={handleChange as any} required className={inputClass}>
-                  <option value="" disabled>Select a department</option>
-                  <option value="Computer Science">Computer Science</option>
-                  <option value="Electrical Engineering">Electrical Engineering</option>
-                  <option value="Civil Engineering">Civil Engineering</option>
-                  <option value="Mechanical Engineering">Mechanical Engineering</option>
-                  <option value="Business Administration">Business Administration</option>
-                  <option value="Information Technology">Information Technology</option>
-                </select>
-              </div>
-              <div className="md:col-span-2">
-                <label className={labelClass}>ID Proof (Image/PDF)</label>
-                <input type="file" name="id_proof" accept="image/*,.pdf" onChange={handleFileChange} required className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100" />
-              </div>
-            </div>
+          <div className="w-full border-t border-gray-100 pt-6 mt-6">
+            <p className="text-center text-sm text-gray-500">
+              Already have an account?{" "}
+              <button 
+                type="button" 
+                onClick={() => navigate("/login")} 
+                className="text-purple-600 font-semibold hover:underline"
+              >
+                Sign In
+              </button>
+            </p>
           </div>
+        </div>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-purple-600 hover:bg-purple-700 disabled:opacity-70 text-white font-bold py-3 rounded-xl transition text-sm tracking-wide shadow-md mt-4"
-          >
-            {loading ? "Registering..." : "Create Account"}
-          </button>
-        </form>
-
-        <p className="text-center text-sm text-gray-500 mt-6">
-          Already have an account?{" "}
-          <button type="button" onClick={() => navigate("/login")} className="text-purple-600 font-semibold hover:underline">
-            Sign In
-          </button>
-        </p>
       </div>
     </div>
   );
