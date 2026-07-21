@@ -593,3 +593,13 @@ class TriggerRemindersWebhookView(APIView):
                 "success": False, 
                 "error": str(e)
             }, status=500)
+
+
+class ForceRemindersView(APIView):
+    """Admin-only: Force send overdue reminders bypassing 24h cooldown. For testing."""
+    permission_classes = [IsAdminOrLibrarian]
+
+    def get(self, request):
+        from .reminders import send_overdue_reminders_force
+        result = send_overdue_reminders_force()
+        return Response(result)
