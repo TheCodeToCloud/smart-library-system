@@ -1,0 +1,18 @@
+name: Daily Library Reminders
+
+on:
+  schedule:
+    # Runs at 12:00 AM UTC every day (approx 5:45 AM Nepal Time)
+    - cron: '0 0 * * *'
+  workflow_dispatch: 
+    # Allows you to run it manually from the GitHub UI for testing
+
+jobs:
+  send_reminders:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Trigger Render Webhook
+        run: |
+          curl -X POST https://smart-library-system-xkrg.onrender.com/api/circulation/trigger-reminders/ \
+            -H "Authorization: Bearer ${{ secrets.REMINDER_SECRET }}"

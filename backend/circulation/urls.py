@@ -3,7 +3,8 @@ from django.urls import path
 from .views import (BorrowRequestView, IssuedBooksView, MyBorrowHistoryView, OverdueBooksView,
                     PendingBorrowRequestView, RecentTransactionsView, ReturnBookView, SendReminderView,
                     ApproveBorrowRequestView, RejectBorrowRequestView, DirectIssueView, StudentStatsView,
-                    AllFinesView, MyFinesView, PayFineView, WaiveFineView, RecommendationsView, DebugBackdateView)
+                    AllFinesView, MyFinesView, PayFineView, WaiveFineView, RecommendationsView, DebugBackdateView,
+                    TriggerRemindersWebhookView)
 
 urlpatterns = [
     # Borrow / Approve / Reject / Return
@@ -24,6 +25,7 @@ urlpatterns = [
     path('my-stats/',                   StudentStatsView.as_view(),          name='student-stats'),
     path('recommendations/',            RecommendationsView.as_view(),       name='smart-recommendations'),
     path('send-reminders/',             SendReminderView.as_view(),          name='send-reminders'),
+    path('trigger-reminders/',          TriggerRemindersWebhookView.as_view(), name='trigger-reminders'),
 
     # Fines
     path('fines/',                      AllFinesView.as_view(),              name='all-fines'),

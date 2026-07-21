@@ -563,3 +563,32 @@ class RecommendationsView(APIView):
         return Response(recommendations)
 
 
+from django.conf import settings
+from .reminders import send_overdue_reminders
+from rest_framework.permissions import AllowAny
+
+class TriggerRemindersWebhookView(APIView):
+    """
+    Webhook endpoint to trigger overdue reminders.
+    Intended to be called daily by GitHub Actions cron job.
+    Uses a secret key for authorization.
+    """
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        secret = request.headers.get('Authorization')
+        
+        if not secret or secret != f"Bearer {settings.REMINDER_SECRET}":
+            return Response({"error": "Unauthorized"}, status=403)
+            
+        try:
+            result = send_overdue_reminders()
+            return Response({
+                "success": True, 
+                "message": result
+            })
+        except Exception as e:
+            return Response({
+                "success": False, 
+                "error": str(e)
+            }, status=500)
