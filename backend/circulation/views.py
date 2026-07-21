@@ -573,6 +573,7 @@ class TriggerRemindersWebhookView(APIView):
     Intended to be called daily by GitHub Actions cron job.
     Uses a secret key for authorization.
     """
+    authentication_classes = [] # Disable JWT parsing since we use a custom Bearer secret
     permission_classes = [AllowAny]
 
     def post(self, request):
