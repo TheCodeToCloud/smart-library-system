@@ -1,18 +1,20 @@
 import { useState, useMemo, useEffect } from "react";
 import { Plus, Download } from "lucide-react";
 import { useAuth } from "../../data/useAuth";
-import { useBooks } from "../../data/books";  // ← changed
+import { useBooks } from "../../data/books";
 import { useSearchParams } from "react-router-dom";
 import BooksFilters from "./BooksFilters";
 import BooksTable from "./BooksTable";
 import BooksPagination from "./BooksPagination";
 import BookModal from "./BookModal";
+import SubmitKYCModal from "./SubmitKYCModal";
+import type { Book } from "../../data/books";
 
 const ITEMS_PER_PAGE = 14;
 
 export default function Books() {
     const { user } = useAuth();
-    const { books, loading, error, refreshBooks } = useBooks();  // ← changed
+    const { books, loading, error, refreshBooks } = useBooks();
     const [searchParams, setSearchParams] = useSearchParams();
     const categories = useMemo(() => {
         return ["All Categories", ...Array.from(new Set(books.map((b) => b.category)))];
@@ -22,6 +24,7 @@ export default function Books() {
     const [selectedStatus, setSelectedStatus] = useState("All Status");
     const [currentPage, setCurrentPage] = useState(1);
     const [isModalOpen, setIsModalOpen] = useState(searchParams.get("action") === "add");
+    const [isKycModalOpen, setIsKycModalOpen] = useState(false);
 
     // Clear search params after reading action so it doesn't stick around unnecessarily
     useEffect(() => {
@@ -121,6 +124,7 @@ export default function Books() {
                     books={paginated}
                     currentPage={currentPage}
                     itemsPerPage={ITEMS_PER_PAGE}
+                    onKycRequired={() => setIsKycModalOpen(true)}
                 />
                 <BooksPagination
                     currentPage={currentPage}
@@ -135,6 +139,11 @@ export default function Books() {
                 isOpen={isModalOpen} 
                 onClose={() => setIsModalOpen(false)} 
                 onSuccess={refreshBooks} 
+            />
+
+            <SubmitKYCModal
+                isOpen={isKycModalOpen}
+                onClose={() => setIsKycModalOpen(false)}
             />
         </div>
     );

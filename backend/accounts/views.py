@@ -4,7 +4,7 @@ from google.auth.transport import requests
 
 from rest_framework import generics
 from accounts.permissions import IsAdmin, IsAdminOrLibrarian
-from .serializers import RegisterSerializer, UserSerializer, LoginSerializer, GoogleLoginSerializer, MemberSerializer
+from .serializers import RegisterSerializer, UserSerializer, LoginSerializer, GoogleLoginSerializer, MemberSerializer, SubmitKYCSerializer
 from .models import User, StudentProfile
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework import status
@@ -197,3 +197,48 @@ class UploadProfilePictureView(APIView):
             error_msg = str(e) + "\n" + traceback.format_exc()
             print("CLOUDINARY UPLOAD ERROR:", error_msg)
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class SubmitKYCView(APIView):
+    permission_classes = [IsAuthenticated]
+    parser_classes = (MultiPartParser, FormParser)
+
+    def post(self, request, *args, **kwargs):
+        if request.user.role != 'student':
+            return Response(
+                {"error": "Only students can submit KYC details."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        serializer = SubmitKYCSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        data = serializer.validated_data
+
+        # Update User
+        user = request.user
+        user.phone = data['phone']
+        user.address = data['address']
+        user.save()
+
+        # Update or Create StudentProfile
+        try:
+            profile = user.student_profile
+            # If already approved, do not allow changes. Or if you want to allow re-submission, set to pending.
+            if profile.kyc_status == 'approved':
+                return Response(
+                    {"error": "Your KYC is already approved."},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+        except StudentProfile.DoesNotExist:
+            profile = StudentProfile(user=user)
+
+        profile.roll_no = data['roll_no']
+        profile.department = data['department']
+        profile.id_proof = data['id_proof']
+        profile.kyc_status = 'pending'
+        profile.save()
+
+        return Response(
+            {"message": "KYC submitted successfully. Please wait for approval."},
+            status=status.HTTP_200_OK
+        )

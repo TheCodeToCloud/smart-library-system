@@ -29,9 +29,10 @@ const categoryColors: Record<string, string> = {
 type Props = {
     book: Book;
     index: number;
+    onKycRequired: () => void;
 };
 
-export default function BookRow({ book, index }: Props) {
+export default function BookRow({ book, index, onKycRequired }: Props) {
     const status = getStatus(book);
     const categoryColor = categoryColors[book.category] ?? "bg-gray-100 text-gray-600";
     const { user } = useAuth();
@@ -43,7 +44,12 @@ export default function BookRow({ book, index }: Props) {
             alert("Book borrowed successfully!");
         } catch (error: any) {
             console.error(error);
-            alert(error.response?.data?.error || "Failed to borrow book");
+            const msg = error.response?.data?.error || "Failed to borrow book";
+            if (msg.includes("not submitted") || msg.includes("rejected")) {
+                onKycRequired();
+            } else {
+                alert(msg);
+            }
         }
     };
 

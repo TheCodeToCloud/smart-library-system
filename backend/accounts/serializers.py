@@ -70,6 +70,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     full_name = serializers.SerializerMethodField()
     profile_picture = serializers.SerializerMethodField()
+    kyc_status = serializers.SerializerMethodField()
 
     class Meta:
         model = User
@@ -80,6 +81,7 @@ class UserSerializer(serializers.ModelSerializer):
             'role',
             'full_name',
             'profile_picture',
+            'kyc_status',
         )
         read_only_fields = (
             'id',
@@ -93,6 +95,21 @@ class UserSerializer(serializers.ModelSerializer):
         if obj.profile_picture and request:
             return request.build_absolute_uri(obj.profile_picture.url)
         return None
+
+    def get_kyc_status(self, obj):
+        if obj.role == 'student':
+            try:
+                return obj.student_profile.kyc_status
+            except Exception:
+                return 'missing'
+        return None
+
+class SubmitKYCSerializer(serializers.Serializer):
+    roll_no = serializers.CharField(max_length=50)
+    department = serializers.CharField(max_length=100)
+    phone = serializers.CharField(max_length=20)
+    address = serializers.CharField()
+    id_proof = serializers.FileField()
 
 class MemberSerializer(serializers.ModelSerializer):
     """Serializer for member list — includes student profile fields"""

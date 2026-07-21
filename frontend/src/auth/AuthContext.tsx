@@ -9,6 +9,7 @@ interface UserProfile {
     role: string;
     full_name?: string;
     profile_picture?: string;
+    kyc_status?: string;
 }
 
 interface AuthContextType {

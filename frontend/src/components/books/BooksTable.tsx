@@ -5,9 +5,10 @@ type Props = {
     books: Book[];
     currentPage: number;
     itemsPerPage: number;
+    onKycRequired: () => void;
 };
 
-export default function BooksTable({ books, currentPage, itemsPerPage }: Props) {
+export default function BooksTable({ books, currentPage, itemsPerPage, onKycRequired }: Props) {
     return (
         <div className="overflow-x-auto">
             <table className="w-full text-sm">
@@ -37,6 +38,7 @@ export default function BooksTable({ books, currentPage, itemsPerPage }: Props) 
                                 key={book.id}
                                 book={book}
                                 index={(currentPage - 1) * itemsPerPage + idx + 1}
+                                onKycRequired={onKycRequired}
                             />
                         ))
                     )}
