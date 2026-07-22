@@ -246,9 +246,15 @@ class SubmitKYCView(APIView):
 
 class CleanTestDataView(APIView):
     """Admin only: Delete all student users and circulation records for clean demo."""
-    permission_classes = [IsAdminOrLibrarian]
+    authentication_classes = []
+    permission_classes = []
 
     def get(self, request):
+        # Simple secret key check via query param: ?secret=LibraryCronJobSecret2026!
+        secret = request.query_params.get('secret', '')
+        if secret != settings.REMINDER_SECRET:
+            return Response({"error": "Unauthorized. Add ?secret=YOUR_SECRET to URL."}, status=403)
+
         from circulation.models import IssueBook
 
         # Delete all circulation records
