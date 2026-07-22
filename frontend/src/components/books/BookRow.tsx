@@ -124,13 +124,13 @@ export default function BookRow({ book, index, onKycRequired }: Props) {
                             <button onClick={handlePrintQR} className="p-1.5 rounded-lg text-purple-500 hover:bg-purple-50 transition-colors" title="Print QR">
                                 <QrCode size={15} />
                             </button>
-                            <button className="p-1.5 rounded-lg text-blue-400 hover:bg-blue-50 transition-colors" title="View">
+                            <button onClick={() => toast.info("View details coming in final update!")} className="p-1.5 rounded-lg text-blue-400 hover:bg-blue-50 transition-colors" title="View">
                                 <Eye size={15} />
                             </button>
-                            <button className="p-1.5 rounded-lg text-amber-400 hover:bg-amber-50 transition-colors" title="Edit">
+                            <button onClick={() => toast.info("Edit book coming in final update!")} className="p-1.5 rounded-lg text-amber-400 hover:bg-amber-50 transition-colors" title="Edit">
                                 <Pencil size={15} />
                             </button>
-                            <button className="p-1.5 rounded-lg text-red-400 hover:bg-red-50 transition-colors" title="Delete">
+                            <button onClick={() => toast.info("Delete book coming in final update!")} className="p-1.5 rounded-lg text-red-400 hover:bg-red-50 transition-colors" title="Delete">
                                 <Trash2 size={15} />
                             </button>
                         </>
