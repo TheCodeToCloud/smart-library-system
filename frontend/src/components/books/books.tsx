@@ -8,7 +8,9 @@ import BooksTable from "./BooksTable";
 import BooksPagination from "./BooksPagination";
 import BookModal from "./BookModal";
 import SubmitKYCModal from "./SubmitKYCModal";
+import ConfirmModal from "../ConfirmModal";
 import type { Book } from "../../data/books";
+import api from "../../data/api";
 import { toast } from "react-toastify";
 
 const ITEMS_PER_PAGE = 14;
@@ -25,7 +27,12 @@ export default function Books() {
     const [selectedStatus, setSelectedStatus] = useState("All Status");
     const [currentPage, setCurrentPage] = useState(1);
     const [isModalOpen, setIsModalOpen] = useState(searchParams.get("action") === "add");
+    const [modalMode, setModalMode] = useState<"add" | "edit" | "view">("add");
+    const [selectedBook, setSelectedBook] = useState<Book | null>(null);
     const [isKycModalOpen, setIsKycModalOpen] = useState(false);
+    
+    const [isConfirmOpen, setIsConfirmOpen] = useState(false);
+    const [bookToDelete, setBookToDelete] = useState<Book | null>(null);
 
     // Clear search params after reading action so it doesn't stick around unnecessarily
     useEffect(() => {
@@ -87,6 +94,43 @@ export default function Books() {
         document.body.removeChild(link);
     };
 
+    const handleAdd = () => {
+        setModalMode("add");
+        setSelectedBook(null);
+        setIsModalOpen(true);
+    };
+
+    const handleView = (book: Book) => {
+        setModalMode("view");
+        setSelectedBook(book);
+        setIsModalOpen(true);
+    };
+
+    const handleEdit = (book: Book) => {
+        setModalMode("edit");
+        setSelectedBook(book);
+        setIsModalOpen(true);
+    };
+
+    const handleDeleteClick = (book: Book) => {
+        setBookToDelete(book);
+        setIsConfirmOpen(true);
+    };
+
+    const confirmDelete = async () => {
+        if (!bookToDelete) return;
+        try {
+            await api.delete(`/api/books/${bookToDelete.id}/`);
+            toast.success("Book deleted successfully");
+            refreshBooks();
+        } catch (err: any) {
+            toast.error(err.response?.data?.detail || "Failed to delete book");
+        } finally {
+            setIsConfirmOpen(false);
+            setBookToDelete(null);
+        }
+    };
+
     if (loading) return <p className="p-6 text-gray-400">Loading books...</p>;
     if (error) return <p className="p-6 text-red-500">Error: {error}</p>;
 
@@ -99,7 +143,7 @@ export default function Books() {
                 </div>
                 <div className="flex gap-2">
                     {(user?.role === 'admin' || user?.role === 'librarian') && (
-                        <button onClick={() => setIsModalOpen(true)} className="flex items-center gap-1.5 bg-violet-600 hover:bg-violet-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors shadow-sm">
+                        <button onClick={handleAdd} className="flex items-center gap-1.5 bg-violet-600 hover:bg-violet-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors shadow-sm">
                             <Plus size={16} />
                             Add New Book
                         </button>
@@ -126,6 +170,9 @@ export default function Books() {
                     currentPage={currentPage}
                     itemsPerPage={ITEMS_PER_PAGE}
                     onKycRequired={() => setIsKycModalOpen(true)}
+                    onView={handleView}
+                    onEdit={handleEdit}
+                    onDelete={handleDeleteClick}
                 />
                 <BooksPagination
                     currentPage={currentPage}
@@ -140,6 +187,15 @@ export default function Books() {
                 isOpen={isModalOpen} 
                 onClose={() => setIsModalOpen(false)} 
                 onSuccess={refreshBooks} 
+                mode={modalMode}
+                initialData={selectedBook}
+            />
+
+            <ConfirmModal
+                isOpen={isConfirmOpen}
+                message={`Are you sure you want to delete "${bookToDelete?.title}"? This action cannot be undone.`}
+                onConfirm={confirmDelete}
+                onCancel={() => setIsConfirmOpen(false)}
             />
 
             <SubmitKYCModal

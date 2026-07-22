@@ -31,9 +31,12 @@ type Props = {
     book: Book;
     index: number;
     onKycRequired: () => void;
+    onView: (book: Book) => void;
+    onEdit: (book: Book) => void;
+    onDelete: (book: Book) => void;
 };
 
-export default function BookRow({ book, index, onKycRequired }: Props) {
+export default function BookRow({ book, index, onKycRequired, onView, onEdit, onDelete }: Props) {
     const status = getStatus(book);
     const categoryColor = categoryColors[book.category] ?? "bg-gray-100 text-gray-600";
     const { user } = useAuth();
@@ -124,13 +127,13 @@ export default function BookRow({ book, index, onKycRequired }: Props) {
                             <button onClick={handlePrintQR} className="p-1.5 rounded-lg text-purple-500 hover:bg-purple-50 transition-colors" title="Print QR">
                                 <QrCode size={15} />
                             </button>
-                            <button onClick={() => toast.info("View details coming in final update!")} className="p-1.5 rounded-lg text-blue-400 hover:bg-blue-50 transition-colors" title="View">
+                            <button onClick={() => onView(book)} className="p-1.5 rounded-lg text-blue-400 hover:bg-blue-50 transition-colors" title="View">
                                 <Eye size={15} />
                             </button>
-                            <button onClick={() => toast.info("Edit book coming in final update!")} className="p-1.5 rounded-lg text-amber-400 hover:bg-amber-50 transition-colors" title="Edit">
+                            <button onClick={() => onEdit(book)} className="p-1.5 rounded-lg text-amber-400 hover:bg-amber-50 transition-colors" title="Edit">
                                 <Pencil size={15} />
                             </button>
-                            <button onClick={() => toast.info("Delete book coming in final update!")} className="p-1.5 rounded-lg text-red-400 hover:bg-red-50 transition-colors" title="Delete">
+                            <button onClick={() => onDelete(book)} className="p-1.5 rounded-lg text-red-400 hover:bg-red-50 transition-colors" title="Delete">
                                 <Trash2 size={15} />
                             </button>
                         </>

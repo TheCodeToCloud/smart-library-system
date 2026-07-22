@@ -6,9 +6,12 @@ type Props = {
     currentPage: number;
     itemsPerPage: number;
     onKycRequired: () => void;
+    onView: (book: Book) => void;
+    onEdit: (book: Book) => void;
+    onDelete: (book: Book) => void;
 };
 
-export default function BooksTable({ books, currentPage, itemsPerPage, onKycRequired }: Props) {
+export default function BooksTable({ books, currentPage, itemsPerPage, onKycRequired, onView, onEdit, onDelete }: Props) {
     return (
         <div className="overflow-x-auto">
             <table className="w-full text-sm">
@@ -39,6 +42,9 @@ export default function BooksTable({ books, currentPage, itemsPerPage, onKycRequ
                                 book={book}
                                 index={(currentPage - 1) * itemsPerPage + idx + 1}
                                 onKycRequired={onKycRequired}
+                                onView={onView}
+                                onEdit={onEdit}
+                                onDelete={onDelete}
                             />
                         ))
                     )}
