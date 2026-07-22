@@ -1,5 +1,6 @@
 from datetime import date, timedelta
 from urllib import request
+from django.conf import settings
 
 # Allow Admin and Librarian users
 from accounts.permissions import IsAdminOrLibrarian, IsStudent
@@ -15,7 +16,7 @@ from .models import IssueBook, User
 from .serializers import BorrowRequestSerializer, IssueBookSerializer, DirectIssueSerializer
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 
 from .reminders import send_overdue_reminders
 
