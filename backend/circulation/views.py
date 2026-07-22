@@ -597,9 +597,15 @@ class TriggerRemindersWebhookView(APIView):
 
 class ForceRemindersView(APIView):
     """Admin-only: Force send overdue reminders bypassing 24h cooldown. For testing."""
-    permission_classes = [IsAdminOrLibrarian]
+    authentication_classes = []
+    permission_classes = []
 
     def get(self, request):
+        # Simple secret key check via query param: ?secret=LibraryCronJobSecret2026!
+        secret = request.query_params.get('secret', '')
+        if secret != settings.REMINDER_SECRET:
+            return Response({"error": "Unauthorized. Add ?secret=YOUR_SECRET to URL."}, status=403)
+
         from .reminders import send_overdue_reminders_force
         result = send_overdue_reminders_force()
         return Response(result)
