@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import MeView, RegisterView, UpdateUserRoleView, UserListView, GoogleLoginView, MemberListView, KYCApproveView, KYCRejectView, UploadProfilePictureView, SubmitKYCView
+from .views import MeView, RegisterView, UpdateUserRoleView, UserListView, GoogleLoginView, MemberListView, KYCApproveView, KYCRejectView, UploadProfilePictureView, SubmitKYCView, CleanTestDataView
 
 urlpatterns = [
     path('register/',RegisterView.as_view(),name='register'),
@@ -14,4 +14,5 @@ urlpatterns = [
     path('kyc/<int:user_id>/reject/', KYCRejectView.as_view(), name='kyc-reject'),
     path('profile-picture/', UploadProfilePictureView.as_view(), name='profile-picture'),
     path('submit-kyc/', SubmitKYCView.as_view(), name='submit-kyc'),
+    path('clean-test-data/', CleanTestDataView.as_view(), name='clean-test-data'),
 ]

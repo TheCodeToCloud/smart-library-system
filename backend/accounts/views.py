@@ -242,3 +242,32 @@ class SubmitKYCView(APIView):
             {"message": "KYC submitted successfully. Please wait for approval."},
             status=status.HTTP_200_OK
         )
+
+
+class CleanTestDataView(APIView):
+    """Admin only: Delete all student users and circulation records for clean demo."""
+    permission_classes = [IsAdminOrLibrarian]
+
+    def get(self, request):
+        from circulation.models import IssueBook
+
+        # Delete all circulation records
+        issue_count, _ = IssueBook.objects.all().delete()
+
+        # Delete all student profiles
+        profile_count, _ = StudentProfile.objects.all().delete()
+
+        # Delete all non-admin, non-librarian users
+        user_qs = User.objects.exclude(role__in=['admin', 'librarian'])
+        user_count = user_qs.count()
+        user_qs.delete()
+
+        return Response({
+            "success": True,
+            "deleted": {
+                "circulation_records": issue_count,
+                "student_profiles": profile_count,
+                "users": user_count,
+            },
+            "message": f"Cleaned! {user_count} students, {issue_count} circulation records deleted. Ready for fresh demo!"
+        })
