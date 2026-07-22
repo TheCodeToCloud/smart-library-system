@@ -218,6 +218,7 @@ EMAIL_USE_TLS = True
 EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
 DEFAULT_FROM_EMAIL = os.getenv('EMAIL_HOST_USER')
+EMAIL_TIMEOUT = 10  # Prevent Render 30s timeout if SMTP hangs
 
 # Secret key used by GitHub Actions to trigger reminder endpoint
 REMINDER_SECRET = os.getenv('REMINDER_SECRET', 'change-me-in-production')
