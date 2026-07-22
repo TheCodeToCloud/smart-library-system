@@ -58,10 +58,32 @@ export default function BookRow({ book, index, onKycRequired, onView, onEdit, on
     };
 
     const handlePrintQR = () => {
-        if (book.qr_code) {
-            window.open(book.qr_code, "_blank");
-        } else {
-            toast.warning("No QR code available for this book.");
+        const qrData = `Book ID: ${book.id}\nTitle: ${book.title}`;
+        const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(qrData)}`;
+        
+        const printWindow = window.open('', '_blank', 'width=400,height=500');
+        if (printWindow) {
+            printWindow.document.write(`
+                <html>
+                    <head>
+                        <title>Print QR Code - ${book.title}</title>
+                        <style>
+                            body { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; font-family: sans-serif; margin: 0; text-align: center; }
+                            img { width: 250px; height: 250px; margin-bottom: 20px; border: 10px solid white; border-radius: 8px; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); }
+                            button { padding: 10px 20px; font-size: 16px; cursor: pointer; background: #7c3aed; color: white; border: none; border-radius: 8px; font-weight: bold; }
+                            @media print { button { display: none; } body { justify-content: flex-start; margin-top: 50px; } }
+                        </style>
+                    </head>
+                    <body>
+                        <h2 style="color: #1f2937; margin-bottom: 5px;">${book.title}</h2>
+                        <p style="color: #6b7280; margin-top: 0; margin-bottom: 20px;">ID: ${book.id} | ISBN: ${book.isbn}</p>
+                        <img src="${qrUrl}" alt="QR Code" onload="setTimeout(() => window.print(), 500)" />
+                        <br/>
+                        <button onclick="window.print()">Print QR Code</button>
+                    </body>
+                </html>
+            `);
+            printWindow.document.close();
         }
     };
 
