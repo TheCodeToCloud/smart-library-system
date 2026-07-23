@@ -91,6 +91,7 @@ const UniLibraryLogo = () => (
 interface RegisterFormState {
   fullName: string;
   email: string;
+  phone: string;
   password: string;
   rollNo: string;
   department: string;
@@ -99,6 +100,7 @@ interface RegisterFormState {
 interface RegisterFormErrors {
   fullName?: string;
   email?: string;
+  phone?: string;
   password?: string;
   rollNo?: string;
   department?: string;
@@ -107,28 +109,25 @@ interface RegisterFormErrors {
 
 function validateForm(form: RegisterFormState, idCard: File | null): RegisterFormErrors {
   const errors: RegisterFormErrors = {};
-  if (!form.fullName) {
-    errors.fullName = "Full Name is required.";
-  }
+  if (!form.fullName) errors.fullName = "Full Name is required.";
   if (!form.email) {
     errors.email = "Email is required.";
   } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
     errors.email = "Enter a valid email address.";
+  }
+  if (!form.phone) {
+    errors.phone = "Phone Number is required.";
+  } else if (!/^[0-9+\-\s]{7,15}$/.test(form.phone)) {
+    errors.phone = "Enter a valid phone number.";
   }
   if (!form.password) {
     errors.password = "Password is required.";
   } else if (form.password.length < 6) {
     errors.password = "Password must be at least 6 characters.";
   }
-  if (!form.rollNo) {
-    errors.rollNo = "Roll Number is required.";
-  }
-  if (!form.department) {
-    errors.department = "Department is required.";
-  }
-  if (!idCard) {
-    errors.idCard = "Identity card is required.";
-  }
+  if (!form.rollNo) errors.rollNo = "Roll Number is required.";
+  if (!form.department) errors.department = "Department is required.";
+  if (!idCard) errors.idCard = "Identity card is required.";
   return errors;
 }
 
@@ -139,6 +138,7 @@ export default function Register() {
   const [form, setForm] = useState<RegisterFormState>({
     fullName: "",
     email: "",
+    phone: "",
     password: "",
     rollNo: "",
     department: "",
@@ -183,6 +183,7 @@ export default function Register() {
       registerData.append("role", "student");
       registerData.append("roll_no", form.rollNo);
       registerData.append("department", form.department);
+      registerData.append("phone", form.phone);
       if (idCard) registerData.append("id_proof", idCard);
 
       await api.post("/api/accounts/register/", registerData, {
@@ -202,11 +203,17 @@ export default function Register() {
       if (axios.isAxiosError(err)) {
         console.error(err.response?.data);
         const errorData = err.response?.data;
+        // Handle specific field errors from backend
         if (errorData?.email) {
-          setErrors({ email: "This email is already registered." });
-        } else if (errorData?.roll_no) {
-          setErrors({ rollNo: "This Roll Number is already registered." });
-        } else {
+          setErrors((prev) => ({ ...prev, email: Array.isArray(errorData.email) ? errorData.email[0] : errorData.email }));
+        }
+        if (errorData?.phone) {
+          setErrors((prev) => ({ ...prev, phone: Array.isArray(errorData.phone) ? errorData.phone[0] : errorData.phone }));
+        }
+        if (errorData?.roll_no) {
+          setErrors((prev) => ({ ...prev, rollNo: Array.isArray(errorData.roll_no) ? errorData.roll_no[0] : errorData.roll_no }));
+        }
+        if (!errorData?.email && !errorData?.phone && !errorData?.roll_no) {
           toast.error(errorData?.detail || "Registration failed. Please try again.");
         }
       } else {
@@ -232,14 +239,26 @@ export default function Register() {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4" noValidate>
-          {/* Full Name */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-800 mb-1.5">Full Name</label>
-            <div className={`flex items-center border rounded-xl px-3 py-2.5 gap-2 bg-white transition ${errors.fullName ? "border-red-400 ring-1 ring-red-300" : "border-gray-200 focus-within:border-purple-400 focus-within:ring-1 focus-within:ring-purple-300"}`}>
-              <UserIcon />
-              <input type="text" name="fullName" value={form.fullName} onChange={handleChange} placeholder="John Doe" className="flex-1 text-sm text-gray-700 placeholder-gray-400 bg-transparent outline-none" />
+          {/* Full Name + Phone */}
+          <div className="flex gap-3">
+            <div className="flex-1">
+              <label className="block text-sm font-semibold text-gray-800 mb-1.5">Full Name</label>
+              <div className={`flex items-center border rounded-xl px-3 py-2.5 gap-2 bg-white transition ${errors.fullName ? "border-red-400 ring-1 ring-red-300" : "border-gray-200 focus-within:border-purple-400 focus-within:ring-1 focus-within:ring-purple-300"}`}>
+                <UserIcon />
+                <input type="text" name="fullName" value={form.fullName} onChange={handleChange} placeholder="John Doe" className="w-full text-sm text-gray-700 placeholder-gray-400 bg-transparent outline-none" />
+              </div>
+              {errors.fullName && <p className="text-xs text-red-500 mt-1">{errors.fullName}</p>}
             </div>
-            {errors.fullName && <p className="text-xs text-red-500 mt-1">{errors.fullName}</p>}
+            <div className="flex-1">
+              <label className="block text-sm font-semibold text-gray-800 mb-1.5">Phone Number</label>
+              <div className={`flex items-center border rounded-xl px-3 py-2.5 gap-2 bg-white transition ${errors.phone ? "border-red-400 ring-1 ring-red-300" : "border-gray-200 focus-within:border-purple-400 focus-within:ring-1 focus-within:ring-purple-300"}`}>
+                <svg className="w-4 h-4 text-gray-400 shrink-0" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24">
+                  <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.07 12 19.79 19.79 0 0 1 1 3.18 2 2 0 0 1 2.98 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.09 8.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 21 16l.92.92z" />
+                </svg>
+                <input type="tel" name="phone" value={form.phone} onChange={handleChange} placeholder="98XXXXXXXX" className="w-full text-sm text-gray-700 placeholder-gray-400 bg-transparent outline-none" />
+              </div>
+              {errors.phone && <p className="text-xs text-red-500 mt-1">{errors.phone}</p>}
+            </div>
           </div>
 
           <div className="flex gap-3">

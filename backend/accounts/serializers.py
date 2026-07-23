@@ -52,19 +52,41 @@ class RegisterSerializer(serializers.ModelSerializer):
             )
         return user
     
+    def validate_email(self, value):
+        if User.objects.filter(email=value).exists():
+            raise serializers.ValidationError(
+                "This email address is already registered. Please use a different email or sign in."
+            )
+        return value
+
+    def validate_phone(self, value):
+        if value and User.objects.filter(phone=value).exists():
+            raise serializers.ValidationError(
+                "This phone number is already registered. Please use a different phone number."
+            )
+        return value
+
     def validate(self, attrs):
         role = attrs.get("role")
 
         if role == "student":
             if not attrs.get("roll_no"):
                 raise serializers.ValidationError({
-                    "roll_no": "This field is required."
+                    "roll_no": "Roll Number is required."
                 })
 
             if not attrs.get("department"):
                 raise serializers.ValidationError({
-                    "department": "This field is required."
+                    "department": "Department is required."
                 })
+
+            # Check roll_no uniqueness
+            roll_no = attrs.get("roll_no")
+            if roll_no and StudentProfile.objects.filter(roll_no=roll_no).exists():
+                raise serializers.ValidationError({
+                    "roll_no": "This Roll Number is already registered. Please contact admin if this is a mistake."
+                })
+
         return attrs
    
 class UserSerializer(serializers.ModelSerializer):
