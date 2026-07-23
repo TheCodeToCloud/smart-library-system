@@ -29,6 +29,34 @@ const LockIcon = () => (
   </svg>
 );
 
+const BadgeIcon = () => (
+  <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24">
+    <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+    <line x1="16" y1="2" x2="16" y2="6" />
+    <line x1="8" y1="2" x2="8" y2="6" />
+    <line x1="3" y1="10" x2="21" y2="10" />
+    <path d="M8 14h.01" />
+    <path d="M12 14h.01" />
+    <path d="M16 14h.01" />
+    <path d="M8 18h.01" />
+    <path d="M12 18h.01" />
+    <path d="M16 18h.01" />
+  </svg>
+);
+
+const BuildingIcon = () => (
+  <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24">
+    <path d="M3 21h18" />
+    <path d="M9 8h1" />
+    <path d="M9 12h1" />
+    <path d="M9 16h1" />
+    <path d="M14 8h1" />
+    <path d="M14 12h1" />
+    <path d="M14 16h1" />
+    <path d="M5 21V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16" />
+  </svg>
+);
+
 const EyeIcon = ({ off }: { off?: boolean }) =>
   off ? (
     <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24">
@@ -64,12 +92,16 @@ interface RegisterFormState {
   fullName: string;
   email: string;
   password: string;
+  rollNo: string;
+  department: string;
 }
 
 interface RegisterFormErrors {
   fullName?: string;
   email?: string;
   password?: string;
+  rollNo?: string;
+  department?: string;
 }
 
 function validateForm(form: RegisterFormState): RegisterFormErrors {
@@ -87,6 +119,12 @@ function validateForm(form: RegisterFormState): RegisterFormErrors {
   } else if (form.password.length < 6) {
     errors.password = "Password must be at least 6 characters.";
   }
+  if (!form.rollNo) {
+    errors.rollNo = "Roll Number is required.";
+  }
+  if (!form.department) {
+    errors.department = "Department is required.";
+  }
   return errors;
 }
 
@@ -98,12 +136,14 @@ export default function Register() {
     fullName: "",
     email: "",
     password: "",
+    rollNo: "",
+    department: "",
   });
   const [errors, setErrors] = useState<RegisterFormErrors>({});
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
     if (errors[name as keyof RegisterFormErrors]) {
@@ -133,7 +173,9 @@ export default function Register() {
         password: form.password,
         first_name: firstName,
         last_name: lastName,
-        role: "student" // Default role
+        role: "student", // Default role
+        roll_no: form.rollNo,
+        department: form.department
       });
 
       // 2. Automatically log them in after registration
@@ -151,6 +193,8 @@ export default function Register() {
         const errorData = err.response?.data;
         if (errorData?.email) {
           setErrors({ email: "This email is already registered." });
+        } else if (errorData?.roll_no) {
+          setErrors({ rollNo: "This Roll Number is already registered." });
         } else {
           toast.error(errorData?.detail || "Registration failed. Please try again.");
         }
@@ -185,6 +229,37 @@ export default function Register() {
               <input type="text" name="fullName" value={form.fullName} onChange={handleChange} placeholder="John Doe" className="flex-1 text-sm text-gray-700 placeholder-gray-400 bg-transparent outline-none" />
             </div>
             {errors.fullName && <p className="text-xs text-red-500 mt-1">{errors.fullName}</p>}
+          </div>
+
+          <div className="flex gap-3">
+            {/* Roll Number */}
+            <div className="flex-1">
+              <label className="block text-sm font-semibold text-gray-800 mb-1.5">Roll Number</label>
+              <div className={`flex items-center border rounded-xl px-3 py-2.5 gap-2 bg-white transition ${errors.rollNo ? "border-red-400 ring-1 ring-red-300" : "border-gray-200 focus-within:border-purple-400 focus-within:ring-1 focus-within:ring-purple-300"}`}>
+                <BadgeIcon />
+                <input type="text" name="rollNo" value={form.rollNo} onChange={handleChange} placeholder="e.g. CS-01" className="w-full text-sm text-gray-700 placeholder-gray-400 bg-transparent outline-none" />
+              </div>
+              {errors.rollNo && <p className="text-xs text-red-500 mt-1">{errors.rollNo}</p>}
+            </div>
+
+            {/* Department */}
+            <div className="flex-1">
+              <label className="block text-sm font-semibold text-gray-800 mb-1.5">Department</label>
+              <div className={`flex items-center border rounded-xl px-3 py-2.5 gap-2 bg-white transition ${errors.department ? "border-red-400 ring-1 ring-red-300" : "border-gray-200 focus-within:border-purple-400 focus-within:ring-1 focus-within:ring-purple-300"}`}>
+                <BuildingIcon />
+                <select name="department" value={form.department} onChange={handleChange} className="w-full text-sm text-gray-700 bg-transparent outline-none cursor-pointer">
+                  <option value="" disabled>Select...</option>
+                  <option value="Computer Science">Computer Science</option>
+                  <option value="Information Technology">IT</option>
+                  <option value="Civil Engineering">Civil</option>
+                  <option value="Mechanical Engineering">Mechanical</option>
+                  <option value="Electrical Engineering">Electrical</option>
+                  <option value="BBA">BBA</option>
+                  <option value="MBA">MBA</option>
+                </select>
+              </div>
+              {errors.department && <p className="text-xs text-red-500 mt-1">{errors.department}</p>}
+            </div>
           </div>
 
           {/* Email */}
