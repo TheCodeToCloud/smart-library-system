@@ -1,8 +1,9 @@
 from django.urls import path
-from .views import MeView, RegisterView, UpdateUserRoleView, UserListView, GoogleLoginView, MemberListView, KYCApproveView, KYCRejectView, UploadProfilePictureView, SubmitKYCView, CleanTestDataView
+from .views import MeView, RegisterView, UpdateUserRoleView, UserListView, GoogleLoginView, MemberListView, KYCApproveView, KYCRejectView, UploadProfilePictureView, SubmitKYCView, CleanTestDataView, VerifyEmailOTPView
 
 urlpatterns = [
-    path('register/',RegisterView.as_view(),name='register'),
+    path('register/', RegisterView.as_view(), name='register'),
+    path('verify-email/', VerifyEmailOTPView.as_view(), name='verify-email'),
     path("google-login/",GoogleLoginView.as_view(),name="google-login"),
     path('me/',MeView.as_view(),name='me'),
     path('users/',UserListView.as_view(),name='users'),

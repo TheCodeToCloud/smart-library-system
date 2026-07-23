@@ -154,6 +154,14 @@ export default function Register() {
   const [idCardPreview, setIdCardPreview] = useState<string | null>(null);
   const idCardRef = useRef<HTMLInputElement>(null);
 
+  // OTP Step
+  const [otpStep, setOtpStep] = useState(false);
+  const [otpCode, setOtpCode] = useState("");
+  const [otpLoading, setOtpLoading] = useState(false);
+  const [otpError, setOtpError] = useState("");
+  const [registeredEmail, setRegisteredEmail] = useState("");
+  const [registeredPassword, setRegisteredPassword] = useState("");
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setForm((prev) => ({ ...prev, [name]: value }));
@@ -177,7 +185,7 @@ export default function Register() {
       const lastName = names.slice(1).join(" ");
       const username = form.email.split("@")[0] + Math.floor(Math.random() * 1000);
 
-      // 1. Register the user using multipart/form-data to include the ID card
+      // Register the user — backend creates inactive user + sends OTP
       const registerData = new FormData();
       registerData.append("username", username);
       registerData.append("email", form.email);
@@ -194,31 +202,24 @@ export default function Register() {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
-      // 2. Automatically log them in after registration
-      const loginResponse = await api.post("/api/login/", {
-        email: form.email,
-        password: form.password,
-      });
-
-      login(loginResponse.data.access, loginResponse.data.refresh);
-      toast.success("Account created successfully!");
-      navigate("/", { replace: true });
+      // Move to OTP step
+      setRegisteredEmail(form.email);
+      setRegisteredPassword(form.password);
+      setOtpStep(true);
+      toast.success(`Verification code sent to ${form.email}! Check your inbox.`);
     } catch (err) {
       if (axios.isAxiosError(err)) {
         console.error(err.response?.data);
         const errorData = err.response?.data;
-        // Handle specific field errors from backend
-        if (errorData?.email) {
-          setErrors((prev) => ({ ...prev, email: Array.isArray(errorData.email) ? errorData.email[0] : errorData.email }));
-        }
-        if (errorData?.phone) {
-          setErrors((prev) => ({ ...prev, phone: Array.isArray(errorData.phone) ? errorData.phone[0] : errorData.phone }));
-        }
-        if (errorData?.roll_no) {
-          setErrors((prev) => ({ ...prev, rollNo: Array.isArray(errorData.roll_no) ? errorData.roll_no[0] : errorData.roll_no }));
-        }
-        if (!errorData?.email && !errorData?.phone && !errorData?.roll_no) {
-          toast.error(errorData?.detail || "Registration failed. Please try again.");
+        if (errorData?.error) {
+          toast.error(errorData.error);
+        } else {
+          if (errorData?.email) setErrors((prev) => ({ ...prev, email: Array.isArray(errorData.email) ? errorData.email[0] : errorData.email }));
+          if (errorData?.phone) setErrors((prev) => ({ ...prev, phone: Array.isArray(errorData.phone) ? errorData.phone[0] : errorData.phone }));
+          if (errorData?.roll_no) setErrors((prev) => ({ ...prev, rollNo: Array.isArray(errorData.roll_no) ? errorData.roll_no[0] : errorData.roll_no }));
+          if (!errorData?.email && !errorData?.phone && !errorData?.roll_no) {
+            toast.error(errorData?.detail || "Registration failed. Please try again.");
+          }
         }
       } else {
         toast.error("Registration failed. Please try again.");
@@ -228,10 +229,86 @@ export default function Register() {
     }
   };
 
+  const handleVerifyOTP = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (otpCode.length !== 6) { setOtpError("Please enter the 6-digit code."); return; }
+    setOtpLoading(true);
+    setOtpError("");
+    try {
+      const res = await api.post("/api/accounts/verify-email/", {
+        email: registeredEmail,
+        code: otpCode,
+      });
+      login(res.data.access, res.data.refresh);
+      toast.success("Email verified! Welcome to Smart Library 🎉");
+      navigate("/", { replace: true });
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        setOtpError(err.response?.data?.error || "Verification failed.");
+      } else {
+        setOtpError("Verification failed. Try again.");
+      }
+    } finally {
+      setOtpLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen flex font-sans bg-gray-50 items-center justify-center py-10 px-4">
       <div className="bg-white rounded-3xl shadow-xl w-full max-w-md px-8 py-10">
-        
+
+        {otpStep ? (
+          /* ── OTP Verification Screen ───────────────────────────── */
+          <div className="text-center">
+            <div className="w-16 h-16 bg-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <svg className="w-8 h-8 text-purple-600" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                <polyline points="22,6 12,13 2,6" />
+              </svg>
+            </div>
+            <h2 className="text-2xl font-bold text-gray-900 mb-1">Check Your Email</h2>
+            <p className="text-sm text-gray-500 mb-1">We sent a 6-digit code to</p>
+            <p className="text-sm font-semibold text-purple-700 mb-6">{registeredEmail}</p>
+
+            <form onSubmit={handleVerifyOTP} className="space-y-4">
+              <div>
+                <label className="block text-sm font-semibold text-gray-800 mb-1.5 text-left">Verification Code</label>
+                <input
+                  type="text"
+                  maxLength={6}
+                  value={otpCode}
+                  onChange={(e) => { setOtpCode(e.target.value.replace(/\D/g, "")); setOtpError(""); }}
+                  placeholder="_ _ _ _ _ _"
+                  className={`w-full text-center text-3xl font-bold tracking-widest border rounded-xl px-4 py-4 outline-none transition ${
+                    otpError ? "border-red-400 bg-red-50" : "border-gray-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200"
+                  }`}
+                  autoFocus
+                />
+                {otpError && <p className="text-xs text-red-500 mt-1 text-left">{otpError}</p>}
+              </div>
+
+              <button
+                type="submit"
+                disabled={otpLoading || otpCode.length !== 6}
+                className="w-full bg-purple-600 hover:bg-purple-700 disabled:opacity-60 text-white font-bold py-3 rounded-xl transition text-sm shadow-md"
+              >
+                {otpLoading ? "Verifying..." : "Verify & Create Account"}
+              </button>
+            </form>
+
+            <p className="text-xs text-gray-400 mt-5">
+              Code expires in 10 minutes. Didn't get it?{" "}
+              <button
+                className="text-purple-600 hover:underline font-medium"
+                onClick={() => { setOtpStep(false); setOtpCode(""); setOtpError(""); }}
+              >
+                Go back and try again
+              </button>
+            </p>
+          </div>
+        ) : (
+          /* ── Register Form ─────────────────────────────────────── */
+          <>
         <div className="text-center mb-6">
           <UniLibraryLogo />
           <h2 className="text-3xl font-bold text-gray-900">
@@ -458,6 +535,9 @@ export default function Register() {
             </button>
           </p>
         </div>
+
+          </>
+        )}
 
       </div>
     </div>
