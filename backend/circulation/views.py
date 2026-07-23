@@ -577,6 +577,34 @@ class DebugBackdateView(APIView):
         })
 
 
+class ResetBooksView(APIView):
+    """
+    Reset all books to 10 total copies and 10 available copies.
+    Also clears all IssueBook records.
+    Protected by secret key.
+    """
+    authentication_classes = []
+    permission_classes = []
+
+    def get(self, request):
+        secret = request.query_params.get('secret', '')
+        if secret != settings.REMINDER_SECRET:
+            return Response({"error": "Unauthorized. Add ?secret=YOUR_SECRET to URL."}, status=403)
+
+        from books.models import Book
+        # Delete all circulation records
+        deleted_count = IssueBook.objects.all().delete()[0]
+        # Reset all books to 10/10
+        book_count = Book.objects.all().update(total_copies=10, available_copies=10)
+
+        return Response({
+            "message": f"Success! {book_count} books reset to 10/10. {deleted_count} issue records cleared.",
+            "status": "All books are now 10/10 Available!"
+        })
+
+
+
+
 
 from .recommendations import get_smart_recommendations
 

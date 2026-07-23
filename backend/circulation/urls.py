@@ -4,7 +4,7 @@ from .views import (BorrowRequestView, IssuedBooksView, MyBorrowHistoryView, Ove
                     PendingBorrowRequestView, RecentTransactionsView, ReturnBookView, SendReminderView,
                     ApproveBorrowRequestView, RejectBorrowRequestView, DirectIssueView, StudentStatsView,
                     AllFinesView, MyFinesView, PayFineView, WaiveFineView, RecommendationsView, DebugBackdateView,
-                    TriggerRemindersWebhookView, ForceRemindersView)
+                    TriggerRemindersWebhookView, ForceRemindersView, ResetBooksView)
 
 urlpatterns = [
     # Borrow / Approve / Reject / Return
@@ -36,4 +36,5 @@ urlpatterns = [
     # Debug
     path('debug-backdate/',             DebugBackdateView.as_view(),         name='debug-backdate'),
     path('force-reminders/',            ForceRemindersView.as_view(),        name='force-reminders'),
+    path('reset-books/',                ResetBooksView.as_view(),            name='reset-books'),
 ]
