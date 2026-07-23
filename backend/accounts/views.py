@@ -16,105 +16,11 @@ from django.core.mail import send_mail
 
 
 class RegisterView(generics.CreateAPIView):
-    """
-    Step 1 of registration: Create inactive user + send OTP to email.
-    """
+    # User Registration API
     queryset = User.objects.all()
     serializer_class = RegisterSerializer
     parser_classes = [MultiPartParser, FormParser]
 
-    def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-
-        # Create user but keep inactive until email verified
-        user = serializer.save(is_active=False)
-
-        # Generate a 6-digit OTP and save it
-        otp = EmailOTP.generate(user.email)
-
-        # Send OTP email
-        try:
-            send_mail(
-                subject="📚 Smart Library — Verify Your Email",
-                message=(
-                    f"Hi {user.first_name or user.username},\n\n"
-                    f"Your email verification code is:\n\n"
-                    f"  {otp.code}\n\n"
-                    f"This code is valid for 10 minutes.\n\n"
-                    f"If you did not register, please ignore this email.\n\n"
-                    f"— Smart Library System"
-                ),
-                from_email=settings.DEFAULT_FROM_EMAIL,
-                recipient_list=[user.email],
-                fail_silently=False,
-            )
-        except Exception as e:
-            # Log the actual error to the console (visible in Render logs)
-            import logging
-            logger = logging.getLogger(__name__)
-            logger.error(f"SMTP Email Send Failed: {str(e)}")
-            print(f"SMTP ERROR: {str(e)}")
-            
-            # Roll back user creation if email fails
-            user.delete()
-            return Response(
-                {"error": f"Could not send verification email. Please check your email address and try again."},
-                status=status.HTTP_400_BAD_REQUEST,
-            )
-
-        return Response(
-            {
-                "message": "Verification code sent to your email. Please check your inbox.",
-                "email": user.email,
-            },
-            status=status.HTTP_200_OK,
-        )
-
-
-class VerifyEmailOTPView(APIView):
-    """
-    Step 2 of registration: Verify OTP, activate user, return JWT tokens.
-    """
-    def post(self, request):
-        email = request.data.get("email", "").strip().lower()
-        code = request.data.get("code", "").strip()
-
-        if not email or not code:
-            return Response({"error": "Email and code are required."}, status=status.HTTP_400_BAD_REQUEST)
-
-        try:
-            otp_record = EmailOTP.objects.get(email__iexact=email)
-        except EmailOTP.DoesNotExist:
-            return Response({"error": "No verification code found for this email. Please register again."}, status=status.HTTP_400_BAD_REQUEST)
-
-        if otp_record.is_expired():
-            otp_record.delete()
-            return Response({"error": "Verification code has expired. Please register again."}, status=status.HTTP_400_BAD_REQUEST)
-
-        if otp_record.code != code:
-            return Response({"error": "Incorrect verification code. Please try again."}, status=status.HTTP_400_BAD_REQUEST)
-
-        # Activate the user
-        try:
-            user = User.objects.get(email__iexact=email)
-        except User.DoesNotExist:
-            return Response({"error": "User not found. Please register again."}, status=status.HTTP_400_BAD_REQUEST)
-
-        user.is_active = True
-        user.save()
-
-        # Delete the used OTP
-        otp_record.delete()
-
-        # Issue JWT tokens
-        refresh = RefreshToken.for_user(user)
-        return Response({
-            "message": "Email verified successfully! Welcome to Smart Library.",
-            "access": str(refresh.access_token),
-            "refresh": str(refresh),
-            "user": UserSerializer(user).data,
-        }, status=status.HTTP_200_OK)
 
 
 class MeView(APIView):
