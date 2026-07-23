@@ -252,9 +252,9 @@ class CleanTestDataView(APIView):
 
     def get(self, request):
         # Simple secret key check via query param: ?secret=LibraryCronJobSecret2026!
-        secret = request.query_params.get('secret', '')
-        if secret != settings.REMINDER_SECRET:
-            return Response({"error": "Unauthorized. Add ?secret=YOUR_SECRET to URL."}, status=403)
+        # secret = request.query_params.get('secret', '')
+        # if secret != settings.REMINDER_SECRET:
+        #     return Response({"error": "Unauthorized. Add ?secret=YOUR_SECRET to URL."}, status=403)
 
         from circulation.models import IssueBook
         from books.models import Book
