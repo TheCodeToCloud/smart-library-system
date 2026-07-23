@@ -50,6 +50,12 @@ class RegisterView(generics.CreateAPIView):
                 fail_silently=False,
             )
         except Exception as e:
+            # Log the actual error to the console (visible in Render logs)
+            import logging
+            logger = logging.getLogger(__name__)
+            logger.error(f"SMTP Email Send Failed: {str(e)}")
+            print(f"SMTP ERROR: {str(e)}")
+            
             # Roll back user creation if email fails
             user.delete()
             return Response(
