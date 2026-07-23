@@ -18,7 +18,6 @@ export default function BookModal({ isOpen, onClose, onSuccess, mode = "add", in
     const [category, setCategory] = useState("");
     const [isbn, setIsbn] = useState("");
     const [totalCopies, setTotalCopies] = useState(1);
-    const [availableCopies, setAvailableCopies] = useState(1);
     const [coverImageUrl, setCoverImageUrl] = useState("");
     const [coverImageFile, setCoverImageFile] = useState<File | null>(null);
     const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -35,7 +34,6 @@ export default function BookModal({ isOpen, onClose, onSuccess, mode = "add", in
             setCategory(initialData.category || "");
             setIsbn(initialData.isbn || "");
             setTotalCopies(initialData.total_copies || 1);
-            setAvailableCopies(initialData.available_copies || 1);
             setCoverImageUrl(initialData.cover_image || "");
             if (initialData.best_cover) {
                 setImagePreview(initialData.best_cover);
@@ -46,7 +44,7 @@ export default function BookModal({ isOpen, onClose, onSuccess, mode = "add", in
         } else if (isOpen && mode === "add") {
             // Reset for add
             setTitle(""); setAuthor(""); setCategory(""); setIsbn("");
-            setTotalCopies(1); setAvailableCopies(1);
+            setTotalCopies(1);
             clearImage();
         }
     }, [isOpen, initialData, mode]);
@@ -77,7 +75,7 @@ export default function BookModal({ isOpen, onClose, onSuccess, mode = "add", in
 
     const handleClose = () => {
         setTitle(""); setAuthor(""); setCategory(""); setIsbn("");
-        setTotalCopies(1); setAvailableCopies(1);
+        setTotalCopies(1);
         clearImage(); setError(""); setLoading(false);
         onClose();
     };
@@ -93,7 +91,10 @@ export default function BookModal({ isOpen, onClose, onSuccess, mode = "add", in
             formData.append("category", category);
             formData.append("isbn", isbn);
             formData.append("total_copies", String(totalCopies));
-            formData.append("available_copies", String(availableCopies));
+            // available_copies auto-set to total_copies for new books; backend keeps track on issue/return
+            if (mode === "add") {
+                formData.append("available_copies", String(totalCopies));
+            }
 
             if (imageMode === "upload" && coverImageFile) {
                 formData.append("cover_image_file", coverImageFile);
@@ -161,16 +162,16 @@ export default function BookModal({ isOpen, onClose, onSuccess, mode = "add", in
                         </div>
                     </div>
 
-                    {/* Copies */}
-                    <div className="grid grid-cols-2 gap-3">
-                        <div>
-                            <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wide">Total Copies *</label>
-                            <input type="number" required disabled={isViewOnly} min="1" value={totalCopies} onChange={(e) => setTotalCopies(Number(e.target.value))} className={inputClass} />
-                        </div>
-                        <div>
-                            <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wide">Available *</label>
-                            <input type="number" required disabled={isViewOnly} min="0" max={totalCopies} value={availableCopies} onChange={(e) => setAvailableCopies(Number(e.target.value))} className={inputClass} />
-                        </div>
+                    {/* Copies - only Total Copies; available auto-set */}
+                    <div>
+                        <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wide">Total Copies *</label>
+                        <input type="number" required disabled={isViewOnly} min="1" value={totalCopies} onChange={(e) => setTotalCopies(Number(e.target.value))} className={inputClass} />
+                        {!isViewOnly && mode === "add" && (
+                            <p className="text-xs text-gray-400 mt-1">Available copies will be set to total copies automatically.</p>
+                        )}
+                        {isViewOnly && (
+                            <p className="text-xs text-gray-400 mt-1">Available: {(initialData as any)?.available_copies ?? totalCopies}</p>
+                        )}
                     </div>
 
                     {/* Cover Image */}

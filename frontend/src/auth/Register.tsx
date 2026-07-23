@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../data/useAuth";
 import api from "../data/api";
@@ -102,9 +102,10 @@ interface RegisterFormErrors {
   password?: string;
   rollNo?: string;
   department?: string;
+  idCard?: string;
 }
 
-function validateForm(form: RegisterFormState): RegisterFormErrors {
+function validateForm(form: RegisterFormState, idCard: File | null): RegisterFormErrors {
   const errors: RegisterFormErrors = {};
   if (!form.fullName) {
     errors.fullName = "Full Name is required.";
@@ -125,6 +126,9 @@ function validateForm(form: RegisterFormState): RegisterFormErrors {
   if (!form.department) {
     errors.department = "Department is required.";
   }
+  if (!idCard) {
+    errors.idCard = "Identity card is required.";
+  }
   return errors;
 }
 
@@ -142,6 +146,9 @@ export default function Register() {
   const [errors, setErrors] = useState<RegisterFormErrors>({});
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [idCard, setIdCard] = useState<File | null>(null);
+  const [idCardPreview, setIdCardPreview] = useState<string | null>(null);
+  const idCardRef = useRef<HTMLInputElement>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -153,7 +160,7 @@ export default function Register() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const errs = validateForm(form);
+    const errs = validateForm(form, idCard);
     if (Object.keys(errs).length > 0) {
       setErrors(errs);
       return;
@@ -166,16 +173,20 @@ export default function Register() {
       const lastName = names.slice(1).join(" ");
       const username = form.email.split("@")[0] + Math.floor(Math.random() * 1000);
 
-      // 1. Register the user
-      await api.post("/api/accounts/register/", {
-        username: username,
-        email: form.email,
-        password: form.password,
-        first_name: firstName,
-        last_name: lastName,
-        role: "student", // Default role
-        roll_no: form.rollNo,
-        department: form.department
+      // 1. Register the user using multipart/form-data to include the ID card
+      const registerData = new FormData();
+      registerData.append("username", username);
+      registerData.append("email", form.email);
+      registerData.append("password", form.password);
+      registerData.append("first_name", firstName);
+      registerData.append("last_name", lastName);
+      registerData.append("role", "student");
+      registerData.append("roll_no", form.rollNo);
+      registerData.append("department", form.department);
+      if (idCard) registerData.append("id_proof", idCard);
+
+      await api.post("/api/accounts/register/", registerData, {
+        headers: { "Content-Type": "multipart/form-data" },
       });
 
       // 2. Automatically log them in after registration
@@ -283,6 +294,58 @@ export default function Register() {
               </button>
             </div>
             {errors.password && <p className="text-xs text-red-500 mt-1">{errors.password}</p>}
+          </div>
+
+          {/* Identity Card Upload */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-800 mb-1.5">Identity Card / College ID *</label>
+            <div
+              className={`border-2 border-dashed rounded-xl p-3 cursor-pointer transition text-center ${errors.idCard ? "border-red-400 bg-red-50" : "border-gray-200 hover:border-purple-400 hover:bg-purple-50"}`}
+              onClick={() => idCardRef.current?.click()}
+            >
+              {idCardPreview ? (
+                <div className="relative">
+                  <img src={idCardPreview} alt="ID Card Preview" className="mx-auto max-h-32 rounded-lg object-contain" />
+                  <button
+                    type="button"
+                    className="mt-2 text-xs text-red-500 hover:text-red-700 font-medium"
+                    onClick={(e) => { e.stopPropagation(); setIdCard(null); setIdCardPreview(null); if (idCardRef.current) idCardRef.current.value = ""; }}
+                  >
+                    Remove
+                  </button>
+                </div>
+              ) : (
+                <div className="py-2">
+                  <svg className="w-8 h-8 text-gray-300 mx-auto mb-1" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+                    <path d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14" />
+                    <rect x="3" y="3" width="18" height="18" rx="2" />
+                  </svg>
+                  <p className="text-sm text-gray-500"><span className="text-purple-600 font-semibold">Click to upload</span> your ID card</p>
+                  <p className="text-xs text-gray-400 mt-0.5">PNG, JPG, PDF up to 5MB</p>
+                </div>
+              )}
+            </div>
+            <input
+              ref={idCardRef}
+              type="file"
+              accept="image/*,.pdf"
+              className="hidden"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (!file) return;
+                setIdCard(file);
+                if (file.type.startsWith("image/")) {
+                  setIdCardPreview(URL.createObjectURL(file));
+                } else {
+                  setIdCardPreview(null);
+                }
+                setErrors((prev) => ({ ...prev, idCard: undefined }));
+              }}
+            />
+            {idCard && !idCardPreview && (
+              <p className="text-xs text-green-600 mt-1">✓ {idCard.name} selected</p>
+            )}
+            {errors.idCard && <p className="text-xs text-red-500 mt-1">{errors.idCard}</p>}
           </div>
 
           {/* Register Button */}
