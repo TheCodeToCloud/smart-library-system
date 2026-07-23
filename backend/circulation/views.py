@@ -94,14 +94,22 @@ class BorrowRequestView(generics.CreateAPIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        # Check if book is available
-        if book.available_copies <= 0:
+        # Enforce max 4 books limit
+        current_books_count = IssueBook.objects.filter(
+            member=request.user,
+            status__in=["pending", "issued"]
+        ).count()
+
+        if current_books_count >= 4:
             return Response(
                 {
-                    "error": "Book is not available"
+                    "error": "A user cannot borrow more than 4 books at a time."
                 },
                 status=status.HTTP_400_BAD_REQUEST
             )
+
+        # Check if book is available for immediate issue (Waitlist logic)
+        is_waitlisted = book.available_copies <= 0
 
         # Check if this student already has this book in pending or issued status
         existing_request = IssueBook.objects.filter(
@@ -130,9 +138,14 @@ class BorrowRequestView(generics.CreateAPIView):
         # Save IssueBook record
         serializer.save(member=request.user)
 
+        # Set success message based on availability
+        message = "Borrow request submitted successfully"
+        if is_waitlisted:
+            message = "No copies available right now. You have been placed on the waiting list."
+
         return Response(
             {
-                "message": "Borrow request submitted successfully",
+                "message": message,
                 "data": serializer.data
             },
             status=status.HTTP_201_CREATED
@@ -287,7 +300,19 @@ class DirectIssueView(generics.CreateAPIView):
                 status=status.HTTP_404_NOT_FOUND
             )
 
-        # Admins/Librarians/Students can all borrow books for testing
+        # Enforce max 4 books limit per member
+        current_books_count = IssueBook.objects.filter(
+            member=member,
+            status__in=["pending", "issued"]
+        ).count()
+
+        if current_books_count >= 4:
+            return Response(
+                {
+                    "error": f"{member.full_name} already has {current_books_count} books. A user cannot hold more than 4 books at a time."
+                },
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
         # Book availability
         if book.available_copies <= 0:
