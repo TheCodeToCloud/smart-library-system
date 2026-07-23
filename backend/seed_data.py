@@ -28,18 +28,18 @@ else:
 
 # Add sample books
 books_data = [
-    {'title': 'The Alchemist', 'author': 'Paulo Coelho', 'category': 'Fiction', 'isbn': '978-0062315007', 'total_copies': 5, 'available_copies': 3, 'cover_image': '/book-alchemist.jpg'},
-    {'title': 'Atomic Habits', 'author': 'James Clear', 'category': 'Self-Help', 'isbn': '978-0735211292', 'total_copies': 4, 'available_copies': 2, 'cover_image': '/book-atomic-habits.jpg'},
-    {'title': 'Think and Grow Rich', 'author': 'Napoleon Hill', 'category': 'Self-Help', 'isbn': '978-1585424337', 'total_copies': 3, 'available_copies': 3, 'cover_image': '/book-think-grow-rich.jpg'},
-    {'title': 'Clean Code', 'author': 'Robert C. Martin', 'category': 'Technology', 'isbn': '978-0132350884', 'total_copies': 6, 'available_copies': 4, 'cover_image': '/book-clean-code.jpg'},
-    {'title': 'The Psychology of Money', 'author': 'Morgan Housel', 'category': 'Finance', 'isbn': '978-0857197689', 'total_copies': 4, 'available_copies': 1, 'cover_image': '/book-psychology-money.jpg'},
-    {'title': 'Deep Work', 'author': 'Cal Newport', 'category': 'Self-Help', 'isbn': '978-1455586691', 'total_copies': 3, 'available_copies': 2, 'cover_image': '/book-deep-work.jpg'},
-    {'title': 'Rich Dad Poor Dad', 'author': 'Robert T. Kiyosaki', 'category': 'Finance', 'isbn': '978-1612680194', 'total_copies': 5, 'available_copies': 3, 'cover_image': '/book-rich-dad.jpg'},
-    {'title': 'The Power of Habit', 'author': 'Charles Duhigg', 'category': 'Self-Help', 'isbn': '978-1400069286', 'total_copies': 4, 'available_copies': 2, 'cover_image': '/book-power-habit.jpg'},
+    {'title': 'The Alchemist', 'author': 'Paulo Coelho', 'category': 'Fiction', 'isbn': '978-0062315007', 'total_copies': 10, 'available_copies': 10, 'cover_image': '/book-alchemist.jpg'},
+    {'title': 'Atomic Habits', 'author': 'James Clear', 'category': 'Self-Help', 'isbn': '978-0735211292', 'total_copies': 10, 'available_copies': 10, 'cover_image': '/book-atomic-habits.jpg'},
+    {'title': 'Think and Grow Rich', 'author': 'Napoleon Hill', 'category': 'Self-Help', 'isbn': '978-1585424337', 'total_copies': 10, 'available_copies': 10, 'cover_image': '/book-think-grow-rich.jpg'},
+    {'title': 'Clean Code', 'author': 'Robert C. Martin', 'category': 'Technology', 'isbn': '978-0132350884', 'total_copies': 10, 'available_copies': 10, 'cover_image': '/book-clean-code.jpg'},
+    {'title': 'The Psychology of Money', 'author': 'Morgan Housel', 'category': 'Finance', 'isbn': '978-0857197689', 'total_copies': 10, 'available_copies': 10, 'cover_image': '/book-psychology-money.jpg'},
+    {'title': 'Deep Work', 'author': 'Cal Newport', 'category': 'Self-Help', 'isbn': '978-1455586691', 'total_copies': 10, 'available_copies': 10, 'cover_image': '/book-deep-work.jpg'},
+    {'title': 'Rich Dad Poor Dad', 'author': 'Robert T. Kiyosaki', 'category': 'Finance', 'isbn': '978-1612680194', 'total_copies': 10, 'available_copies': 10, 'cover_image': '/book-rich-dad.jpg'},
+    {'title': 'The Power of Habit', 'author': 'Charles Duhigg', 'category': 'Self-Help', 'isbn': '978-1400069286', 'total_copies': 10, 'available_copies': 10, 'cover_image': '/book-power-habit.jpg'},
 ]
 
 for b in books_data:
-    obj, created = Book.objects.update_or_create(
+    obj, created = Book.objects.get_or_create(
         isbn=b['isbn'],
         defaults=b
     )
