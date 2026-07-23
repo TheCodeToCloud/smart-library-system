@@ -100,7 +100,6 @@ interface RegisterFormState {
 interface RegisterFormErrors {
   fullName?: string;
   email?: string;
-  confirmEmail?: string;
   phone?: string;
   password?: string;
   rollNo?: string;
@@ -108,15 +107,13 @@ interface RegisterFormErrors {
   idCard?: string;
 }
 
-function validateForm(form: RegisterFormState, idCard: File | null, confirmEmail: string): RegisterFormErrors {
+function validateForm(form: RegisterFormState, idCard: File | null): RegisterFormErrors {
   const errors: RegisterFormErrors = {};
   if (!form.fullName) errors.fullName = "Full Name is required.";
   if (!form.email) {
     errors.email = "Email is required.";
   } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
     errors.email = "Enter a valid email address.";
-  } else if (form.email !== confirmEmail) {
-    errors.confirmEmail = "Email addresses do not match. Please re-enter carefully.";
   }
   if (!form.phone) {
     errors.phone = "Phone Number is required.";
@@ -149,7 +146,6 @@ export default function Register() {
   const [errors, setErrors] = useState<RegisterFormErrors>({});
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [confirmEmail, setConfirmEmail] = useState("");
   const [idCard, setIdCard] = useState<File | null>(null);
   const [idCardPreview, setIdCardPreview] = useState<string | null>(null);
   const idCardRef = useRef<HTMLInputElement>(null);
@@ -172,7 +168,7 @@ export default function Register() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const errs = validateForm(form, idCard, confirmEmail);
+    const errs = validateForm(form, idCard);
     if (Object.keys(errs).length > 0) {
       setErrors(errs);
       return;
@@ -391,44 +387,6 @@ export default function Register() {
             {errors.email && <p className="text-xs text-red-500 mt-1">{errors.email}</p>}
           </div>
 
-          {/* Confirm Email */}
-          <div>
-            <label className="block text-sm font-semibold text-gray-800 mb-1.5">Confirm Email Address</label>
-            <div className={`flex items-center border rounded-xl px-3 py-2.5 gap-2 bg-white transition ${
-              errors.confirmEmail
-                ? "border-red-400 ring-1 ring-red-300"
-                : confirmEmail && confirmEmail === form.email
-                ? "border-green-400 ring-1 ring-green-200"
-                : "border-gray-200 focus-within:border-purple-400 focus-within:ring-1 focus-within:ring-purple-300"
-            }`}>
-              <MailIcon />
-              <input
-                type="email"
-                value={confirmEmail}
-                onChange={(e) => {
-                  setConfirmEmail(e.target.value);
-                  if (errors.confirmEmail) setErrors((prev) => ({ ...prev, confirmEmail: undefined }));
-                }}
-                onPaste={(e) => e.preventDefault()}
-                placeholder="Re-enter your email"
-                className="flex-1 text-sm text-gray-700 placeholder-gray-400 bg-transparent outline-none"
-                autoComplete="off"
-              />
-              {confirmEmail && (
-                <span className={confirmEmail === form.email ? "text-green-500" : "text-red-400"}>
-                  {confirmEmail === form.email ? (
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>
-                  ) : (
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"/></svg>
-                  )}
-                </span>
-              )}
-            </div>
-            {errors.confirmEmail && <p className="text-xs text-red-500 mt-1">{errors.confirmEmail}</p>}
-            {!errors.confirmEmail && confirmEmail && confirmEmail === form.email && (
-              <p className="text-xs text-green-600 mt-1">✓ Email addresses match!</p>
-            )}
-          </div>
 
           {/* Password */}
           <div>
