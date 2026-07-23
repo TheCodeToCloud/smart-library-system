@@ -257,6 +257,7 @@ class CleanTestDataView(APIView):
             return Response({"error": "Unauthorized. Add ?secret=YOUR_SECRET to URL."}, status=403)
 
         from circulation.models import IssueBook
+        from books.models import Book
 
         # Delete all circulation records
         issue_count, _ = IssueBook.objects.all().delete()
@@ -268,6 +269,11 @@ class CleanTestDataView(APIView):
         user_qs = User.objects.exclude(role__in=['admin', 'librarian'])
         user_count = user_qs.count()
         user_qs.delete()
+        
+        # Reset all books to exactly 10/10 copies
+        books = Book.objects.all()
+        book_count = books.count()
+        books.update(total_copies=10, available_copies=10)
 
         return Response({
             "success": True,
@@ -276,5 +282,9 @@ class CleanTestDataView(APIView):
                 "student_profiles": profile_count,
                 "users": user_count,
             },
-            "message": f"Cleaned! {user_count} students, {issue_count} circulation records deleted. Ready for fresh demo!"
+            "updated": {
+                "books": book_count,
+                "copies_reset_to": 10
+            },
+            "message": f"Cleaned! {user_count} students deleted. {book_count} books reset to 10/10 copies. Ready for fresh demo!"
         })
