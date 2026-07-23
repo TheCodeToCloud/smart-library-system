@@ -1,11 +1,52 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../data/useAuth";
 import api from "../data/api";
+import axios from "axios";
 import { GoogleLogin } from "@react-oauth/google";
 import { toast } from "react-toastify";
 
+// ─── Icons ────────────────────────────────────────────────────────────────────
+
+const UserIcon = () => (
+  <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24">
+    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+    <circle cx="12" cy="7" r="4" />
+  </svg>
+);
+
+const MailIcon = () => (
+  <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24">
+    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+    <polyline points="22,6 12,13 2,6" />
+  </svg>
+);
+
+const LockIcon = () => (
+  <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24">
+    <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+    <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+  </svg>
+);
+
+const EyeIcon = ({ off }: { off?: boolean }) =>
+  off ? (
+    <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24">
+      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" />
+      <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" />
+      <line x1="1" y1="1" x2="23" y2="23" />
+    </svg>
+  ) : (
+    <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" strokeWidth={1.8} viewBox="0 0 24 24">
+      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+      <circle cx="12" cy="12" r="3" />
+    </svg>
+  );
+
+// ─── Logo ─────────────────────────────────────────────────────────────────────
+
 const UniLibraryLogo = () => (
-  <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-16 h-16 mx-auto mb-4">
+  <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-20 h-20 mx-auto mb-2">
     <polygon points="40,4 74,64 6,64" fill="none" stroke="#3b82f6" strokeWidth="4" />
     <polygon points="40,76 6,16 74,16" fill="none" stroke="#22c55e" strokeWidth="4" />
     <polygon points="40,22 52,29 52,43 40,50 28,43 28,29" fill="#ef4444" opacity="0.9" />
@@ -17,33 +58,178 @@ const UniLibraryLogo = () => (
   </svg>
 );
 
+// ─── Register Form Types ──────────────────────────────────────────────────────
+
+interface RegisterFormState {
+  fullName: string;
+  email: string;
+  password: string;
+}
+
+interface RegisterFormErrors {
+  fullName?: string;
+  email?: string;
+  password?: string;
+}
+
+function validateForm(form: RegisterFormState): RegisterFormErrors {
+  const errors: RegisterFormErrors = {};
+  if (!form.fullName) {
+    errors.fullName = "Full Name is required.";
+  }
+  if (!form.email) {
+    errors.email = "Email is required.";
+  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
+    errors.email = "Enter a valid email address.";
+  }
+  if (!form.password) {
+    errors.password = "Password is required.";
+  } else if (form.password.length < 6) {
+    errors.password = "Password must be at least 6 characters.";
+  }
+  return errors;
+}
+
 export default function Register() {
   const navigate = useNavigate();
   const { login } = useAuth();
+  
+  const [form, setForm] = useState<RegisterFormState>({
+    fullName: "",
+    email: "",
+    password: "",
+  });
+  const [errors, setErrors] = useState<RegisterFormErrors>({});
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setForm((prev) => ({ ...prev, [name]: value }));
+    if (errors[name as keyof RegisterFormErrors]) {
+      setErrors((prev) => ({ ...prev, [name]: undefined }));
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const errs = validateForm(form);
+    if (Object.keys(errs).length > 0) {
+      setErrors(errs);
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const names = form.fullName.trim().split(" ");
+      const firstName = names[0];
+      const lastName = names.slice(1).join(" ");
+      const username = form.email.split("@")[0] + Math.floor(Math.random() * 1000);
+
+      // 1. Register the user
+      await api.post("/api/accounts/register/", {
+        username: username,
+        email: form.email,
+        password: form.password,
+        first_name: firstName,
+        last_name: lastName,
+        role: "student" // Default role
+      });
+
+      // 2. Automatically log them in after registration
+      const loginResponse = await api.post("/api/login/", {
+        email: form.email,
+        password: form.password,
+      });
+
+      login(loginResponse.data.access, loginResponse.data.refresh);
+      toast.success("Account created successfully!");
+      navigate("/", { replace: true });
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        console.error(err.response?.data);
+        const errorData = err.response?.data;
+        if (errorData?.email) {
+          setErrors({ email: "This email is already registered." });
+        } else {
+          toast.error(errorData?.detail || "Registration failed. Please try again.");
+        }
+      } else {
+        toast.error("Registration failed. Please try again.");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen flex font-sans bg-gray-50 items-center justify-center py-10 px-4">
       <div className="bg-white rounded-3xl shadow-xl w-full max-w-md px-8 py-10">
         
-        <div className="text-center mb-8">
+        <div className="text-center mb-6">
           <UniLibraryLogo />
           <h2 className="text-3xl font-bold text-gray-900">
             Create an <span className="text-purple-600">Account</span>
           </h2>
           <p className="text-sm text-gray-400 mt-2 leading-relaxed">
-            Register securely using your Google account to access the library. This ensures you receive important updates and fine reminders.
+            Register to access the library dashboard.
           </p>
         </div>
 
-        <div className="flex flex-col items-center justify-center space-y-6">
-          <div className="w-full max-w-xs flex justify-center">
+        <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+          {/* Full Name */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-800 mb-1.5">Full Name</label>
+            <div className={`flex items-center border rounded-xl px-3 py-2.5 gap-2 bg-white transition ${errors.fullName ? "border-red-400 ring-1 ring-red-300" : "border-gray-200 focus-within:border-purple-400 focus-within:ring-1 focus-within:ring-purple-300"}`}>
+              <UserIcon />
+              <input type="text" name="fullName" value={form.fullName} onChange={handleChange} placeholder="John Doe" className="flex-1 text-sm text-gray-700 placeholder-gray-400 bg-transparent outline-none" />
+            </div>
+            {errors.fullName && <p className="text-xs text-red-500 mt-1">{errors.fullName}</p>}
+          </div>
+
+          {/* Email */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-800 mb-1.5">Email Address</label>
+            <div className={`flex items-center border rounded-xl px-3 py-2.5 gap-2 bg-white transition ${errors.email ? "border-red-400 ring-1 ring-red-300" : "border-gray-200 focus-within:border-purple-400 focus-within:ring-1 focus-within:ring-purple-300"}`}>
+              <MailIcon />
+              <input type="email" name="email" value={form.email} onChange={handleChange} placeholder="john@example.com" className="flex-1 text-sm text-gray-700 placeholder-gray-400 bg-transparent outline-none" />
+            </div>
+            {errors.email && <p className="text-xs text-red-500 mt-1">{errors.email}</p>}
+          </div>
+
+          {/* Password */}
+          <div>
+            <label className="block text-sm font-semibold text-gray-800 mb-1.5">Password</label>
+            <div className={`flex items-center border rounded-xl px-3 py-2.5 gap-2 bg-white transition ${errors.password ? "border-red-400 ring-1 ring-red-300" : "border-gray-200 focus-within:border-purple-400 focus-within:ring-1 focus-within:ring-purple-300"}`}>
+              <LockIcon />
+              <input type={showPassword ? "text" : "password"} name="password" value={form.password} onChange={handleChange} placeholder="Create a password" className="flex-1 text-sm text-gray-700 placeholder-gray-400 bg-transparent outline-none" />
+              <button type="button" onClick={() => setShowPassword((v) => !v)} className="text-gray-400 hover:text-gray-600 transition" tabIndex={-1}>
+                <EyeIcon off={showPassword} />
+              </button>
+            </div>
+            {errors.password && <p className="text-xs text-red-500 mt-1">{errors.password}</p>}
+          </div>
+
+          {/* Register Button */}
+          <button type="submit" disabled={loading} className="w-full bg-purple-600 hover:bg-purple-700 disabled:opacity-70 text-white font-bold py-3 rounded-xl transition text-sm tracking-wide shadow-md mt-2">
+            {loading ? "Registering..." : "Register"}
+          </button>
+
+          {/* Divider */}
+          <div className="flex items-center gap-3 pt-2">
+            <div className="flex-1 h-px bg-gray-200" />
+            <span className="text-xs text-gray-400">or sign up with</span>
+            <div className="flex-1 h-px bg-gray-200" />
+          </div>
+
+          {/* Google Sign In */}
+          <div className="flex justify-center">
             <GoogleLogin
               onSuccess={async (credentialResponse) => {
                 try {
                   const response = await api.post("/api/accounts/google-login/", {
                     id_token: credentialResponse.credential,
                   });
-
                   login(response.data.access, response.data.refresh);
                   navigate("/", { replace: true });
                 } catch (error) {
@@ -51,25 +237,18 @@ export default function Register() {
                   toast.error("Google Registration Failed");
                 }
               }}
-              onError={() => {
-                toast.warning("Google Sign-In was cancelled or failed.");
-              }}
-              useOneTap
+              onError={() => toast.warning("Google Sign-In was cancelled or failed.")}
             />
           </div>
+        </form>
 
-          <div className="w-full border-t border-gray-100 pt-6 mt-6">
-            <p className="text-center text-sm text-gray-500">
-              Already have an account?{" "}
-              <button 
-                type="button" 
-                onClick={() => navigate("/login")} 
-                className="text-purple-600 font-semibold hover:underline"
-              >
-                Sign In
-              </button>
-            </p>
-          </div>
+        <div className="w-full border-t border-gray-100 pt-6 mt-6">
+          <p className="text-center text-sm text-gray-500">
+            Already have an account?{" "}
+            <button type="button" onClick={() => navigate("/login")} className="text-purple-600 font-semibold hover:underline">
+              Sign In
+            </button>
+          </p>
         </div>
 
       </div>
