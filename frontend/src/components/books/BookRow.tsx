@@ -77,7 +77,7 @@ export default function BookRow({ book, index, onKycRequired, onView, onEdit, on
                     <body>
                         <h2 style="color: #1f2937; margin-bottom: 5px;">${book.title}</h2>
                         <p style="color: #6b7280; margin-top: 0; margin-bottom: 20px;">ID: ${book.id} | ISBN: ${book.isbn}</p>
-                        <img src="${qrUrl}" alt="QR Code" onload="setTimeout(() => window.print(), 500)" />
+                        <img src="${qrUrl}" alt="QR Code" />
                         <br/>
                         <button onclick="window.print()">Print QR Code</button>
                     </body>
