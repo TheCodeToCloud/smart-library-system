@@ -49,15 +49,13 @@ class ELibraryResourceDownloadView(generics.GenericAPIView):
             )
             
             # resource_file.name = e.g. 'media/elibrary/ML-Past-Question_wvtl90.pdf'
-            name = resource.resource_file.name
+            # For raw files, the public_id INCLUDES the extension
+            public_id = resource.resource_file.name  # full name with extension
             
-            # Split into public_id and format for private_download_url
-            if '.' in name:
-                public_id = name.rsplit('.', 1)[0]  # 'media/elibrary/ML-Past-Question_wvtl90'
-                fmt = name.rsplit('.', 1)[1]         # 'pdf'
-            else:
-                public_id = name
-                fmt = 'pdf'
+            # Extract format separately
+            fmt = 'pdf'
+            if '.' in public_id:
+                fmt = public_id.rsplit('.', 1)[1]
             
             # private_download_url goes through api.cloudinary.com (API endpoint)
             # NOT res.cloudinary.com (CDN) — so it bypasses CDN delivery restrictions
