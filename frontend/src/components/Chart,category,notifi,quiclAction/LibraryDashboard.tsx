@@ -8,15 +8,15 @@ import { useAuth } from "../../data/useAuth";
 export default function LibraryDashboard() {
     const { user } = useAuth();
     return (
-        <div className="p-5 font-nav2 ">
-            <div className="grid grid-cols-2 gap-4 w-full">  {/* add max-w-3xl */}
+        <div className="p-2 sm:p-5 font-nav2 space-y-5">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">
                 <IssueReturnCard />
                 <CategoryCard />
             </div>
             <RecentIssues />
-            <div className="flex gap-5">
-                {user?.role === 'librarian' && <QuickAction />}
-                <Notification />
+            <div className="flex flex-col md:flex-row gap-5">
+                {user?.role === 'librarian' && <div className="w-full md:w-auto"><QuickAction /></div>}
+                <div className="w-full flex-1"><Notification /></div>
             </div>
         </div>
     );

@@ -6,7 +6,7 @@ class IsAdmin(BasePermission):
     def has_permission(self, request, view):
         return (
             request.user.is_authenticated
-            and request.user.role == "admin"
+            and (request.user.role == "admin" or request.user.is_superuser)
         )
 
 
@@ -33,8 +33,5 @@ class IsAdminOrLibrarian(BasePermission):
     def has_permission(self, request, view):
         return (
             request.user.is_authenticated
-            and request.user.role in (
-                "admin",
-                "librarian"
-            )
+            and (request.user.role in ("admin", "librarian") or request.user.is_superuser)
         )
