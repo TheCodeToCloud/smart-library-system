@@ -10,11 +10,9 @@ export type Member = {
     photo: string | null;
     kyc_status: string;
     created_at: string;
-    role: string;
     department: string;
     roll_no: string;
     joined_at: string;
-    is_active: boolean;
 };
 
 const avatarColors = [
