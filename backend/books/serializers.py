@@ -1,5 +1,13 @@
 from rest_framework import serializers
-from .models import Book
+from .models import Book, ELibraryResource
+
+class ELibraryResourceSerializer(serializers.ModelSerializer):
+    uploaded_by_name = serializers.CharField(source='uploaded_by.full_name', read_only=True)
+    
+    class Meta:
+        model = ELibraryResource
+        fields = '__all__'
+
 
 
 class BookSerializer(serializers.ModelSerializer):

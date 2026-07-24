@@ -76,10 +76,10 @@ export default function Nav({ isOpen, setIsOpen }: NavProps) {
 
             {/* Menu */}
             <nav className="px-4 mt-3 space-y-2 font-nav2 text-white">
-              <button onClick={() => toast.info('Coming soon...')} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-white hover:bg-black">
-                <img src="../dashboard2.svg" alt="dashboard" />
+              <NavLink to="/elibrary" className={({ isActive }) => `w-full flex items-center gap-3 px-4 py-3 rounded-xl text-white ${isActive ? "bg-blue-500" : "hover:bg-black"}`}>
+                <img src="../dashboard2.svg" alt="elibrary" />
                 e-Library
-              </button>
+              </NavLink>
 
               <NavLink to="/dashboard" className={({ isActive }) => `w-full flex items-center gap-3 px-4 py-3 rounded-xl text-white ${isActive ? "bg-blue-500" : "hover:bg-black"}`}>
                 <img src="../img1.svg" alt="dashboard" />

@@ -3,8 +3,29 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.parsers import MultiPartParser, FormParser
 from accounts.permissions import IsAdminOrLibrarian
-from .models import Book
-from .serializers import BookSerializer
+from .models import Book, ELibraryResource
+from .serializers import BookSerializer, ELibraryResourceSerializer
+
+class ELibraryResourceListCreateView(generics.ListCreateAPIView):
+    parser_classes = (MultiPartParser, FormParser)
+    queryset = ELibraryResource.objects.all()
+    serializer_class = ELibraryResourceSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['title', 'author', 'category']
+
+    def get_permissions(self):
+        if self.request.method in ['POST']:
+            return [IsAdminOrLibrarian()]
+        return [IsAuthenticated()]
+
+    def perform_create(self, serializer):
+        serializer.save(uploaded_by=self.request.user)
+
+class ELibraryResourceRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = ELibraryResource.objects.all()
+    serializer_class = ELibraryResourceSerializer
+    permission_classes = [IsAdminOrLibrarian]
+
 
 
 class BookListCreateView(generics.ListCreateAPIView):

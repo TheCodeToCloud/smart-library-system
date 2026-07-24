@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
 import api from "./api";
-import { GeneralSettings, LibraryInfoSettings, NotificationSettings, BackupSettings } from "./Settingsdata";
 
 // Unified interface representing the Django model
 export interface SystemSettings {

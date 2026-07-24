@@ -16,6 +16,7 @@ import ReportsPage from "./components/reports/reportPage";
 import FineManager from "./components/fineManager/fineManager";
 import Settings from "./components/settings/Settings";
 import Landing from "./components/Landing";
+import ELibraryPage from "./components/elibrary/ELibraryPage";
 
 import { AuthProvider } from "./auth/AuthContext";
 import { ProtectedRoute } from "./auth/ProtectedRoute";
@@ -51,6 +52,8 @@ function AppLayout() {
               <Route path="/books" element={<Books />} />
               <Route path="/issue-return" element={<IssueReturn />} />
               <Route path="/unauthorized" element={<Unauthorized />} />
+              <Route path="/settings" element={<Settings />} />
+              <Route path="/elibrary" element={<ELibraryPage />} />
 
               {/* Admin and Librarian only */}
               <Route element={<ProtectedRoute allowedRoles={["admin", "librarian"]} />}>
