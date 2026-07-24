@@ -150,7 +150,7 @@ export default function ELibraryPage() {
                                         rel="noreferrer"
                                         className="flex-1 flex items-center justify-center gap-2 bg-purple-50 hover:bg-purple-100 text-purple-700 py-2 rounded-xl text-sm font-semibold transition-colors"
                                     >
-                                        <ExternalLink className="w-4 h-4" /> Download File
+                                        <ExternalLink className="w-4 h-4" /> Open / Read
                                     </a>
                                 ) : (
                                     <button disabled className="flex-1 flex items-center justify-center gap-2 bg-gray-50 text-gray-400 py-2 rounded-xl text-sm font-semibold cursor-not-allowed">

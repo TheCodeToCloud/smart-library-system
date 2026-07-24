@@ -26,7 +26,11 @@ class ELibraryResourceRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAP
     serializer_class = ELibraryResourceSerializer
     permission_classes = [IsAdminOrLibrarian]
 
-from django.http import HttpResponse, Http404
+import cloudinary
+import cloudinary.utils
+from django.conf import settings
+from django.shortcuts import redirect
+from django.http import Http404
 
 class ELibraryResourceDownloadView(generics.GenericAPIView):
     queryset = ELibraryResource.objects.all()
@@ -37,19 +41,26 @@ class ELibraryResourceDownloadView(generics.GenericAPIView):
             raise Http404("No file attached to this resource.")
         
         try:
-            # Read file using Django's authenticated storage API
-            file_content = resource.resource_file.read()
+            cloudinary.config(
+                cloud_name=settings.CLOUDINARY_STORAGE.get('CLOUD_NAME'),
+                api_key=settings.CLOUDINARY_STORAGE.get('API_KEY'),
+                api_secret=settings.CLOUDINARY_STORAGE.get('API_SECRET')
+            )
             
-            response = HttpResponse(file_content, content_type='application/pdf')
+            # The file name in Django (e.g., 'media/elibrary/file.pdf') acts as the public_id for raw files
+            public_id = resource.resource_file.name
             
-            filename = resource.resource_file.name.split('/')[-1]
-            if not filename.endswith('.pdf') and not filename.endswith('.doc') and not filename.endswith('.docx'):
-                filename += '.pdf'
-                
-            response['Content-Disposition'] = f'attachment; filename="{filename}"'
-            return response
+            # Generate a signed URL for inline viewing
+            url, _ = cloudinary.utils.cloudinary_url(
+                public_id, 
+                resource_type='raw', 
+                sign_url=True
+            )
+            
+            # Redirect the user to the signed URL which bypasses Cloudinary's PDF delivery restrictions natively
+            return redirect(url)
         except Exception as e:
-            raise Http404(f"Failed to fetch file: {str(e)}")
+            raise Http404(f"Failed to generate signed URL: {str(e)}")
 
 
 
