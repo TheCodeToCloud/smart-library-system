@@ -177,6 +177,28 @@ class KYCRejectView(APIView):
         profile.save()
         return Response({"message": f"KYC rejected for {profile.user.username}."})
 
+
+class ToggleUserActiveView(APIView):
+    """Deactivate or activate a user account."""
+    permission_classes = [IsAdminOrLibrarian]
+
+    def post(self, request, user_id):
+        try:
+            user = User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            return Response({"error": "User not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        if user == request.user:
+            return Response({"error": "You cannot deactivate your own account."}, status=status.HTTP_400_BAD_REQUEST)
+
+        if user.is_superuser and request.user.role != 'admin':
+            return Response({"error": "Librarians cannot deactivate admin users."}, status=status.HTTP_403_FORBIDDEN)
+
+        user.is_active = not user.is_active
+        user.save()
+        action = "activated" if user.is_active else "deactivated"
+        return Response({"message": f"User {user.username} has been {action}."})
+
 class UploadProfilePictureView(APIView):
     """Allow authenticated users to upload/update their profile picture"""
     permission_classes = [IsAuthenticated]

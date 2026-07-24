@@ -29,7 +29,7 @@ export default function Members() {
     const [currentPage, setCurrentPage] = useState(1);
     const [busyId, setBusyId] = useState<number | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [confirmAction, setConfirmAction] = useState<{userId: number, action: "approve" | "reject"} | null>(null);
+    const [confirmAction, setConfirmAction] = useState<{userId: number, action: "approve" | "reject" | "deactivate" | "activate"} | null>(null);
 
     const filtered = members.filter(m => {
         const matchSearch =
@@ -74,24 +74,29 @@ export default function Members() {
         document.body.removeChild(link);
     };
 
-    const executeKYCAction = async () => {
+    const executeAction = async () => {
         if (!confirmAction) return;
         const { userId, action } = confirmAction;
         setConfirmAction(null); // Close modal
         setBusyId(userId);
         try {
-            await api.post(`/api/accounts/kyc/${userId}/${action}/`);
-            toast.success(`Status ${action === "approve" ? "Approved" : "Rejected"} successfully!`);
+            if (action === "approve" || action === "reject") {
+                await api.post(`/api/accounts/kyc/${userId}/${action}/`);
+                toast.success(`Status ${action === "approve" ? "Approved" : "Rejected"} successfully!`);
+            } else if (action === "deactivate" || action === "activate") {
+                await api.post(`/api/accounts/users/${userId}/toggle-active/`);
+                toast.success(`User account ${action}d successfully!`);
+            }
             refreshMembers();
         } catch (e: any) {
-            console.error("KYC Action error:", e);
-            toast.error(e.response?.data?.error || "Status action failed.");
+            console.error("Action error:", e);
+            toast.error(e.response?.data?.error || "Action failed.");
         } finally {
             setBusyId(null);
         }
     };
 
-    function handleKYC(userId: number, action: "approve" | "reject") {
+    function handleAction(userId: number, action: "approve" | "reject" | "deactivate" | "activate") {
         setConfirmAction({ userId, action });
     }
 
@@ -199,47 +204,63 @@ export default function Members() {
                             <span className="text-xs text-gray-400">None</span>
                         )}
                     </div>
-
                     {/* KYC Actions (students only, pending only shows both buttons) */}
                     <div className="flex gap-1 flex-wrap">
-                        {m.role === "student" && m.kyc_status === "pending" && (
+                        {!m.is_active ? (
+                            <button
+                                disabled={busyId === m.id}
+                                onClick={() => handleAction(m.id, "activate")}
+                                className="px-2 py-1 text-xs font-semibold bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 disabled:opacity-50 transition"
+                            >
+                                ↑ Activate
+                            </button>
+                        ) : (
                             <>
+                                {m.role === "student" && m.kyc_status === "pending" && (
+                                    <>
+                                        <button
+                                            disabled={busyId === m.id}
+                                            onClick={() => handleAction(m.id, "approve")}
+                                            className="px-2 py-1 text-xs font-semibold bg-green-100 text-green-700 rounded-lg hover:bg-green-200 disabled:opacity-50 transition"
+                                        >
+                                            ✓ Approve
+                                        </button>
+                                        <button
+                                            disabled={busyId === m.id}
+                                            onClick={() => handleAction(m.id, "reject")}
+                                            className="px-2 py-1 text-xs font-semibold bg-red-100 text-red-600 rounded-lg hover:bg-red-200 disabled:opacity-50 transition"
+                                        >
+                                            ✗ Reject
+                                        </button>
+                                    </>
+                                )}
+                                {m.role === "student" && m.kyc_status === "approved" && (
+                                    <button
+                                        disabled={busyId === m.id}
+                                        onClick={() => handleAction(m.id, "reject")}
+                                        className="px-2 py-1 text-xs font-semibold bg-red-100 text-red-600 rounded-lg hover:bg-red-200 disabled:opacity-50 transition"
+                                    >
+                                        ✗ Revoke
+                                    </button>
+                                )}
+                                {m.role === "student" && m.kyc_status === "rejected" && (
+                                    <button
+                                        disabled={busyId === m.id}
+                                        onClick={() => handleAction(m.id, "approve")}
+                                        className="px-2 py-1 text-xs font-semibold bg-green-100 text-green-700 rounded-lg hover:bg-green-200 disabled:opacity-50 transition"
+                                    >
+                                        ✓ Re-approve
+                                    </button>
+                                )}
                                 <button
-                                    disabled={busyId === m.id}
-                                    onClick={() => handleKYC(m.id, "approve")}
-                                    className="px-2 py-1 text-xs font-semibold bg-green-100 text-green-700 rounded-lg hover:bg-green-200 disabled:opacity-50 transition"
+                                    disabled={busyId === m.id || user?.email === m.email}
+                                    onClick={() => handleAction(m.id, "deactivate")}
+                                    className="px-2 py-1 text-xs font-semibold bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 disabled:opacity-50 transition ml-1"
+                                    title={user?.email === m.email ? "Cannot deactivate yourself" : "Deactivate account"}
                                 >
-                                    ✓ Approve
-                                </button>
-                                <button
-                                    disabled={busyId === m.id}
-                                    onClick={() => handleKYC(m.id, "reject")}
-                                    className="px-2 py-1 text-xs font-semibold bg-red-100 text-red-600 rounded-lg hover:bg-red-200 disabled:opacity-50 transition"
-                                >
-                                    ✗ Reject
+                                    ⊘ Deactivate
                                 </button>
                             </>
-                        )}
-                        {m.role === "student" && m.kyc_status === "approved" && (
-                            <button
-                                disabled={busyId === m.id}
-                                onClick={() => handleKYC(m.id, "reject")}
-                                className="px-2 py-1 text-xs font-semibold bg-red-100 text-red-600 rounded-lg hover:bg-red-200 disabled:opacity-50 transition"
-                            >
-                                ✗ Revoke
-                            </button>
-                        )}
-                        {m.role === "student" && m.kyc_status === "rejected" && (
-                            <button
-                                disabled={busyId === m.id}
-                                onClick={() => handleKYC(m.id, "approve")}
-                                className="px-2 py-1 text-xs font-semibold bg-green-100 text-green-700 rounded-lg hover:bg-green-200 disabled:opacity-50 transition"
-                            >
-                                ✓ Re-approve
-                            </button>
-                        )}
-                        {m.role !== "student" && (
-                            <span className="text-xs text-gray-400">—</span>
                         )}
                     </div>
                 </div>
@@ -264,8 +285,8 @@ export default function Members() {
 
             <ConfirmModal
                 isOpen={confirmAction !== null}
-                message={`Are you sure you want to ${confirmAction?.action === "approve" ? "approve" : "reject"} this student's status?`}
-                onConfirm={executeKYCAction}
+                message={`Are you sure you want to ${confirmAction?.action === "approve" ? "approve" : confirmAction?.action === "reject" ? "reject" : confirmAction?.action === "deactivate" ? "deactivate" : "activate"} this user?`}
+                onConfirm={executeAction}
                 onCancel={() => setConfirmAction(null)}
             />
         </div>

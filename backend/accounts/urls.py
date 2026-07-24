@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import MeView, RegisterView, UpdateUserRoleView, UserListView, GoogleLoginView, MemberListView, KYCApproveView, KYCRejectView, UploadProfilePictureView, SubmitKYCView, CleanTestDataView
+from .views import MeView, RegisterView, UpdateUserRoleView, UserListView, GoogleLoginView, MemberListView, KYCApproveView, KYCRejectView, UploadProfilePictureView, SubmitKYCView, CleanTestDataView, ToggleUserActiveView
 
 urlpatterns = [
     path('register/', RegisterView.as_view(), name='register'),
@@ -7,6 +7,7 @@ urlpatterns = [
     path('me/',MeView.as_view(),name='me'),
     path('users/',UserListView.as_view(),name='users'),
     path('users/<int:pk>/',UpdateUserRoleView.as_view(),name='user-update'),
+    path('users/<int:user_id>/toggle-active/', ToggleUserActiveView.as_view(), name='toggle-user-active'),
     # Members endpoint (used by frontend)
     path('members/',MemberListView.as_view(),name='members'),
     # KYC actions (admin/librarian only)
