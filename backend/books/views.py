@@ -31,6 +31,7 @@ import cloudinary.utils
 from django.conf import settings
 from django.shortcuts import redirect
 from django.http import Http404
+import time
 
 class ELibraryResourceDownloadView(generics.GenericAPIView):
     queryset = ELibraryResource.objects.all()
@@ -47,20 +48,29 @@ class ELibraryResourceDownloadView(generics.GenericAPIView):
                 api_secret=settings.CLOUDINARY_STORAGE.get('API_SECRET')
             )
             
-            # The file name in Django (e.g., 'media/elibrary/file.pdf') acts as the public_id for raw files
-            public_id = resource.resource_file.name
+            # resource_file.name = e.g. 'media/elibrary/ML-Past-Question_wvtl90.pdf'
+            name = resource.resource_file.name
             
-            # Generate a signed URL for inline viewing
-            url, _ = cloudinary.utils.cloudinary_url(
-                public_id, 
-                resource_type='raw', 
-                sign_url=True
+            # Split into public_id and format for private_download_url
+            if '.' in name:
+                public_id = name.rsplit('.', 1)[0]  # 'media/elibrary/ML-Past-Question_wvtl90'
+                fmt = name.rsplit('.', 1)[1]         # 'pdf'
+            else:
+                public_id = name
+                fmt = 'pdf'
+            
+            # private_download_url goes through api.cloudinary.com (API endpoint)
+            # NOT res.cloudinary.com (CDN) — so it bypasses CDN delivery restrictions
+            url = cloudinary.utils.private_download_url(
+                public_id,
+                fmt,
+                resource_type='raw',
+                expires_at=int(time.time()) + 3600  # Valid for 1 hour
             )
             
-            # Redirect the user to the signed URL which bypasses Cloudinary's PDF delivery restrictions natively
             return redirect(url)
         except Exception as e:
-            raise Http404(f"Failed to generate signed URL: {str(e)}")
+            raise Http404(f"Failed to generate download URL: {str(e)}")
 
 
 
