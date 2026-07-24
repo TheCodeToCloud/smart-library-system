@@ -19,56 +19,47 @@ class ELibraryResourceListCreateView(generics.ListCreateAPIView):
         return [IsAuthenticated()]
 
     def perform_create(self, serializer):
-        serializer.save(uploaded_by=self.request.user)
+        # Handle file upload manually if present
+        resource_file = self.request.FILES.get('resource_file')
+        if resource_file:
+            file_data = resource_file.read()
+            file_name = resource_file.name
+            file_type = resource_file.content_type
+            serializer.save(
+                uploaded_by=self.request.user,
+                file_data=file_data,
+                file_name=file_name,
+                file_type=file_type
+            )
+        else:
+            serializer.save(uploaded_by=self.request.user)
 
 class ELibraryResourceRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
     queryset = ELibraryResource.objects.all()
     serializer_class = ELibraryResourceSerializer
     permission_classes = [IsAdminOrLibrarian]
 
-import cloudinary
-import cloudinary.utils
-from django.conf import settings
-from django.shortcuts import redirect
-from django.http import Http404
-import time
+from django.http import HttpResponse, Http404
 
 class ELibraryResourceDownloadView(generics.GenericAPIView):
     queryset = ELibraryResource.objects.all()
 
     def get(self, request, *args, **kwargs):
         resource = self.get_object()
-        if not resource.resource_file:
+        if not resource.file_data:
             raise Http404("No file attached to this resource.")
         
         try:
-            cloudinary.config(
-                cloud_name=settings.CLOUDINARY_STORAGE.get('CLOUD_NAME'),
-                api_key=settings.CLOUDINARY_STORAGE.get('API_KEY'),
-                api_secret=settings.CLOUDINARY_STORAGE.get('API_SECRET')
-            )
+            # Serve file directly from PostgreSQL database
+            response = HttpResponse(resource.file_data, content_type=resource.file_type)
             
-            # resource_file.name = e.g. 'media/elibrary/ML-Past-Question_wvtl90.pdf'
-            # For raw files, the public_id INCLUDES the extension
-            public_id = resource.resource_file.name  # full name with extension
+            # Inline display for PDF/Doc instead of forced attachment
+            filename = resource.file_name
+            response['Content-Disposition'] = f'inline; filename="{filename}"'
             
-            # Extract format separately
-            fmt = 'pdf'
-            if '.' in public_id:
-                fmt = public_id.rsplit('.', 1)[1]
-            
-            # private_download_url goes through api.cloudinary.com (API endpoint)
-            # NOT res.cloudinary.com (CDN) — so it bypasses CDN delivery restrictions
-            url = cloudinary.utils.private_download_url(
-                public_id,
-                fmt,
-                resource_type='raw',
-                expires_at=int(time.time()) + 3600  # Valid for 1 hour
-            )
-            
-            return redirect(url)
+            return response
         except Exception as e:
-            raise Http404(f"Failed to generate download URL: {str(e)}")
+            raise Http404(f"Failed to fetch file from DB: {str(e)}")
 
 
 

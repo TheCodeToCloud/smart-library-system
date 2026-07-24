@@ -4,14 +4,15 @@ from io import BytesIO
 
 from django.core.files import File
 from django.conf import settings
-from cloudinary_storage.storage import RawMediaCloudinaryStorage
 
 class ELibraryResource(models.Model):
     title = models.CharField(max_length=255)
     author = models.CharField(max_length=255, blank=True, null=True)
     category = models.CharField(max_length=100)
-    file_url = models.URLField(blank=True, null=True)  # For cloudinary/external links
-    resource_file = models.FileField(upload_to='elibrary/', storage=RawMediaCloudinaryStorage(), blank=True, null=True) # For local uploads
+    file_url = models.URLField(blank=True, null=True)  # For external links (Google Drive, etc.)
+    file_data = models.BinaryField(null=True, blank=True)  # Store file bytes directly in DB
+    file_name = models.CharField(max_length=255, blank=True)  # Original filename
+    file_type = models.CharField(max_length=100, blank=True, default='application/pdf')  # MIME type
     uploaded_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True)
     uploaded_at = models.DateTimeField(auto_now_add=True)
 

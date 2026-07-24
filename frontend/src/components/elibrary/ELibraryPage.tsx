@@ -143,9 +143,9 @@ export default function ELibraryPage() {
                             </div>
 
                             <div className="mt-5 pt-4 border-t border-gray-50 flex gap-2">
-                                {(resource.resource_file || resource.file_url) ? (
+                                {(resource.has_file || resource.file_url) ? (
                                     <a 
-                                        href={resource.resource_file ? `${import.meta.env.VITE_API_BASE_URL || "http://localhost:8000"}/api/books/elibrary/${resource.id}/download/` : resource.file_url!} 
+                                        href={resource.has_file ? `${import.meta.env.VITE_API_BASE_URL || "http://localhost:8000"}/api/books/elibrary/${resource.id}/download/` : resource.file_url!} 
                                         target="_blank" 
                                         rel="noreferrer"
                                         className="flex-1 flex items-center justify-center gap-2 bg-purple-50 hover:bg-purple-100 text-purple-700 py-2 rounded-xl text-sm font-semibold transition-colors"

@@ -6,8 +6,9 @@ export type ELibraryResource = {
     title: string;
     author: string | null;
     category: string;
-    file_url: string | null;
-    resource_file: string | null;
+    file_url?: string;
+    has_file: boolean;
+    file_name?: string;
     uploaded_by_name: string;
     uploaded_at: string;
 };
