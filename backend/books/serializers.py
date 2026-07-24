@@ -3,19 +3,19 @@ from .models import Book, ELibraryResource
 
 class ELibraryResourceSerializer(serializers.ModelSerializer):
     uploaded_by_name = serializers.CharField(source='uploaded_by.full_name', read_only=True)
-    resource_file = serializers.SerializerMethodField()
     
     class Meta:
         model = ELibraryResource
         fields = '__all__'
 
-    def get_resource_file(self, obj):
-        if obj.resource_file:
-            url = obj.resource_file.url
+    def to_representation(self, instance):
+        ret = super().to_representation(instance)
+        if instance.resource_file:
+            url = instance.resource_file.url
             if '/upload/' in url and 'fl_attachment' not in url:
                 url = url.replace('/upload/', '/upload/fl_attachment/')
-            return url
-        return None
+            ret['resource_file'] = url
+        return ret
 
 
 
