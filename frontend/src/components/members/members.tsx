@@ -258,7 +258,7 @@ export default function Members() {
             />
 
             <ConfirmModal
-                title={`Confirm ${confirmAction?.action === "approve" ? "Approval" : "Rejection"}`}
+                isOpen={confirmAction !== null}
                 message={`Are you sure you want to ${confirmAction?.action === "approve" ? "approve" : "reject"} this student's status?`}
                 onConfirm={executeKYCAction}
                 onCancel={() => setConfirmAction(null)}
