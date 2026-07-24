@@ -16,7 +16,7 @@ export default function Unauthorized() {
                     You don't have permission to view this page. If you believe this is an error, please contact your administrator.
                 </p>
                 <button 
-                    onClick={() => navigate("/")}
+                    onClick={() => navigate("/dashboard")}
                     className="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-2.5 rounded-xl transition"
                 >
                     Return to Dashboard

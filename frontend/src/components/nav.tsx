@@ -84,7 +84,7 @@ export default function Nav({ isOpen, setIsOpen }: NavProps) {
                 e-Library
               </button>
 
-              <NavLink to="/" className={({ isActive }) => `w-full flex items-center gap-3 px-4 py-3 rounded-xl text-white ${isActive ? "bg-blue-500" : "hover:bg-black"}`}>
+              <NavLink to="/dashboard" className={({ isActive }) => `w-full flex items-center gap-3 px-4 py-3 rounded-xl text-white ${isActive ? "bg-blue-500" : "hover:bg-black"}`}>
                 <img src="../img1.svg" alt="dashboard" />
                 Dashboard
               </NavLink>

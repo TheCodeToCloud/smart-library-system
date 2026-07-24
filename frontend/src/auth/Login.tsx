@@ -219,7 +219,7 @@ export default function Login() {
 
       login(response.data.access, response.data.refresh);
 
-      navigate("/", { replace: true });
+      navigate("/dashboard", { replace: true });
 
     } catch (err) {
       if (axios.isAxiosError(err)) {
@@ -421,7 +421,7 @@ export default function Login() {
 
                   login(response.data.access, response.data.refresh);
 
-                  navigate("/", { replace: true });
+                  navigate("/dashboard", { replace: true });
 
                 } catch (error) {
                   console.error(error);

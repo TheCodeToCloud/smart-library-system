@@ -198,7 +198,7 @@ export default function Register() {
 
       login(loginResponse.data.access, loginResponse.data.refresh);
       toast.success("Account created successfully!");
-      navigate("/", { replace: true });
+      navigate("/dashboard", { replace: true });
     } catch (err) {
       if (axios.isAxiosError(err)) {
         console.error(err.response?.data);
@@ -395,7 +395,7 @@ export default function Register() {
                     id_token: credentialResponse.credential,
                   });
                   login(response.data.access, response.data.refresh);
-                  navigate("/", { replace: true });
+                  navigate("/dashboard", { replace: true });
                 } catch (error) {
                   console.error(error);
                   toast.error("Google Registration Failed");

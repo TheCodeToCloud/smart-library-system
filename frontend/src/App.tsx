@@ -15,6 +15,7 @@ import IssueReturn from "./components/issueReturn/issue";
 import ReportsPage from "./components/reports/reportPage";
 import FineManager from "./components/fineManager/fineManager";
 import Settings from "./components/settings/Settings";
+import Landing from "./components/Landing";
 
 import { AuthProvider } from "./auth/AuthContext";
 import { ProtectedRoute } from "./auth/ProtectedRoute";
@@ -38,7 +39,7 @@ function AppLayout() {
             <Routes>
               {/* All roles */}
               <Route
-                path="/"
+                path="/dashboard"
                 element={
                   <>
                     <Dashboard />
@@ -68,7 +69,7 @@ function AppLayout() {
         </div>
 
         <footer className="text-center text-xs text-gray-600 border-t border-gray-200 py-3 px-3">
-          © 2026 Uni_Library Management System · All rights reserved.
+          © {new Date().getFullYear()} Uni_Library Management System · All rights reserved.
         </footer>
       </div>
     </div>
@@ -89,6 +90,7 @@ export default function App() {
         theme="colored"
       />
       <Routes>
+        <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
 
