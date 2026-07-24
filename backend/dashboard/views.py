@@ -232,23 +232,33 @@ class CategoryDistributionView(APIView):
         return Response(categories)
     
 class IssueReturnChartView(APIView):
-
-    permission_classes = [IsAdminOrLibrarian]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request):
-
-        issued = IssueBook.objects.filter(
-            status='issued'
-        ).count()
-
-        returned = IssueBook.objects.filter(
-            status='returned'
-        ).count()
-
-        return Response({
-            "issued": issued,
-            "returned": returned
-        })
+        today = date.today()
+        data = []
+        
+        # Generate data for the last 7 days (oldest to newest)
+        for i in range(6, -1, -1):
+            target_date = today - timedelta(days=i)
+            day_name = target_date.strftime("%a")  # e.g., 'Mon', 'Tue'
+            
+            issued = IssueBook.objects.filter(
+                issue_date=target_date
+            ).count()
+            
+            returned = IssueBook.objects.filter(
+                return_date=target_date,
+                status='returned'
+            ).count()
+            
+            data.append({
+                "day": day_name,
+                "Issued": issued,
+                "Returned": returned
+            })
+            
+        return Response(data)
 
 
 class TopReadersView(APIView):

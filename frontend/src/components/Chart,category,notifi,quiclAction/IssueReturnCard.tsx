@@ -2,10 +2,24 @@ import {
     LineChart, Line, XAxis, YAxis,
     CartesianGrid, Tooltip, ResponsiveContainer, Legend,
 } from "recharts";
-import { weeklyData } from "../../data/libarary";
+import { useWeeklyData } from "../../data/libarary";
 import CustomTooltip from "./CustomTooltip";
 
 export default function IssueReturnCard() {
+    const { weeklyData, loading } = useWeeklyData();
+
+    if (loading) {
+        return (
+            <div className="bg-white rounded-2xl border border-gray-100 p-4 flex-1 min-w-0 shadow">
+                <p className="text-gray-400 text-sm">Loading chart...</p>
+            </div>
+        );
+    }
+
+    // Calculate dynamic max value for the Y-axis based on the actual data
+    const maxVal = Math.max(...weeklyData.map(d => Math.max(d.Issued, d.Returned)));
+    const yDomainMax = Math.ceil((maxVal + 1) / 10) * 10; // Round up to nearest 10
+
     return (
         <div className="bg-white rounded-2xl border border-gray-100 p-4 flex-1 min-w-0 shadow">
         {/*                                                              👆 p-6 → p-4 */}
@@ -19,7 +33,7 @@ export default function IssueReturnCard() {
                     <CartesianGrid strokeDasharray="3 3" stroke="#F3F4F6" vertical={false} />
                     <XAxis dataKey="day" tick={{ fill: "#9CA3AF", fontSize: 10 }} axisLine={false} tickLine={false} />
                     {/*                                              👆 12 → 10 */}
-                    <YAxis tick={{ fill: "#9CA3AF", fontSize: 10 }} axisLine={false} tickLine={false} domain={[0, 220]} ticks={[0, 50, 100, 150, 200]} />
+                    <YAxis tick={{ fill: "#9CA3AF", fontSize: 10 }} axisLine={false} tickLine={false} domain={[0, yDomainMax === 0 ? 10 : yDomainMax]} />
                     {/*                              👆 12 → 10 */}
                     <Tooltip content={<CustomTooltip />} />
                     <Legend

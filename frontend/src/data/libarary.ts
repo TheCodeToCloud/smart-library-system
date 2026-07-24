@@ -1,15 +1,25 @@
 import { useEffect, useState } from "react";
 import api from "./books";
 
-export const weeklyData = [
-    { day: "Mon", Issued: 20, Returned: 10 },
-    { day: "Tue", Issued: 30, Returned: 20 },
-    { day: "Wed", Issued: 40, Returned: 30 },
-    { day: "Thu", Issued: 55, Returned: 35 },
-    { day: "Fri", Issued: 65, Returned: 45 },
-    { day: "Sat", Issued: 75, Returned: 60 },
-    { day: "Sun", Issued: 85, Returned: 80 },
-];
+type WeeklyDataItem = {
+    day: string;
+    Issued: number;
+    Returned: number;
+};
+
+export function useWeeklyData() {
+    const [weeklyData, setWeeklyData] = useState<WeeklyDataItem[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        api.get("/api/dashboard/issue-return-chart/")
+            .then(res => setWeeklyData(res.data))
+            .catch(() => {})
+            .finally(() => setLoading(false));
+    }, []);
+
+    return { weeklyData, loading };
+}
 
 const COLORS = [
     "#4B8EF1", "#34C98A", "#A855F7", "#EC4899",
