@@ -204,9 +204,9 @@ export default function Members() {
                             <span className="text-xs text-gray-400">None</span>
                         )}
                     </div>
-                    {/* KYC Actions (students only, pending only shows both buttons) */}
+                        {/* KYC Actions (students only, pending only shows both buttons) */}
                     <div className="flex gap-1 flex-wrap">
-                        {!m.is_active ? (
+                        {m.is_active === false ? (
                             <button
                                 disabled={busyId === m.id}
                                 onClick={() => handleAction(m.id, "activate")}
