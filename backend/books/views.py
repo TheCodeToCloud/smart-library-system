@@ -26,6 +26,31 @@ class ELibraryResourceRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAP
     serializer_class = ELibraryResourceSerializer
     permission_classes = [IsAdminOrLibrarian]
 
+from django.http import HttpResponse, Http404
+
+class ELibraryResourceDownloadView(generics.GenericAPIView):
+    queryset = ELibraryResource.objects.all()
+
+    def get(self, request, *args, **kwargs):
+        resource = self.get_object()
+        if not resource.resource_file:
+            raise Http404("No file attached to this resource.")
+        
+        try:
+            # Read file using Django's authenticated storage API
+            file_content = resource.resource_file.read()
+            
+            response = HttpResponse(file_content, content_type='application/pdf')
+            
+            filename = resource.resource_file.name.split('/')[-1]
+            if not filename.endswith('.pdf') and not filename.endswith('.doc') and not filename.endswith('.docx'):
+                filename += '.pdf'
+                
+            response['Content-Disposition'] = f'attachment; filename="{filename}"'
+            return response
+        except Exception as e:
+            raise Http404(f"Failed to fetch file: {str(e)}")
+
 
 
 class BookListCreateView(generics.ListCreateAPIView):

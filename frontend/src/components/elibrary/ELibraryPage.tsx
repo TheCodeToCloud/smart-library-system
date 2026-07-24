@@ -145,12 +145,12 @@ export default function ELibraryPage() {
                             <div className="mt-5 pt-4 border-t border-gray-50 flex gap-2">
                                 {(resource.resource_file || resource.file_url) ? (
                                     <a 
-                                        href={resource.resource_file || resource.file_url!} 
+                                        href={resource.resource_file ? `${import.meta.env.VITE_API_BASE_URL || "http://localhost:8000"}/api/books/elibrary/${resource.id}/download/` : resource.file_url!} 
                                         target="_blank" 
                                         rel="noreferrer"
                                         className="flex-1 flex items-center justify-center gap-2 bg-purple-50 hover:bg-purple-100 text-purple-700 py-2 rounded-xl text-sm font-semibold transition-colors"
                                     >
-                                        <ExternalLink className="w-4 h-4" /> Open / Read
+                                        <ExternalLink className="w-4 h-4" /> Download File
                                     </a>
                                 ) : (
                                     <button disabled className="flex-1 flex items-center justify-center gap-2 bg-gray-50 text-gray-400 py-2 rounded-xl text-sm font-semibold cursor-not-allowed">
