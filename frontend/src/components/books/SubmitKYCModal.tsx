@@ -78,12 +78,12 @@ export default function SubmitKYCModal({ isOpen, onClose }: Props) {
                 }
             });
             
-            toast.success("KYC submitted successfully! Please wait for admin approval.");
+            toast.success("Details submitted successfully! Please wait for admin approval.");
             await fetchUser();
             onClose();
         } catch (error: any) {
             console.error(error);
-            toast.error(error.response?.data?.error || "Failed to submit KYC");
+            toast.error(error.response?.data?.error || "Failed to submit details");
         } finally {
             setIsSubmitting(false);
         }
@@ -98,7 +98,7 @@ export default function SubmitKYCModal({ isOpen, onClose }: Props) {
                             <div className="w-10 h-10 bg-purple-100 rounded-full flex items-center justify-center text-purple-600">
                                 <UserCheck size={20} />
                             </div>
-                            <h2 className="text-xl font-bold text-gray-900">Submit KYC</h2>
+                            <h2 className="text-xl font-bold text-gray-900">Submit Details</h2>
                         </div>
                         <button onClick={onClose} className="text-gray-400 hover:text-gray-600 transition-colors">
                             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>

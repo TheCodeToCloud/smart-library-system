@@ -59,7 +59,7 @@ export default function Members() {
             return;
         }
 
-        const headers = ["ID,Name,Email,Phone,Department,Role,KYC Status,Joined On"];
+        const headers = ["ID,Name,Email,Phone,Department,Role,Status,Joined On"];
         const rows = filtered.map(m => 
             `"${m.id}","${m.full_name || m.username}","${m.email}","${m.phone || ''}","${m.department || ''}","${m.role}","${m.kyc_status}","${m.date_joined || ''}"`
         );
@@ -81,10 +81,11 @@ export default function Members() {
         setBusyId(userId);
         try {
             await api.post(`/api/accounts/kyc/${userId}/${action}/`);
-            toast.success(`KYC ${action === "approve" ? "Approved" : "Rejected"} successfully!`);
+            toast.success(`Status ${action === "approve" ? "Approved" : "Rejected"} successfully!`);
             refreshMembers();
         } catch (e: any) {
-            toast.error(e.response?.data?.error || "KYC action failed.");
+            console.error("KYC Action error:", e);
+            toast.error(e.response?.data?.error || "Status action failed.");
         } finally {
             setBusyId(null);
         }
@@ -149,7 +150,7 @@ export default function Members() {
                 <span>Email</span>
                 <span>Phone</span>
                 <span>Department</span>
-                <span>KYC Status</span>
+                <span>Status</span>
                 <span>ID Proof</span>
                 <span>Actions</span>
             </div>
@@ -257,8 +258,8 @@ export default function Members() {
             />
 
             <ConfirmModal
-                isOpen={confirmAction !== null}
-                message={`Are you sure you want to ${confirmAction?.action === "approve" ? "approve" : "reject"} this student's KYC?`}
+                title={`Confirm ${confirmAction?.action === "approve" ? "Approval" : "Rejection"}`}
+                message={`Are you sure you want to ${confirmAction?.action === "approve" ? "approve" : "reject"} this student's status?`}
                 onConfirm={executeKYCAction}
                 onCancel={() => setConfirmAction(null)}
             />
