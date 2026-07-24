@@ -98,7 +98,7 @@ export default function Landing() {
                                 <Users className="text-green-600 h-6 w-6" />
                             </div>
                             <h3 className="text-xl font-bold text-gray-900 mb-3">Member Management</h3>
-                            <p className="text-gray-600 leading-relaxed">Organize student and staff records securely. Review and approve digital KYC details instantly.</p>
+                            <p className="text-gray-600 leading-relaxed">Organize student and staff records securely. Review and approve digital details instantly.</p>
                         </div>
                     </div>
                 </div>
