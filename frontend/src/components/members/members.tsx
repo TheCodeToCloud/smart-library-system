@@ -22,8 +22,11 @@ const kycLabel: Record<string, string> = {
     "N/A":    "— N/A",
 };
 
+import { useAuth } from "../../data/useAuth";
+
 export default function Members() {
     const { members, loading, error, refreshMembers } = useMembers();
+    const { user } = useAuth();
     const [search, setSearch] = useState("");
     const [statusFilter, setStatusFilter] = useState("All Status");
     const [currentPage, setCurrentPage] = useState(1);
