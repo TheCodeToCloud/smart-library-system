@@ -69,16 +69,14 @@ export default function Header({ isOpen, setIsOpen }: NavProps) {
         <Fragment>
             <header className="flex items-center w-full border-b-2 border-gray-200 shadow-sm pb-2 gap-2 px-2">
                 {/* Menu toggle */}
-                <div className="shrink-0">
-                    {!isOpen && (
-                        <button onClick={() => setIsOpen(true)} className="cursor-pointer pl-2 mt-3">
-                            <img src="bmenu.svg" alt="open menu" className="h-6 w-6" />
-                        </button>
-                    )}
+                <div className="shrink-0 lg:hidden">
+                    <button onClick={() => setIsOpen(true)} className="cursor-pointer pl-2 mt-3">
+                        <img src="bmenu.svg" alt="open menu" className="h-6 w-6" />
+                    </button>
                 </div>
 
                 {/* Search bar */}
-                <div className="hidden sm:flex flex-1 justify-center">
+                <div className="flex flex-1 justify-center px-2">
                     <div className="relative w-full max-w-xs md:max-w-sm">
                         <span
                             className="absolute cursor-pointer right-4 top-1/2 -translate-y-1/2"

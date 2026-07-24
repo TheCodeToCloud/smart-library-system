@@ -142,8 +142,11 @@ export default function Members() {
                 </select>
             </div>
 
-            {/* Table Header */}
-            <div className="grid px-5 py-3 text-xs text-gray-400 border-b border-gray-100"
+            {/* Table */}
+            <div className="overflow-x-auto w-full">
+                <div className="min-w-[900px]">
+                    {/* Table Header */}
+                    <div className="grid px-5 py-3 text-xs text-gray-400 border-b border-gray-100"
                 style={{ gridTemplateColumns: "40px 2fr 2fr 1fr 1fr 1fr 1fr 1.5fr" }}>
                 <span>#</span>
                 <span>Member</span>
@@ -241,6 +244,8 @@ export default function Members() {
                     </div>
                 </div>
             ))}
+                </div>
+            </div>
 
             {/* Pagination */}
             <BooksPagination

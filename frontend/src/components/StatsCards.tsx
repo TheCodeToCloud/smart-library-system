@@ -9,7 +9,7 @@ function AdminStatsCards() {
     const { stats, loading } = useStats();
     if (loading) return <p className="p-5 text-gray-400">Loading stats...</p>;
     return (
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-5 pt-5 pl-5 pr-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 pt-5 pl-5 pr-5">
             {stats.map((stat) => (
                 <div key={stat.id} className="bg-gray-300 p-3 rounded-xl shadow font-nav">
                     <div className="flex items-center gap-3">
@@ -62,7 +62,7 @@ function StudentStatsCards() {
     if (!stats) return null;
 
     return (
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-5 pt-5 pl-5 pr-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 pt-5 pl-5 pr-5">
             {studentStatConfig.map((cfg) => {
                 const val = stats[cfg.key as keyof StudentStats];
                 return (

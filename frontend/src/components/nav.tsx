@@ -43,18 +43,15 @@ export default function Nav({ isOpen, setIsOpen }: NavProps) {
 
 
       {/* yo chai overlay effect ho jaba nav kholxum tati bala background black hunxa ani close huda back to normal */}
+      {/* Overlay for mobile only */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-black/50 z-10"
+          className="fixed inset-0 bg-black/50 z-10 lg:hidden"
           onClick={() => setIsOpen(false)}
         />
       )}
 
-      {/* Plz try to understand this logic like maila ya useState ra And operator use garako xu
-      jasla chai useState use garara open xa vana yo dakha nava arko dakha vana logic use garako xu */}
-
-      {isOpen && <Fragment>
-        <aside className={`fixed top-0 z-20 left-0 w-64 bg-gray-800 border-r flex flex-col justify-between min-h-screen`}>
+      <aside className={`fixed top-0 z-20 left-0 w-64 bg-gray-800 border-r flex flex-col justify-between min-h-screen transition-transform duration-300 ${isOpen ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0 lg:static`}>
 
           {/* This btn is inside beacause it wont be in fixed postion if we put outside the nav.... */}
 
@@ -137,7 +134,6 @@ export default function Nav({ isOpen, setIsOpen }: NavProps) {
               </button>
           </div>
         </aside>
-      </Fragment>
 
         // This is the outside icons....
 
@@ -178,7 +174,6 @@ export default function Nav({ isOpen, setIsOpen }: NavProps) {
         //     </div>
         //   </aside>
         // </Fragment>)
-      }
     </>
   );
 }
