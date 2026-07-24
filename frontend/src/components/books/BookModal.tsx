@@ -154,7 +154,20 @@ export default function BookModal({ isOpen, onClose, onSuccess, mode = "add", in
                     <div className="grid grid-cols-2 gap-3">
                         <div>
                             <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wide">Category *</label>
-                            <input type="text" required disabled={isViewOnly} value={category} onChange={(e) => setCategory(e.target.value)} className={inputClass} placeholder="e.g. Fiction" />
+                            <input type="text" required disabled={isViewOnly} list="category-options" value={category} onChange={(e) => setCategory(e.target.value)} className={inputClass} placeholder="e.g. Fiction" />
+                            <datalist id="category-options">
+                                <option value="Fiction" />
+                                <option value="Non-Fiction" />
+                                <option value="Technology" />
+                                <option value="Computer Science" />
+                                <option value="Science" />
+                                <option value="Mathematics" />
+                                <option value="History" />
+                                <option value="Biography" />
+                                <option value="Self-Help" />
+                                <option value="Finance" />
+                                <option value="Literature" />
+                            </datalist>
                         </div>
                         <div>
                             <label className="block text-xs font-semibold text-gray-600 uppercase tracking-wide">ISBN *</label>
