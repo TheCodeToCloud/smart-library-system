@@ -16,15 +16,15 @@ export default function Landing() {
                         </div>
                         <span className="font-bold text-xl tracking-tight text-gray-900">Uni_Library</span>
                     </div>
-                    <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-2 sm:gap-4">
                         {user ? (
-                            <Link to="/dashboard" className="text-sm font-semibold text-white bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded-xl transition-all shadow-md">
+                            <Link to="/dashboard" className="text-xs sm:text-sm font-semibold text-white bg-purple-600 hover:bg-purple-700 px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl transition-all shadow-md">
                                 Go to Dashboard
                             </Link>
                         ) : (
                             <>
-                                <Link to="/login" className="text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">Log in</Link>
-                                <Link to="/register" className="text-sm font-semibold text-white bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded-xl transition-all shadow-md hover:shadow-lg">Get Started</Link>
+                                <Link to="/login" className="text-xs sm:text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors">Log in</Link>
+                                <Link to="/register" className="text-xs sm:text-sm font-semibold text-white bg-purple-600 hover:bg-purple-700 px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl transition-all shadow-md hover:shadow-lg">Get Started</Link>
                             </>
                         )}
                     </div>
@@ -35,11 +35,11 @@ export default function Landing() {
             <section className="relative pt-32 pb-20 lg:pt-48 lg:pb-32 overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-b from-purple-50 to-stone-50 z-0"></div>
                 <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
-                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-100 text-purple-700 text-sm font-semibold mb-6 animate-fade-in-up">
-                        <span className="flex h-2 w-2 rounded-full bg-purple-600"></span>
+                    <div className="inline-flex items-center gap-1 sm:gap-2 px-2 sm:px-3 py-1 rounded-full bg-purple-100 text-purple-700 text-xs sm:text-sm font-semibold mb-6 animate-fade-in-up whitespace-normal text-left sm:text-center leading-tight">
+                        <span className="flex h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full bg-purple-600 shrink-0"></span>
                         Smart Library Management System
                     </div>
-                    <h1 className="text-4xl md:text-5xl lg:text-7xl font-extrabold text-gray-900 tracking-tight mb-8 leading-tight">
+                    <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-7xl font-extrabold text-gray-900 tracking-tight mb-8 leading-tight break-words">
                         Manage your library <br className="hidden md:block" />
                         <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-blue-500">smarter & faster</span>
                     </h1>
@@ -75,7 +75,7 @@ export default function Landing() {
 
                     <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
                         {/* Feature 1 */}
-                        <div className="bg-stone-50 rounded-3xl p-8 border border-gray-100 hover:shadow-lg transition-all hover:-translate-y-1">
+                        <div className="bg-stone-50 rounded-3xl p-6 sm:p-8 border border-gray-100 hover:shadow-lg transition-all hover:-translate-y-1">
                             <div className="w-12 h-12 bg-blue-100 rounded-2xl flex items-center justify-center mb-6">
                                 <BookOpen className="text-blue-600 h-6 w-6" />
                             </div>
@@ -84,7 +84,7 @@ export default function Landing() {
                         </div>
 
                         {/* Feature 2 */}
-                        <div className="bg-stone-50 rounded-3xl p-8 border border-gray-100 hover:shadow-lg transition-all hover:-translate-y-1">
+                        <div className="bg-stone-50 rounded-3xl p-6 sm:p-8 border border-gray-100 hover:shadow-lg transition-all hover:-translate-y-1">
                             <div className="w-12 h-12 bg-purple-100 rounded-2xl flex items-center justify-center mb-6">
                                 <Clock className="text-purple-600 h-6 w-6" />
                             </div>
@@ -93,7 +93,7 @@ export default function Landing() {
                         </div>
 
                         {/* Feature 3 */}
-                        <div className="bg-stone-50 rounded-3xl p-8 border border-gray-100 hover:shadow-lg transition-all hover:-translate-y-1">
+                        <div className="bg-stone-50 rounded-3xl p-6 sm:p-8 border border-gray-100 hover:shadow-lg transition-all hover:-translate-y-1">
                             <div className="w-12 h-12 bg-green-100 rounded-2xl flex items-center justify-center mb-6">
                                 <Users className="text-green-600 h-6 w-6" />
                             </div>
