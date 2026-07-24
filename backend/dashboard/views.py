@@ -107,7 +107,7 @@ class RecentIssuesView(APIView):
     
 class PopularBooksView(APIView):
 
-    permission_classes = [IsAdminOrLibrarian]
+    permission_classes = [IsAuthenticated]
 
     def get(self, request):
         # Optional ?period=30d to filter to last 30 days

@@ -3,6 +3,7 @@ import { useState } from "react";
 import { NavLink } from "react-router-dom";
 import { useAuth } from "../data/useAuth";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
 // using type script we define and tell type script what we are getting or returning like setISOpen is return nothing so we used void....
 type NavProps = {
@@ -78,7 +79,7 @@ export default function Nav({ isOpen, setIsOpen }: NavProps) {
 
             {/* Menu */}
             <nav className="px-4 mt-3 space-y-2 font-nav2 text-white">
-              <button onClick={() => setIsActive('E-Library')} className={` ${isActive === 'E-Library' ? "bg-blue-500" : ""} w-full flex items-center gap-3 px-4 py-3 rounded-xl text-white`}>
+              <button onClick={() => toast.info('Coming soon...')} className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-white hover:bg-black">
                 <img src="../dashboard2.svg" alt="dashboard" />
                 e-Library
               </button>
