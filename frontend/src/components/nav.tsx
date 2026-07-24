@@ -134,46 +134,6 @@ export default function Nav({ isOpen, setIsOpen }: NavProps) {
               </button>
           </div>
         </aside>
-
-        // This is the outside icons....
-
-        // (<Fragment>
-        //   <aside className={`absolute top-22 left-0 flex flex-col justify-between min-h-screen`}>
-        //     <div>
-        //       {/* Menu */}
-        //       <nav className="px-4 mt-3 space-y-2 font-nav text-white">
-
-        //         <button onClick={() => setIsActive('dashboard')} className={` ${isActive === 'dashboard' ? "bg-gray-200" : "hover:bg-gray-200"} flex items-center gap-3 px-4 py-3 rounded-xl text-white`}>
-        //           <img src="../dash.svg" alt="dashboard" />
-        //         </button>
-
-        //         <button onClick={() => setIsActive('books')} className={` flex items-center gap-3 px-4 py-3 rounded-xl  ${isActive === 'books' ? "bg-gray-200" : "hover:bg-gray-200"}`}>
-        //           <img src="../books.svg" alt="Book" />
-        //         </button>
-
-        //         <button onClick={() => setIsActive('members')} className={`${isActive === "members" ? 'bg-gray-200' : 'hover:bg-gray-200'} flex items-center gap-3 px-4 py-3 rounded-xl`}>
-        //           <img src="../group.svg" alt="Members" />
-        //         </button>
-
-        //         <button onClick={() => setIsActive('issue/Return')} className={`${isActive === "issue/Return" ? 'bg-gray-200' : 'hover:bg-gray-200'} flex items-center gap-3 px-4 py-3 rounded-xl`}>
-        //           <img src="return3.svg" alt="return" />
-        //         </button>
-
-        //         <button onClick={() => setIsActive('reports')} className={`${isActive === "reports" ? 'bg-gray-200' : 'hover:bg-gray-200'} flex items-center gap-3 px-3 py-3 rounded-xl`}>
-        //           <img src="report2.svg" className="h-8 w-8" alt="report" />
-        //         </button>
-
-        //         <button onClick={() => setIsActive('fine manager')} className={`${isActive === "fine manager" ? 'bg-gray-200' : 'hover:bg-gray-200'}  flex items-center gap-3 px-3 py-3 rounded-xl`}>
-        //           <img src="paid.svg" alt="fine" className="h-7 w-7" />
-        //         </button>
-
-        //         <button className="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-gray-200">
-        //           <img src="../setting.svg" alt="settings" />
-        //         </button>
-        //       </nav>
-        //     </div>
-        //   </aside>
-        // </Fragment>)
     </>
   );
 }
