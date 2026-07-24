@@ -43,15 +43,15 @@ export default function Nav({ isOpen, setIsOpen }: NavProps) {
 
 
       {/* yo chai overlay effect ho jaba nav kholxum tati bala background black hunxa ani close huda back to normal */}
-      {/* Overlay for mobile only */}
+      {/* Overlay for all screens when menu is open */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-black/50 z-10 lg:hidden"
+          className="fixed inset-0 bg-black/50 z-10"
           onClick={() => setIsOpen(false)}
         />
       )}
 
-      <aside className={`fixed top-0 z-20 left-0 w-64 bg-gray-800 border-r flex flex-col justify-between min-h-screen transition-transform duration-300 ${isOpen ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0 lg:static`}>
+      <aside className={`fixed top-0 z-20 left-0 w-64 bg-gray-800 border-r flex flex-col justify-between min-h-screen transition-transform duration-300 ${isOpen ? "translate-x-0" : "-translate-x-full"}`}>
 
           {/* This btn is inside beacause it wont be in fixed postion if we put outside the nav.... */}
 

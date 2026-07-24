@@ -69,7 +69,7 @@ export default function Header({ isOpen, setIsOpen }: NavProps) {
         <Fragment>
             <header className="flex items-center w-full border-b-2 border-gray-200 shadow-sm pb-2 gap-2 px-2">
                 {/* Menu toggle */}
-                <div className="shrink-0 lg:hidden">
+                <div className="shrink-0">
                     <button onClick={() => setIsOpen(true)} className="cursor-pointer pl-2 mt-3">
                         <img src="bmenu.svg" alt="open menu" className="h-6 w-6" />
                     </button>
