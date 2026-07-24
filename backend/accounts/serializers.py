@@ -32,6 +32,14 @@ class RegisterSerializer(serializers.ModelSerializer):
             "id_proof",
         ]
 
+    def validate_phone(self, value):
+        if value:
+            import re
+            if not re.match(r'^\d{10}$', value.strip()):
+                raise serializers.ValidationError("Phone number must be exactly 10 digits.")
+        return value
+
+
     def create(self, validated_data):
 
         # Remove student profile fields
@@ -132,6 +140,13 @@ class SubmitKYCSerializer(serializers.Serializer):
     phone = serializers.CharField(max_length=20)
     address = serializers.CharField()
     id_proof = serializers.FileField()
+
+    def validate_phone(self, value):
+        if value:
+            import re
+            if not re.match(r'^\d{10}$', value.strip()):
+                raise serializers.ValidationError("Phone number must be exactly 10 digits.")
+        return value
 
 class MemberSerializer(serializers.ModelSerializer):
     """Serializer for member list — includes student profile fields"""

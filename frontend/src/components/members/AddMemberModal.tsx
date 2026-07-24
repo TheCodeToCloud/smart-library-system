@@ -116,7 +116,7 @@ export default function AddMemberModal({ isOpen, onClose, onSuccess }: AddMember
                             </div>
                             <div>
                                 <label className="block text-xs font-semibold text-gray-600 mb-1">Phone *</label>
-                                <input type="text" name="phone" value={form.phone} onChange={handleChange} required className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-purple-300" />
+                                <input type="text" name="phone" value={form.phone} onChange={handleChange} required pattern="^\d{10}$" title="Phone number must be exactly 10 digits" className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-purple-300" />
                             </div>
                             <div>
                                 <label className="block text-xs font-semibold text-gray-600 mb-1">Address *</label>

@@ -117,8 +117,8 @@ function validateForm(form: RegisterFormState, idCard: File | null): RegisterFor
   }
   if (!form.phone) {
     errors.phone = "Phone Number is required.";
-  } else if (!/^[0-9+\-\s]{7,15}$/.test(form.phone)) {
-    errors.phone = "Enter a valid phone number.";
+  } else if (!/^\d{10}$/.test(form.phone.trim())) {
+    errors.phone = "Phone number must be exactly 10 digits.";
   }
   if (!form.password) {
     errors.password = "Password is required.";

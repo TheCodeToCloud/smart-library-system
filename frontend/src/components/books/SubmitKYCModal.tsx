@@ -149,6 +149,8 @@ export default function SubmitKYCModal({ isOpen, onClose }: Props) {
                                 value={formData.phone}
                                 onChange={handleChange}
                                 placeholder="Your phone number"
+                                pattern="^\d{10}$"
+                                title="Phone number must be exactly 10 digits"
                                 className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:ring-purple-500 focus:border-purple-500"
                             />
                         </div>
