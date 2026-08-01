@@ -1,14 +1,14 @@
-import { useAnnouncements, usePopularBooks } from "../../data/rightside";
+import { useAnnouncements, useNewArrivals } from "../../data/rightside";
 import MiniCalendar from "./miniCalendar";
 import { useState } from "react";
 
 export default function RightSidebar() {
     const { announcements, loading } = useAnnouncements();
-    const { books: popularBooks, loading: booksLoading } = usePopularBooks();
+    const { books: newArrivals, loading: booksLoading } = useNewArrivals();
     const [editedItems, setEditedItems] = useState<Record<number, string>>({});
     const [editingId, setEditingId] = useState<number | null>(null);
     const [editText, setEditText] = useState("");
-    const [showAll, setShowAll] = useState(false);  // ← added
+    const [showAll, setShowAll] = useState(false);
 
     const startEdit = (id: number, text: string) => {
         setEditingId(id);
@@ -20,7 +20,7 @@ export default function RightSidebar() {
         setEditingId(null);
     };
 
-    const visibleAnnouncements = showAll ? announcements : announcements.slice(0, 2);  // ← added
+    const visibleAnnouncements = showAll ? announcements : announcements.slice(0, 2);
 
     return (
         <div className="w-96 shrink-0 flex flex-col gap-5 py-5 overflow-y-auto">
@@ -35,10 +35,10 @@ export default function RightSidebar() {
                         📢 Announcements
                     </h2>
                     <button
-                        onClick={() => setShowAll(!showAll)}  // ← updated
+                        onClick={() => setShowAll(!showAll)}
                         className="text-xs text-blue-500 hover:underline cursor-pointer"
                     >
-                        {showAll ? "Show less" : "View all"}  {/* ← updated */}
+                        {showAll ? "Show less" : "View all"}
                     </button>
                 </div>
 
@@ -46,7 +46,7 @@ export default function RightSidebar() {
                     <p className="text-sm text-gray-400">Loading...</p>
                 ) : (
                     <div className="flex flex-col gap-2">
-                        {visibleAnnouncements.map(a => (  // ← changed announcements to visibleAnnouncements
+                        {visibleAnnouncements.map(a => (
                             <div key={a.id} className={`border rounded-xl p-3 ${a.color}`}>
                                 {editingId === a.id ? (
                                     <div className="flex flex-col gap-2 cursor-pointer">
@@ -87,19 +87,19 @@ export default function RightSidebar() {
                 )}
             </div>
 
-            {/* Popular Books */}
+            {/* New Arrivals */}
             <div className="bg-white rounded-2xl p-4 shadow-sm">
                 <div className="flex items-center justify-between mb-3">
-                    <h2 className="font-semibold text-gray-800">Popular Books</h2>
+                    <h2 className="font-semibold text-gray-800 flex items-center gap-2">✨ New Arrivals</h2>
                     <button className="text-xs text-blue-500 hover:underline">View all</button>
                 </div>
                 <div className="flex flex-col gap-3">
                     {booksLoading ? (
                         <p className="text-sm text-gray-400">Loading...</p>
-                    ) : popularBooks.length === 0 ? (
+                    ) : newArrivals.length === 0 ? (
                         <p className="text-sm text-gray-400">No books found.</p>
                     ) : (
-                        popularBooks.map((book, idx) => (
+                        newArrivals.map((book, idx) => (
                             <div key={idx} className="flex items-center gap-3">
                                 <div className="w-10 h-14 bg-gray-100 rounded-md shrink-0 overflow-hidden flex items-center justify-center">
                                     {book.cover_image ? (
@@ -112,8 +112,8 @@ export default function RightSidebar() {
                                     <p className="text-sm font-semibold text-gray-800 truncate">{book.title}</p>
                                     <p className="text-xs text-gray-400">{book.author}</p>
                                 </div>
-                                <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full shrink-0">
-                                    {book.times_issued} Issues
+                                <span className="text-[10px] font-medium bg-purple-100 text-purple-600 px-2 py-1 rounded-full shrink-0">
+                                    {book.category}
                                 </span>
                             </div>
                         ))

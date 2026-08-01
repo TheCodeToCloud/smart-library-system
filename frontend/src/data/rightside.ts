@@ -21,20 +21,25 @@ const typeStyles: Record<string, { color: string; icon: string }> = {
     overdue: { color: "bg-red-50 border-red-200", icon: "⚠️" },
 };
 
-export type PopularBook = {
+export type NewArrivalBook = {
     title: string;
     author: string;
-    times_issued: number;
+    category: string;
     cover_image: string | null;
 };
 
-export function usePopularBooks() {
-    const [books, setBooks] = useState<PopularBook[]>([]);
+export function useNewArrivals() {
+    const [books, setBooks] = useState<NewArrivalBook[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        api.get("/api/dashboard/popular-books/")
-            .then(res => setBooks(Array.isArray(res.data) ? res.data : []))
+        api.get("/api/books/")
+            .then(res => {
+                const allBooks = Array.isArray(res.data) ? res.data : [];
+                // Sort by ID descending (newest first) and take top 5
+                const newestBooks = [...allBooks].reverse().slice(0, 5);
+                setBooks(newestBooks);
+            })
             .catch(() => setBooks([]))
             .finally(() => setLoading(false));
     }, []);
