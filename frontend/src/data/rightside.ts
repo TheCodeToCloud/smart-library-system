@@ -36,8 +36,8 @@ export function useNewArrivals() {
         api.get("/api/books/")
             .then(res => {
                 const allBooks = Array.isArray(res.data) ? res.data : [];
-                // Sort by ID descending (newest first) and take top 5
-                const newestBooks = [...allBooks].reverse().slice(0, 5);
+                // Sort by ID descending (newest first) and take top 10
+                const newestBooks = [...allBooks].reverse().slice(0, 10);
                 setBooks(newestBooks);
             })
             .catch(() => setBooks([]))

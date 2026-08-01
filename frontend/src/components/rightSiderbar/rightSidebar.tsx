@@ -10,6 +10,7 @@ export default function RightSidebar() {
     const [editingId, setEditingId] = useState<number | null>(null);
     const [editText, setEditText] = useState("");
     const [showAll, setShowAll] = useState(false);
+    const [showAllBooks, setShowAllBooks] = useState(false);
     const navigate = useNavigate();
 
     const startEdit = (id: number, text: string) => {
@@ -23,6 +24,7 @@ export default function RightSidebar() {
     };
 
     const visibleAnnouncements = showAll ? announcements : announcements.slice(0, 2);
+    const visibleBooks = showAllBooks ? newArrivals : newArrivals.slice(0, 4);
 
     return (
         <div className="w-96 shrink-0 flex flex-col gap-5 py-5 overflow-y-auto">
@@ -93,7 +95,9 @@ export default function RightSidebar() {
             <div className="bg-white rounded-2xl p-4 shadow-sm">
                 <div className="flex items-center justify-between mb-3">
                     <h2 className="font-semibold text-gray-800 flex items-center gap-2">✨ New Arrivals</h2>
-                    <button onClick={() => navigate('/books')} className="text-xs text-blue-500 hover:underline cursor-pointer">View all</button>
+                    <button onClick={() => setShowAllBooks(!showAllBooks)} className="text-xs text-blue-500 hover:underline cursor-pointer">
+                        {showAllBooks ? "Show less" : "View all"}
+                    </button>
                 </div>
                 <div className="flex flex-col gap-3">
                     {booksLoading ? (
@@ -101,7 +105,7 @@ export default function RightSidebar() {
                     ) : newArrivals.length === 0 ? (
                         <p className="text-sm text-gray-400">No books found.</p>
                     ) : (
-                        newArrivals.map((book, idx) => (
+                        visibleBooks.map((book, idx) => (
                             <div key={idx} className="flex items-center gap-3">
                                 <div className="w-10 h-14 bg-gray-100 rounded-md shrink-0 overflow-hidden flex items-center justify-center">
                                     {book.cover_image ? (
