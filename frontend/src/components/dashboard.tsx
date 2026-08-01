@@ -21,9 +21,12 @@ export default function Dashboard() {
                 <p className="font-nav2 font-semibold text-sm text-gray-500">{subtitle}</p>
             </div>
 
-            {/* Smart insights section — role-aware */}
+            {/* Smart insights section */}
             {user?.role === "student" ? (
-                <RecommendedBooks />
+                <>
+                    <RecommendedBooks />
+                    <TrendingBooks />
+                </>
             ) : (
                 <TrendingBooks />
             )}
