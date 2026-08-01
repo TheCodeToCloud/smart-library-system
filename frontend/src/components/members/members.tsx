@@ -203,14 +203,14 @@ export default function Members() {
                             <>
                                 <button
                                     disabled={busyId === m.id}
-                                    onClick={() => handleAction(m.id, "approve")}
+                                    onClick={() => handleKYC(m.id, "approve")}
                                     className="px-2 py-1 text-xs font-semibold bg-green-100 text-green-700 rounded-lg hover:bg-green-200 disabled:opacity-50 transition"
                                 >
                                     ✓ Approve
                                 </button>
                                 <button
                                     disabled={busyId === m.id}
-                                    onClick={() => handleAction(m.id, "reject")}
+                                    onClick={() => handleKYC(m.id, "reject")}
                                     className="px-2 py-1 text-xs font-semibold bg-red-100 text-red-600 rounded-lg hover:bg-red-200 disabled:opacity-50 transition"
                                 >
                                     ✗ Reject
@@ -220,7 +220,7 @@ export default function Members() {
                         {m.role === "student" && m.kyc_status === "approved" && (
                             <button
                                 disabled={busyId === m.id}
-                                onClick={() => handleAction(m.id, "reject")}
+                                onClick={() => handleKYC(m.id, "reject")}
                                 className="px-2 py-1 text-xs font-semibold bg-red-100 text-red-600 rounded-lg hover:bg-red-200 disabled:opacity-50 transition"
                             >
                                 ✗ Revoke
@@ -229,7 +229,7 @@ export default function Members() {
                         {m.role === "student" && m.kyc_status === "rejected" && (
                             <button
                                 disabled={busyId === m.id}
-                                onClick={() => handleAction(m.id, "approve")}
+                                onClick={() => handleKYC(m.id, "approve")}
                                 className="px-2 py-1 text-xs font-semibold bg-green-100 text-green-700 rounded-lg hover:bg-green-200 disabled:opacity-50 transition"
                             >
                                 ✓ Re-approve
