@@ -336,12 +336,25 @@ function AdminIssueView() {
 function StudentIssueView() {
     const { data, loading, refresh } = useMyBorrowHistory();
     const [search, setSearch] = useState("");
+    const [activeTab, setActiveTab] = useState(TAB_ALL);
+
+    const issuedRecords = useMemo(() => data.filter(r => r.status === "issued"), [data]);
+    const pendingRecords = useMemo(() => data.filter(r => r.status === "pending"), [data]);
+    const returnedRecords = useMemo(() => data.filter(r => r.status === "returned"), [data]);
 
     const filtered = useMemo(() => {
-        if (!search) return data;
+        let source: IssueBookRecord[];
+        switch (activeTab) {
+            case TAB_ISSUED:   source = issuedRecords; break;
+            case TAB_PENDING:  source = pendingRecords; break;
+            case TAB_RETURNED: source = returnedRecords; break;
+            default:           source = data;
+        }
+
+        if (!search) return source;
         const q = search.toLowerCase();
-        return data.filter(r => r.book.title.toLowerCase().includes(q) || r.book.author.toLowerCase().includes(q));
-    }, [data, search]);
+        return source.filter(r => r.book.title.toLowerCase().includes(q) || r.book.author.toLowerCase().includes(q));
+    }, [activeTab, search, data, issuedRecords, pendingRecords, returnedRecords]);
 
     return (
         <div className="p-5 font-nav2">
@@ -355,12 +368,12 @@ function StudentIssueView() {
                 </button>
             </div>
 
-            {/* Summary */}
+            {/* Summary cards acting as tabs */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
-                <SummaryCard label="Total Borrowed" value={data.length}                                          color="text-purple-600" bg="bg-purple-50" />
-                <SummaryCard label="Currently Issued" value={data.filter(r => r.status === "issued").length}    color="text-blue-600"   bg="bg-blue-50" />
-                <SummaryCard label="Pending Approval" value={data.filter(r => r.status === "pending").length}   color="text-yellow-600" bg="bg-yellow-50" />
-                <SummaryCard label="Returned" value={data.filter(r => r.status === "returned").length}          color="text-green-600"  bg="bg-green-50" />
+                <SummaryCard label="Total Borrowed" value={data.length} color="text-purple-600" bg="bg-purple-50" active={activeTab === TAB_ALL} onClick={() => setActiveTab(TAB_ALL)} />
+                <SummaryCard label="Currently Issued" value={issuedRecords.length} color="text-blue-600" bg="bg-blue-50" active={activeTab === TAB_ISSUED} onClick={() => setActiveTab(TAB_ISSUED)} />
+                <SummaryCard label="Pending Approval" value={pendingRecords.length} color="text-yellow-600" bg="bg-yellow-50" active={activeTab === TAB_PENDING} onClick={() => setActiveTab(TAB_PENDING)} />
+                <SummaryCard label="Returned" value={returnedRecords.length} color="text-green-600" bg="bg-green-50" active={activeTab === TAB_RETURNED} onClick={() => setActiveTab(TAB_RETURNED)} />
             </div>
 
             {/* Search */}
@@ -383,7 +396,7 @@ function StudentIssueView() {
                     <IssueTable rows={filtered} showActions={false} onDone={refresh} />
                 )}
                 <div className="px-5 py-3 text-xs text-gray-400 border-t border-gray-50">
-                    Showing {filtered.length} of {data.length} records
+                    Showing {filtered.length} of {activeTab === TAB_ALL ? data.length : (activeTab === TAB_ISSUED ? issuedRecords.length : (activeTab === TAB_PENDING ? pendingRecords.length : returnedRecords.length))} records
                 </div>
             </div>
         </div>
