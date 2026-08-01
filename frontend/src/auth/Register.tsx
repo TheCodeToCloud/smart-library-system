@@ -112,8 +112,8 @@ function validateForm(form: RegisterFormState, idCard: File | null): RegisterFor
   if (!form.fullName) errors.fullName = "Full Name is required.";
   if (!form.email) {
     errors.email = "Email is required.";
-  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
-    errors.email = "Enter a valid email address.";
+  } else if (!form.email.endsWith("@gmail.com")) {
+    errors.email = "Please enter a valid Gmail address (ending in @gmail.com).";
   }
   if (!form.phone) {
     errors.phone = "Phone Number is required.";

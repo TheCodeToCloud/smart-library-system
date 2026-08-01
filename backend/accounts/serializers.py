@@ -61,6 +61,10 @@ class RegisterSerializer(serializers.ModelSerializer):
         return user
     
     def validate_email(self, value):
+        if not value.endswith('@gmail.com'):
+            raise serializers.ValidationError(
+                "Please enter a valid Gmail address (ending in @gmail.com)."
+            )
         if User.objects.filter(email=value).exists():
             raise serializers.ValidationError(
                 "This email address is already registered. Please use a different email or sign in."

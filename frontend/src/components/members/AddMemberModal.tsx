@@ -36,6 +36,12 @@ export default function AddMemberModal({ isOpen, onClose, onSuccess }: AddMember
         setError(null);
 
         try {
+            if (!form.email.endsWith('@gmail.com')) {
+                setError("Please enter a valid Gmail address (ending in @gmail.com).");
+                setLoading(false);
+                return;
+            }
+
             const formData = new FormData();
             Object.entries(form).forEach(([key, value]) => {
                 if (form.role !== "student" && (key === "roll_no" || key === "department")) {
