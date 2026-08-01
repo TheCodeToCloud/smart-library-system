@@ -113,7 +113,10 @@ class UserSerializer(serializers.ModelSerializer):
             'username',
             'email',
             'role',
+            'first_name',
+            'last_name',
             'full_name',
+            'phone',
             'profile_picture',
             'kyc_status',
         )
@@ -259,3 +262,15 @@ class LoginSerializer(serializers.Serializer):
     
 class GoogleLoginSerializer(serializers.Serializer):
     id_token = serializers.CharField()
+
+class UserUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('first_name', 'last_name', 'phone')
+
+    def validate_phone(self, value):
+        if value:
+            import re
+            if not re.match(r'^\d{10}$', value.strip()):
+                raise serializers.ValidationError("Phone number must be exactly 10 digits.")
+        return value

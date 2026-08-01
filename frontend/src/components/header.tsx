@@ -15,9 +15,12 @@ export default function Header({ isOpen, setIsOpen }: NavProps) {
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const [profileModalOpen, setProfileModalOpen] = useState(false);
     const [isUploading, setIsUploading] = useState(false);
+    const [isEditingProfile, setIsEditingProfile] = useState(false);
+    const [editForm, setEditForm] = useState({ first_name: '', last_name: '', phone: '' });
+    const [isSaving, setIsSaving] = useState(false);
 
     const navigate = useNavigate();
-    const { user, setUser, logout } = useAuth();
+    const { user, setUser, logout, fetchUser } = useAuth();
     const fileInputRef = useRef<HTMLInputElement>(null);
     const dropdownRef = useRef<HTMLDivElement>(null);
     
@@ -75,6 +78,22 @@ export default function Header({ isOpen, setIsOpen }: NavProps) {
             toast.error(`Upload Failed: ${backendError}`);
         } finally {
             setIsUploading(false);
+        }
+    };
+
+    const handleProfileSave = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setIsSaving(true);
+        try {
+            const res = await api.patch("/api/accounts/me/", editForm);
+            setUser(res.data);
+            setIsEditingProfile(false);
+            toast.success("Profile updated successfully!");
+        } catch (err: any) {
+            const backendError = err.response?.data?.error || err.response?.data?.phone?.[0] || "Update failed";
+            toast.error(backendError);
+        } finally {
+            setIsSaving(false);
         }
     };
 
@@ -209,7 +228,16 @@ export default function Header({ isOpen, setIsOpen }: NavProps) {
 
                                 {/* My Profile */}
                                 <button
-                                    onClick={() => { setDropdownOpen(false); setProfileModalOpen(true); }}
+                                    onClick={() => {
+                                        setDropdownOpen(false);
+                                        setEditForm({
+                                            first_name: user?.first_name || '',
+                                            last_name: user?.last_name || '',
+                                            phone: user?.phone || ''
+                                        });
+                                        setIsEditingProfile(false);
+                                        setProfileModalOpen(true);
+                                    }}
                                     className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-purple-50 hover:text-purple-700 transition-colors"
                                 >
                                     <span>👤</span>
@@ -248,7 +276,7 @@ export default function Header({ isOpen, setIsOpen }: NavProps) {
                     <div className="bg-white rounded-2xl shadow-xl w-full max-w-sm p-6 font-sans">
                         {/* Header */}
                         <div className="flex items-center justify-between mb-5">
-                            <h2 className="text-xl font-bold text-gray-900">My Profile</h2>
+                            <h2 className="text-xl font-bold text-gray-900">{isEditingProfile ? "Edit Profile" : "My Profile"}</h2>
                             <button onClick={() => setProfileModalOpen(false)} className="text-gray-400 hover:text-gray-600 text-xl">✕</button>
                         </div>
 
@@ -283,19 +311,71 @@ export default function Header({ isOpen, setIsOpen }: NavProps) {
                                 onChange={handleProfilePicChange}
                             />
 
-                            <div className="text-center">
-                                <p className="font-bold text-gray-800 text-lg capitalize">{user?.full_name || user?.username}</p>
-                                <p className="text-sm text-gray-400">{user?.email}</p>
-                                <span className="inline-block mt-1 px-3 py-0.5 rounded-full text-xs font-semibold bg-purple-100 text-purple-700 capitalize">{user?.role}</span>
-                            </div>
-
-                            <button
-                                onClick={() => fileInputRef.current?.click()}
-                                disabled={isUploading}
-                                className="w-full mt-2 py-2.5 bg-purple-600 hover:bg-purple-700 disabled:opacity-50 text-white font-semibold rounded-xl transition-colors text-sm"
-                            >
-                                {isUploading ? "Uploading..." : "📷 Change Profile Picture"}
-                            </button>
+                            {isEditingProfile ? (
+                                <form onSubmit={handleProfileSave} className="w-full flex flex-col gap-3 mt-2">
+                                    <div>
+                                        <label className="text-xs text-gray-500 font-semibold mb-1 block">First Name</label>
+                                        <input
+                                            type="text"
+                                            value={editForm.first_name}
+                                            onChange={e => setEditForm({...editForm, first_name: e.target.value})}
+                                            className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-purple-400"
+                                            required
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="text-xs text-gray-500 font-semibold mb-1 block">Last Name</label>
+                                        <input
+                                            type="text"
+                                            value={editForm.last_name}
+                                            onChange={e => setEditForm({...editForm, last_name: e.target.value})}
+                                            className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-purple-400"
+                                            required
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="text-xs text-gray-500 font-semibold mb-1 block">Phone Number</label>
+                                        <input
+                                            type="text"
+                                            value={editForm.phone}
+                                            onChange={e => setEditForm({...editForm, phone: e.target.value})}
+                                            pattern="^\d{10}$"
+                                            title="Phone number must be exactly 10 digits"
+                                            className="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm outline-none focus:border-purple-400"
+                                        />
+                                    </div>
+                                    <div className="flex gap-2 mt-3">
+                                        <button
+                                            type="button"
+                                            onClick={() => setIsEditingProfile(false)}
+                                            className="flex-1 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-xl transition-colors text-sm"
+                                        >
+                                            Cancel
+                                        </button>
+                                        <button
+                                            type="submit"
+                                            disabled={isSaving}
+                                            className="flex-1 py-2 bg-purple-600 hover:bg-purple-700 disabled:opacity-50 text-white font-semibold rounded-xl transition-colors text-sm"
+                                        >
+                                            {isSaving ? "Saving..." : "Save"}
+                                        </button>
+                                    </div>
+                                </form>
+                            ) : (
+                                <div className="text-center w-full">
+                                    <p className="font-bold text-gray-800 text-lg capitalize">{user?.full_name || user?.username}</p>
+                                    <p className="text-sm text-gray-400">{user?.email}</p>
+                                    {user?.phone && <p className="text-sm text-gray-500 mt-1">📞 {user.phone}</p>}
+                                    <span className="inline-block mt-2 px-3 py-0.5 rounded-full text-xs font-semibold bg-purple-100 text-purple-700 capitalize">{user?.role}</span>
+                                    
+                                    <button
+                                        onClick={() => setIsEditingProfile(true)}
+                                        className="w-full mt-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold rounded-xl transition-colors text-sm border border-gray-200"
+                                    >
+                                        ✏️ Edit Profile Details
+                                    </button>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>

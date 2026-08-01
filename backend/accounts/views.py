@@ -38,6 +38,17 @@ class MeView(APIView):
         return Response(
             serializer.data
         )
+
+    def patch(self, request):
+        from .serializers import UserUpdateSerializer
+        user = request.user
+        serializer = UserUpdateSerializer(user, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            # Return full updated user data using UserSerializer
+            response_serializer = UserSerializer(user, context={'request': request})
+            return Response(response_serializer.data, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
 class UserListView(generics.ListAPIView):
     queryset = User.objects.all().order_by('id')

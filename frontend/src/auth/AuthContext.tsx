@@ -8,6 +8,9 @@ interface UserProfile {
     email: string;
     role: string;
     full_name?: string;
+    first_name?: string;
+    last_name?: string;
+    phone?: string;
     profile_picture?: string;
     kyc_status?: string;
 }
