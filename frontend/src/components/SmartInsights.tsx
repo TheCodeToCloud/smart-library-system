@@ -36,6 +36,10 @@ function BookCardSkeleton() {
 export function RecommendedBooks() {
     const { data, loading } = useRecommendations();
 
+    if (!loading && data.length === 0) {
+        return null;
+    }
+
     return (
         <div className="px-5 pt-5 pb-2 font-nav2">
             <div className="flex items-center justify-between mb-3">
@@ -51,8 +55,6 @@ export function RecommendedBooks() {
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
                     {[...Array(5)].map((_, i) => <BookCardSkeleton key={i} />)}
                 </div>
-            ) : data.length === 0 ? (
-                <p className="text-sm text-gray-400">No recommendations yet — borrow a book to get started!</p>
             ) : (
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
                     {data.map((rec: Recommendation) => (
