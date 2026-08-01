@@ -186,9 +186,12 @@ function IssueTable({ rows, showActions, onDone }: {
 
 // ── Summary card ──────────────────────────────────────────────────────────────
 
-function SummaryCard({ label, value, color, bg }: { label: string; value: number; color: string; bg: string }) {
+function SummaryCard({ label, value, color, bg, active, onClick }: { label: string; value: number; color: string; bg: string; active: boolean; onClick: () => void }) {
     return (
-        <div className={`${bg} rounded-xl p-3 text-center`}>
+        <div 
+            onClick={onClick}
+            className={`${bg} rounded-xl p-3 text-center cursor-pointer transition-all ${active ? 'ring-2 ring-purple-400 shadow-md scale-[1.02]' : 'hover:scale-[1.02] opacity-80 hover:opacity-100'}`}
+        >
             <p className={`text-2xl font-bold ${color}`}>{value}</p>
             <p className="text-xs text-gray-500 mt-1">{label}</p>
         </div>
@@ -198,9 +201,7 @@ function SummaryCard({ label, value, color, bg }: { label: string; value: number
 // ── Admin / Librarian view ────────────────────────────────────────────────────
 
 function AdminIssueView() {
-    const issued   = useIssuedBooks();
-    const pending  = usePendingRequests();
-    const overdue  = useOverdueBooks();
+    const { data: allRecords, loading, refresh: refreshAll } = useAllRecords();
     const [searchParams, setSearchParams] = useSearchParams();
 
     const [activeTab, setActiveTab] = useState(searchParams.get("tab") || TAB_ALL);
@@ -239,30 +240,20 @@ function AdminIssueView() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
-    const refreshAll = () => {
-        issued.refresh();
-        pending.refresh();
-        overdue.refresh();
-    };
-
-    // Merge all unique records (by id) across the three lists
-    const allRecords = useMemo<IssueBookRecord[]>(() => {
-        const map = new Map<number, IssueBookRecord>();
-        [...issued.data, ...pending.data, ...overdue.data].forEach(r => map.set(r.id, r));
-        return Array.from(map.values()).sort((a, b) => b.id - a.id);
-    }, [issued.data, pending.data, overdue.data]);
-
-    const returnedRecords = useMemo(
-        () => allRecords.filter(r => r.status === "returned"),
-        [allRecords]
-    );
+    const issuedRecords = useMemo(() => allRecords.filter(r => r.status === "issued"), [allRecords]);
+    const pendingRecords = useMemo(() => allRecords.filter(r => r.status === "pending"), [allRecords]);
+    const overdueRecords = useMemo(() => {
+        const today = new Date().toISOString().split('T')[0];
+        return allRecords.filter(r => r.status === "issued" && r.due_date && r.due_date < today);
+    }, [allRecords]);
+    const returnedRecords = useMemo(() => allRecords.filter(r => r.status === "returned"), [allRecords]);
 
     const filtered = useMemo(() => {
         let source: IssueBookRecord[];
         switch (activeTab) {
-            case TAB_ISSUED:   source = issued.data; break;
-            case TAB_PENDING:  source = pending.data; break;
-            case TAB_OVERDUE:  source = overdue.data; break;
+            case TAB_ISSUED:   source = issuedRecords; break;
+            case TAB_PENDING:  source = pendingRecords; break;
+            case TAB_OVERDUE:  source = overdueRecords; break;
             case TAB_RETURNED: source = returnedRecords; break;
             default:           source = allRecords;
         }
@@ -273,18 +264,7 @@ function AdminIssueView() {
             (r?.book?.title || "")?.toLowerCase().includes(q) ||
             (r?.member?.email || "")?.toLowerCase().includes(q)
         );
-    }, [activeTab, search, allRecords, issued.data, pending.data, overdue.data, returnedRecords]);
-
-    const isLoading = issued.loading || pending.loading || overdue.loading;
-    const TABS = [TAB_ALL, TAB_ISSUED, TAB_PENDING, TAB_OVERDUE, TAB_RETURNED];
-
-    const tabCount: Record<string, number> = {
-        [TAB_ALL]:      allRecords.length,
-        [TAB_ISSUED]:   issued.data.length,
-        [TAB_PENDING]:  pending.data.length,
-        [TAB_OVERDUE]:  overdue.data.length,
-        [TAB_RETURNED]: returnedRecords.length,
-    };
+    }, [activeTab, search, allRecords, issuedRecords, pendingRecords, overdueRecords, returnedRecords]);
 
     return (
         <div className="flex gap-5 p-5 font-nav2">
@@ -308,28 +288,13 @@ function AdminIssueView() {
                     </div>
                 </div>
 
-                {/* Summary cards */}
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
-                    <SummaryCard label="Issued"   value={issued.data.length}   color="text-blue-600"   bg="bg-blue-50" />
-                    <SummaryCard label="Pending"  value={pending.data.length}  color="text-yellow-600" bg="bg-yellow-50" />
-                    <SummaryCard label="Overdue"  value={overdue.data.length}  color="text-red-600"    bg="bg-red-50" />
-                    <SummaryCard label="Returned" value={returnedRecords.length} color="text-green-600" bg="bg-green-50" />
-                </div>
-
-                {/* Tabs */}
-                <div className="flex gap-2 mb-5 flex-wrap">
-                    {TABS.map(tab => (
-                        <button key={tab} onClick={() => setActiveTab(tab)}
-                            className={`px-4 py-2 rounded-xl text-sm font-semibold border transition-colors
-                                ${activeTab === tab
-                                    ? "bg-purple-600 text-white border-purple-600"
-                                    : "bg-white text-gray-600 border-gray-200 hover:bg-gray-50"}`}>
-                            {tab}
-                            <span className={`ml-1.5 text-xs px-1.5 py-0.5 rounded-full ${activeTab === tab ? "bg-purple-500" : "bg-gray-100 text-gray-500"}`}>
-                                {tabCount[tab]}
-                            </span>
-                        </button>
-                    ))}
+                {/* Summary cards acting as tabs */}
+                <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-5">
+                    <SummaryCard label="All Records" value={allRecords.length} color="text-purple-600" bg="bg-purple-50" active={activeTab === TAB_ALL} onClick={() => setActiveTab(TAB_ALL)} />
+                    <SummaryCard label="Issued" value={issuedRecords.length} color="text-blue-600" bg="bg-blue-50" active={activeTab === TAB_ISSUED} onClick={() => setActiveTab(TAB_ISSUED)} />
+                    <SummaryCard label="Pending" value={pendingRecords.length} color="text-yellow-600" bg="bg-yellow-50" active={activeTab === TAB_PENDING} onClick={() => setActiveTab(TAB_PENDING)} />
+                    <SummaryCard label="Overdue" value={overdueRecords.length} color="text-red-600" bg="bg-red-50" active={activeTab === TAB_OVERDUE} onClick={() => setActiveTab(TAB_OVERDUE)} />
+                    <SummaryCard label="Returned" value={returnedRecords.length} color="text-green-600" bg="bg-green-50" active={activeTab === TAB_RETURNED} onClick={() => setActiveTab(TAB_RETURNED)} />
                 </div>
 
                 {/* Search */}
@@ -348,7 +313,7 @@ function AdminIssueView() {
 
                 {/* Table */}
                 <div className="bg-white rounded-2xl shadow-sm overflow-hidden">
-                    {isLoading ? (
+                    {loading ? (
                         <p className="text-center text-sm text-gray-400 py-12">Loading records...</p>
                     ) : (
                         <IssueTable rows={filtered} showActions={true} onDone={refreshAll} />

@@ -4,7 +4,7 @@ from .views import (BorrowRequestView, IssuedBooksView, MyBorrowHistoryView, Ove
                     PendingBorrowRequestView, RecentTransactionsView, ReturnBookView, SendReminderView,
                     ApproveBorrowRequestView, RejectBorrowRequestView, DirectIssueView, StudentStatsView,
                     AllFinesView, MyFinesView, PayFineView, WaiveFineView, RecommendationsView, DebugBackdateView,
-                    TriggerRemindersWebhookView, ForceRemindersView, ResetBooksView)
+                    TriggerRemindersWebhookView, ForceRemindersView, ResetBooksView, AllRecordsView)
 
 urlpatterns = [
     # Borrow / Approve / Reject / Return
@@ -15,6 +15,7 @@ urlpatterns = [
     path('reject/<int:issue_id>/',      RejectBorrowRequestView.as_view(),   name='reject-borrow'),
 
     # Listing views
+    path('all/',                        AllRecordsView.as_view(),            name='all-records'),
     path('my-books/',                   MyBorrowHistoryView.as_view(),       name='my-books'),
     path('pending/',                    PendingBorrowRequestView.as_view(),  name='pending-borrow-requests'),
     path('issued/',                     IssuedBooksView.as_view(),           name='issued-books'),

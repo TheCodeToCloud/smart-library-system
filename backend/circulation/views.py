@@ -476,6 +476,14 @@ class OverdueBooksView(generics.ListAPIView):
             status="issued",
             due_date__lt=date.today()
         ).order_by("due_date")
+
+class AllRecordsView(generics.ListAPIView):
+    """View all circulation records."""
+    serializer_class = IssueBookSerializer
+    permission_classes = [IsAdminOrLibrarian]
+
+    def get_queryset(self):
+        return IssueBook.objects.all().order_by("-request_date", "-issue_date")
     
 # Show recently issued books
 class RecentTransactionsView(generics.ListAPIView):

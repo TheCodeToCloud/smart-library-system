@@ -59,6 +59,9 @@ function makeHook(endpoint: string) {
 
 // ── Named hooks ───────────────────────────────────────────────────────────────
 
+/** Admin/Librarian: all records (issued, pending, returned, etc) */
+export const useAllRecords = makeHook("/api/circulation/all/");
+
 /** Admin/Librarian: all currently issued books */
 export const useIssuedBooks = makeHook("/api/circulation/issued/");
 
