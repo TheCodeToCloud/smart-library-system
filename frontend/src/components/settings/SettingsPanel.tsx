@@ -94,10 +94,10 @@ export default function SettingsPanel({
                             </div>
                         ))}
                         {[
-                            { label: "Default Language", key: "language",   options: ["English", "Nepali", "Hindi"] },
+                            { label: "Default Language", key: "language",   options: ["English"] },
                             { label: "Timezone",         key: "timezone",   options: ["(GMT+05:30) Asia/Kolkata", "(GMT+05:45) Asia/Kathmandu", "(GMT+00:00) UTC"] },
                             { label: "Date Format",      key: "dateFormat", options: ["DD MMM YYYY (e.g. 27 May 2026)", "MM/DD/YYYY", "YYYY-MM-DD"] },
-                            { label: "Currency",         key: "currency",   options: ["USD - US Dollar ($)", "NPR - Nepali Rupee (₨)", "INR - Indian Rupee (₹)"] },
+                            { label: "Currency",         key: "currency",   options: ["NPR - Nepali Rupee (₨)"] },
                         ].map((f) => (
                             <div key={f.key}>
                                 <label className="text-sm font-medium text-gray-700 mb-1.5 block">{f.label}</label>
