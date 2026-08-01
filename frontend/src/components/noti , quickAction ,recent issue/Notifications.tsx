@@ -25,20 +25,28 @@ const timeAgo = (dateStr?: string) => {
 export default function Notification() {
     const [items, setItems] = useState<NotifItem[]>([]);
     const [loading, setLoading] = useState(true);
+    const [showAll, setShowAll] = useState(false);
 
     useEffect(() => {
         api.get("/api/dashboard/notifications/")
-            .then(res => setItems(Array.isArray(res.data) ? res.data.slice(0, 6) : []))
+            .then(res => setItems(Array.isArray(res.data) ? res.data : []))
             .catch(() => setItems([]))
             .finally(() => setLoading(false));
     }, []);
+
+    const visibleItems = showAll ? items : items.slice(0, 6);
 
     return (
         <div className="bg-white rounded-2xl shadow-sm p-3 mt-2 w-full">
             {/* Header */}
             <div className="relative flex items-center justify-center mb-3">
                 <h2 className="font-semibold text-gray-800">Notifications</h2>
-                <button className="text-xs cursor-pointer text-blue-500 hover:underline absolute right-0">View all</button>
+                <button 
+                    onClick={() => setShowAll(!showAll)} 
+                    className="text-xs cursor-pointer text-blue-500 hover:underline absolute right-0"
+                >
+                    {showAll ? "Show less" : "View all"}
+                </button>
             </div>
 
             <div className="flex flex-col gap-3">
@@ -47,7 +55,7 @@ export default function Notification() {
                 ) : items.length === 0 ? (
                     <p className="text-sm text-gray-400 text-center py-4">No notifications yet.</p>
                 ) : (
-                    items.map((item, idx) => {
+                    visibleItems.map((item, idx) => {
                         const { icon, color } = iconMap[item.type] ?? { icon: "🔔", color: "bg-gray-100" };
                         return (
                             <div key={idx} className="flex items-center gap-3">

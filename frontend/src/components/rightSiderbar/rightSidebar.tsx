@@ -1,6 +1,7 @@
 import { useAnnouncements, useNewArrivals } from "../../data/rightside";
 import MiniCalendar from "./miniCalendar";
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function RightSidebar() {
     const { announcements, loading } = useAnnouncements();
@@ -9,6 +10,7 @@ export default function RightSidebar() {
     const [editingId, setEditingId] = useState<number | null>(null);
     const [editText, setEditText] = useState("");
     const [showAll, setShowAll] = useState(false);
+    const navigate = useNavigate();
 
     const startEdit = (id: number, text: string) => {
         setEditingId(id);
@@ -91,7 +93,7 @@ export default function RightSidebar() {
             <div className="bg-white rounded-2xl p-4 shadow-sm">
                 <div className="flex items-center justify-between mb-3">
                     <h2 className="font-semibold text-gray-800 flex items-center gap-2">✨ New Arrivals</h2>
-                    <button className="text-xs text-blue-500 hover:underline">View all</button>
+                    <button onClick={() => navigate('/books')} className="text-xs text-blue-500 hover:underline cursor-pointer">View all</button>
                 </div>
                 <div className="flex flex-col gap-3">
                     {booksLoading ? (

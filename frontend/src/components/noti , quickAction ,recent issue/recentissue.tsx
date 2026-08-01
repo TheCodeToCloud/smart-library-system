@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import api from "../../data/api";
 
 interface RecentIssue {
@@ -12,6 +13,7 @@ interface RecentIssue {
 export default function RecentIssues() {
     const [issues, setIssues] = useState<RecentIssue[]>([]);
     const [loading, setLoading] = useState(true);
+    const navigate = useNavigate();
 
     useEffect(() => {
         api.get("/api/dashboard/recent-issues/")
@@ -43,7 +45,7 @@ export default function RecentIssues() {
             {/* Header */}
             <div className="flex items-center justify-between mb-4">
                 <h2 className="font-semibold text-gray-800 text-base">Recent Issues</h2>
-                <button className="text-xs text-blue-500 hover:underline">View all</button>
+                <button onClick={() => navigate('/issue-return')} className="text-xs text-blue-500 hover:underline cursor-pointer">View all</button>
             </div>
 
             {/* List */}
@@ -84,7 +86,7 @@ export default function RecentIssues() {
 
                 {/* Footer */}
                 <div className="mt-2 text-center">
-                    <button className="text-sm text-blue-500 hover:underline cursor-pointer">View all issues →</button>
+                    <button onClick={() => navigate('/issue-return')} className="text-sm text-blue-500 hover:underline cursor-pointer">View all issues →</button>
                 </div>
             </div>
         </div>
