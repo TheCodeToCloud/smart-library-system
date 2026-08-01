@@ -1,8 +1,6 @@
 import { useState, useMemo, useEffect } from "react";
 import {
-    useIssuedBooks,
-    usePendingRequests,
-    useOverdueBooks,
+    useAllRecords,
     useMyBorrowHistory,
     approveRequest,
     rejectRequest,
@@ -186,11 +184,11 @@ function IssueTable({ rows, showActions, onDone }: {
 
 // ── Summary card ──────────────────────────────────────────────────────────────
 
-function SummaryCard({ label, value, color, bg, active, onClick }: { label: string; value: number; color: string; bg: string; active: boolean; onClick: () => void }) {
+function SummaryCard({ label, value, color, bg, active, onClick }: { label: string; value: number; color: string; bg: string; active?: boolean; onClick?: () => void }) {
     return (
         <div 
             onClick={onClick}
-            className={`${bg} rounded-xl p-3 text-center cursor-pointer transition-all ${active ? 'ring-2 ring-purple-400 shadow-md scale-[1.02]' : 'hover:scale-[1.02] opacity-80 hover:opacity-100'}`}
+            className={`${bg} rounded-xl p-3 text-center ${onClick ? 'cursor-pointer transition-all' : ''} ${active ? 'ring-2 ring-purple-400 shadow-md scale-[1.02]' : onClick ? 'hover:scale-[1.02] opacity-80 hover:opacity-100' : ''}`}
         >
             <p className={`text-2xl font-bold ${color}`}>{value}</p>
             <p className="text-xs text-gray-500 mt-1">{label}</p>
