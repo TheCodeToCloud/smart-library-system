@@ -52,7 +52,6 @@ function AppLayout() {
               <Route path="/books" element={<Books />} />
               <Route path="/issue-return" element={<IssueReturn />} />
               <Route path="/unauthorized" element={<Unauthorized />} />
-              <Route path="/settings" element={<Settings />} />
               <Route path="/elibrary" element={<ELibraryPage />} />
 
               {/* Admin and Librarian only */}

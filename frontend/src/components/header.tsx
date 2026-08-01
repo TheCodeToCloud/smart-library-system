@@ -217,13 +217,15 @@ export default function Header({ isOpen, setIsOpen }: NavProps) {
                                 </button>
 
                                 {/* Settings */}
-                                <button
-                                    onClick={() => { setDropdownOpen(false); navigate("/settings"); }}
-                                    className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-purple-50 hover:text-purple-700 transition-colors"
-                                >
-                                    <span>⚙️</span>
-                                    Settings
-                                </button>
+                                {user?.role !== 'student' && (
+                                    <button
+                                        onClick={() => { setDropdownOpen(false); navigate("/settings"); }}
+                                        className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-purple-50 hover:text-purple-700 transition-colors"
+                                    >
+                                        <span>⚙️</span>
+                                        Settings
+                                    </button>
+                                )}
 
                                 <div className="border-t border-gray-100 mt-1 pt-1">
                                     <button
