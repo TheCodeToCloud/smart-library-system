@@ -29,14 +29,14 @@ export interface IssueBookRecord {
 
 // ── Generic hook factory ───────────────────────────────────────────────────────
 
-function makeHook(endpoint: string) {
+function makeHook(endpoint: string, pollIntervalMs = 15000) {
     return function useIssueHook() {
         const [data, setData] = useState<IssueBookRecord[]>([]);
         const [loading, setLoading] = useState(true);
         const [error, setError] = useState<string | null>(null);
 
-        const fetch = useCallback(() => {
-            setLoading(true);
+        const fetch = useCallback((isBackground = false) => {
+            if (!isBackground) setLoading(true);
             setError(null);
             api.get(endpoint)
                 .then((res) => {
@@ -48,12 +48,24 @@ function makeHook(endpoint: string) {
                     }
                 })
                 .catch((err) => setError(err.message))
-                .finally(() => setLoading(false));
-        }, []);
+                .finally(() => {
+                    if (!isBackground) setLoading(false);
+                });
+        }, [endpoint]);
 
-        useEffect(() => { fetch(); }, [fetch]);
+        useEffect(() => { 
+            fetch(false); 
+            
+            // Auto refresh
+            if (pollIntervalMs > 0) {
+                const interval = setInterval(() => {
+                    fetch(true);
+                }, pollIntervalMs);
+                return () => clearInterval(interval);
+            }
+        }, [fetch, pollIntervalMs]);
 
-        return { data, loading, error, refresh: fetch };
+        return { data, loading, error, refresh: () => fetch(false) };
     };
 }
 

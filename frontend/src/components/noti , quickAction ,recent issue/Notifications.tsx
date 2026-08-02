@@ -28,10 +28,18 @@ export default function Notification() {
     const [showAll, setShowAll] = useState(false);
 
     useEffect(() => {
-        api.get("/api/dashboard/notifications/")
-            .then(res => setItems(Array.isArray(res.data) ? res.data : []))
-            .catch(() => setItems([]))
-            .finally(() => setLoading(false));
+        const fetchNotifs = () => {
+            api.get("/api/dashboard/notifications/")
+                .then(res => setItems(Array.isArray(res.data) ? res.data : []))
+                .catch(() => setItems([]))
+                .finally(() => setLoading(false));
+        };
+
+        fetchNotifs();
+        
+        // Auto refresh every 15 seconds
+        const timer = setInterval(fetchNotifs, 15000);
+        return () => clearInterval(timer);
     }, []);
 
     const visibleItems = showAll ? items : items.slice(0, 6);

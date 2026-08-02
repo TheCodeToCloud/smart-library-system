@@ -52,20 +52,28 @@ export function useAnnouncements() {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        api.get("/api/dashboard/notifications/")
-            .then((res) => {
-                const data = res.data.map((item: ApiNotification, i: number) => ({
-                    id: i + 1,
-                    text: item.message,
-                    date: new Date(item.date).toLocaleDateString("en-US", { day: "numeric", month: "short", year: "numeric" }),
-                    color: typeStyles[item.type]?.color ?? "bg-blue-50 border-blue-200",
-                    icon: typeStyles[item.type]?.icon ?? "🔔",
-                    type: item.type,
-                }));
-                setAnnouncements(data);
-            })
-            .catch(() => { })
-            .finally(() => setLoading(false));
+        const fetchAnnouncements = () => {
+            api.get("/api/dashboard/notifications/")
+                .then((res) => {
+                    const data = res.data.map((item: ApiNotification, i: number) => ({
+                        id: i + 1,
+                        text: item.message,
+                        date: new Date(item.date).toLocaleDateString("en-US", { day: "numeric", month: "short", year: "numeric" }),
+                        color: typeStyles[item.type]?.color ?? "bg-blue-50 border-blue-200",
+                        icon: typeStyles[item.type]?.icon ?? "🔔",
+                        type: item.type,
+                    }));
+                    setAnnouncements(data);
+                })
+                .catch(() => { })
+                .finally(() => setLoading(false));
+        };
+
+        fetchAnnouncements();
+        
+        // Auto refresh every 15 seconds
+        const timer = setInterval(fetchAnnouncements, 15000);
+        return () => clearInterval(timer);
     }, []);
 
     return { announcements, loading };
