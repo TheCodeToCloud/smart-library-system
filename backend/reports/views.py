@@ -47,11 +47,29 @@ class GenerateReportView(APIView):
             end_date=end_date,
             generated_by=request.user
         )
+        report.save()
 
-        csv_buffer = StringIO()
-        writer = csv.writer(csv_buffer)
+        return Response(ReportSerializer(report).data)
 
-        if report_type == 'Members':
+class DownloadReportCSVView(APIView):
+    permission_classes = [IsAuthenticated, IsAdminOrLibrarian]
+
+    def get(self, request, pk):
+        from django.shortcuts import get_object_or_404
+        from django.http import HttpResponse
+        import csv
+
+        report = get_object_or_404(Report, pk=pk)
+        
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = f'attachment; filename="{report.report_type}_{timezone.now().strftime("%Y%m%d%H%M%S")}.csv"'
+        
+        writer = csv.writer(response)
+
+        start_date = report.start_date
+        end_date = report.end_date
+
+        if report.report_type == 'Members':
             qs = User.objects.all()
             if start_date:
                 qs = qs.filter(date_joined__date__gte=start_date)
@@ -61,7 +79,7 @@ class GenerateReportView(APIView):
             for user in qs:
                 writer.writerow([user.id, user.username, user.full_name, user.email, user.role, user.date_joined.strftime('%Y-%m-%d')])
 
-        elif report_type == 'Books':
+        elif report.report_type == 'Books':
             qs = Book.objects.all()
             if start_date:
                 qs = qs.filter(created_at__gte=start_date)
@@ -71,7 +89,7 @@ class GenerateReportView(APIView):
             for book in qs:
                 writer.writerow([book.id, book.title, book.author, book.category, book.isbn, book.total_copies, book.available_copies, book.created_at.strftime('%Y-%m-%d')])
 
-        elif report_type == 'Finance':
+        elif report.report_type == 'Finance':
             qs = IssueBook.objects.filter(fine_amount__gt=0)
             if start_date:
                 qs = qs.filter(request_date__gte=start_date)
@@ -90,10 +108,4 @@ class GenerateReportView(APIView):
                     issue.status
                 ])
 
-        # Save CSV to file field
-        filename = f"{report_type}_{timezone.now().strftime('%Y%m%d%H%M%S')}.csv"
-        csv_file = ContentFile(csv_buffer.getvalue().encode('utf-8'))
-        report.file.save(filename, csv_file, save=True)
-        report.save()
-
-        return Response(ReportSerializer(report).data)
+        return response

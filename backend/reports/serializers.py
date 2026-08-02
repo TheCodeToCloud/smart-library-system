@@ -7,10 +7,16 @@ class ReportSerializer(serializers.ModelSerializer):
     generatedOn = serializers.SerializerMethodField()
     dateRange = serializers.SerializerMethodField()
     type = serializers.CharField(source='report_type')
+    file = serializers.SerializerMethodField()
 
     class Meta:
         model = Report
         fields = ['id', 'name', 'type', 'dateRange', 'generatedOn', 'generatedBy', 'status', 'file']
+
+    def get_file(self, obj):
+        from django.conf import settings
+        # In a real app we'd construct the absolute URL, but relative is fine for our frontend setup
+        return f"/api/reports/{obj.id}/download/"
 
     def get_generatedBy(self, obj):
         if not obj.generated_by:

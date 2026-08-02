@@ -63,12 +63,27 @@ export default function Reports({
         document.body.removeChild(link);
     };
 
-    const handleDownloadReport = (fileUrl: string | null) => {
+    const handleDownloadReport = async (fileUrl: string | null, reportName: string) => {
         if (!fileUrl) {
             toast.warning("No file available for this report.");
             return;
         }
-        window.open(fileUrl, "_blank");
+        try {
+            // Import api from reportsAPI (we'll just use api directly)
+            // But wait, api is not imported here. We can import it.
+            const { default: api } = await import("../../data/api");
+            const res = await api.get(fileUrl, { responseType: 'blob' });
+            const blob = new Blob([res.data], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.setAttribute("href", url);
+            link.setAttribute("download", `${reportName.replace(/\s+/g, '_')}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        } catch (e) {
+            toast.error("Failed to download report.");
+        }
     };
 
     return (
@@ -210,7 +225,7 @@ export default function Reports({
                                     <td className="p-4">
                                         <div className="flex justify-center gap-2">
                                             <button 
-                                                onClick={() => handleDownloadReport(report.file)}
+                                                onClick={() => handleDownloadReport(report.file, report.name)}
                                                 className="w-10 h-10 border rounded-lg flex items-center justify-center hover:bg-gray-100 transition"
                                                 title="Download CSV"
                                             >
