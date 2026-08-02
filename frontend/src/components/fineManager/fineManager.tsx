@@ -28,9 +28,12 @@ const avatarColors = [
 ];
 function avatarColor(id: number) { return avatarColors[id % avatarColors.length]; }
 
-function SummaryCard({ label, value, icon, iconBg }: { label: string; value: string; icon: string; iconBg: string }) {
+function SummaryCard({ label, value, icon, iconBg, onClick, isActive }: { label: string; value: string; icon: string; iconBg: string; onClick?: () => void; isActive?: boolean }) {
     return (
-        <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-4 font-sans">
+        <div 
+            onClick={onClick}
+            className={`bg-white rounded-xl shadow-sm border p-4 font-sans ${onClick ? "cursor-pointer transition-all hover:-translate-y-0.5 hover:shadow-md" : ""} ${isActive ? "border-purple-400 ring-2 ring-purple-100" : "border-gray-100"}`}
+        >
             <div className="flex items-center justify-between mb-3">
                 <h2 className="font-semibold text-gray-800 text-sm">{label}</h2>
             </div>
@@ -122,10 +125,26 @@ function FineTable({ data, loading, showActions, onDone }: { data: FineRecord[],
         <div className="flex-1 min-w-0">
              {/* Summary Cards */}
              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                <SummaryCard label="Total Fines" value={`Rs. ${totalAmount.toFixed(2)}`} icon="💰" iconBg="bg-purple-100" />
-                <SummaryCard label="Unpaid Fines" value={`Rs. ${unpaidAmount.toFixed(2)}`} icon="❌" iconBg="bg-red-100" />
-                <SummaryCard label="Paid Fines" value={`Rs. ${paidAmount.toFixed(2)}`} icon="✅" iconBg="bg-green-100" />
-                <SummaryCard label="Waived Fines" value={`Rs. ${waivedAmount.toFixed(2)}`} icon="⚡" iconBg="bg-orange-100" />
+                <SummaryCard 
+                    label="Total Fines" value={`Rs. ${totalAmount.toFixed(2)}`} icon="💰" iconBg="bg-purple-100" 
+                    onClick={() => { setStatusFilter("All Status"); setCurrentPage(1); }} 
+                    isActive={statusFilter === "All Status"} 
+                />
+                <SummaryCard 
+                    label="Unpaid Fines" value={`Rs. ${unpaidAmount.toFixed(2)}`} icon="❌" iconBg="bg-red-100" 
+                    onClick={() => { setStatusFilter("Unpaid"); setCurrentPage(1); }} 
+                    isActive={statusFilter === "Unpaid"} 
+                />
+                <SummaryCard 
+                    label="Paid Fines" value={`Rs. ${paidAmount.toFixed(2)}`} icon="✅" iconBg="bg-green-100" 
+                    onClick={() => { setStatusFilter("Paid"); setCurrentPage(1); }} 
+                    isActive={statusFilter === "Paid"} 
+                />
+                <SummaryCard 
+                    label="Waived Fines" value={`Rs. ${waivedAmount.toFixed(2)}`} icon="⚡" iconBg="bg-orange-100" 
+                    onClick={() => { setStatusFilter("Waived"); setCurrentPage(1); }} 
+                    isActive={statusFilter === "Waived"} 
+                />
             </div>
 
             {/* Search + Filters */}
