@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "../data/useAuth";
 import api from "../data/api";
 import { useStats } from "../data/statCard";
+import { Link } from "react-router-dom";
 
 // ── Admin / Librarian stats (existing) ──────────────────────────────────────
 
@@ -72,7 +73,7 @@ function StudentStatsCards() {
             {studentStatConfig.map((cfg) => {
                 const val = stats[cfg.key as keyof StudentStats];
                 return (
-                    <div key={cfg.key} className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 font-nav hover:shadow-md transition-shadow">
+                    <Link to="/issue-return" key={cfg.key} className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 font-nav hover:shadow-md transition-shadow cursor-pointer block">
                         <div className="flex items-center gap-4">
                             <div className={`${cfg.col} rounded-xl flex items-center justify-center w-14 h-14 shrink-0 shadow-sm`}>
                                 <img src={cfg.img} alt={cfg.title} className="w-7 h-7" />
@@ -85,7 +86,7 @@ function StudentStatsCards() {
                                 <p className={`text-xs ${cfg.parCol} font-semibold mt-1 truncate`}>{cfg.par}</p>
                             </div>
                         </div>
-                    </div>
+                    </Link>
                 );
             })}
         </div>

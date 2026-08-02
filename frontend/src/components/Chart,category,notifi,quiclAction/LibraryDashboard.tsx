@@ -6,6 +6,10 @@ import { useAuth } from "../../data/useAuth";
 
 export default function LibraryDashboard() {
     const { user } = useAuth();
+    
+    // Students don't need to see the library-wide charts and recent issues
+    if (user?.role === 'student') return null;
+
     return (
         <div className="p-2 sm:p-5 font-nav2 space-y-5">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 w-full">

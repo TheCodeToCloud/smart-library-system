@@ -84,10 +84,7 @@ export default function RecentIssues() {
                     })
                 )}
 
-                {/* Footer */}
-                <div className="mt-2 text-center">
-                    <button onClick={() => navigate('/issue-return')} className="text-sm text-blue-500 hover:underline cursor-pointer">View all issues →</button>
-                </div>
+                {/* Removed duplicate footer */}
             </div>
         </div>
     );
