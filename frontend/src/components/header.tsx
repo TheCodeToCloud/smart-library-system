@@ -31,13 +31,19 @@ export default function Header({ isOpen, setIsOpen }: NavProps) {
 
     // Fetch notifications
     useEffect(() => {
-        api.get("/api/dashboard/notifications/")
-            .then(res => {
-                // Filter only overdue and low_stock as requested by user
-                const alerts = res.data.filter((n: any) => n.type === "overdue" || n.type === "low_stock");
-                setNotifications(alerts);
-            })
-            .catch(err => console.error("Failed to fetch notifications", err));
+        const fetchNotifs = () => {
+            api.get("/api/dashboard/notifications/")
+                .then(res => {
+                    // Filter only overdue and low_stock as requested by user
+                    const alerts = res.data.filter((n: any) => n.type === "overdue" || n.type === "low_stock");
+                    setNotifications(alerts);
+                })
+                .catch(err => console.error("Failed to fetch notifications", err));
+        };
+
+        fetchNotifs();
+        const timer = setInterval(fetchNotifs, 15000);
+        return () => clearInterval(timer);
     }, []);
 
     // Close dropdown when clicking outside

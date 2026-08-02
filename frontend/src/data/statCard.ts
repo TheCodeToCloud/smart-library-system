@@ -30,18 +30,24 @@ export function useStats() {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        api.get("/api/dashboard/stats/")
-            .then((res) => {
-                const d = res.data;
-                setStats([
-                    { ...statConfig[0], value: d.total_books ?? 0, par: "this month", parVal: `+${d.new_books_this_month ?? 0}` },
-                    { ...statConfig[1], value: d.total_members ?? 0, par: "this month", parVal: `+${d.new_members_this_month ?? 0}` },
-                    { ...statConfig[2], value: d.books_issued ?? 0, par: "this month", parVal: `+${d.issued_this_month ?? 0}` }, // ← changed
-                    { ...statConfig[3], value: d.overdue_books ?? 0, par: "this month", parVal: `+${d.overdue_this_month ?? 0}` }, // ← changed
-                ]);
-            })
-            .catch(() => { }) // keeps zeros on error
-            .finally(() => setLoading(false));
+        const fetchStats = () => {
+            api.get("/api/dashboard/stats/")
+                .then((res) => {
+                    const d = res.data;
+                    setStats([
+                        { ...statConfig[0], value: d.total_books ?? 0, par: "this month", parVal: `+${d.new_books_this_month ?? 0}` },
+                        { ...statConfig[1], value: d.total_members ?? 0, par: "this month", parVal: `+${d.new_members_this_month ?? 0}` },
+                        { ...statConfig[2], value: d.books_issued ?? 0, par: "this month", parVal: `+${d.issued_this_month ?? 0}` }, // ← changed
+                        { ...statConfig[3], value: d.overdue_books ?? 0, par: "this month", parVal: `+${d.overdue_this_month ?? 0}` }, // ← changed
+                    ]);
+                })
+                .catch(() => { }) // keeps zeros on error
+                .finally(() => setLoading(false));
+        };
+
+        fetchStats();
+        const timer = setInterval(fetchStats, 15000);
+        return () => clearInterval(timer);
     }, []);
 
     return { stats, loading };

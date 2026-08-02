@@ -52,10 +52,16 @@ function StudentStatsCards() {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        api.get("/api/circulation/my-stats/")
-            .then((res) => setStats(res.data))
-            .catch(() => {})
-            .finally(() => setLoading(false));
+        const fetchStats = () => {
+            api.get("/api/circulation/my-stats/")
+                .then((res) => setStats(res.data))
+                .catch(() => {})
+                .finally(() => setLoading(false));
+        };
+
+        fetchStats();
+        const timer = setInterval(fetchStats, 15000);
+        return () => clearInterval(timer);
     }, []);
 
     if (loading) return <p className="p-5 text-gray-400">Loading your stats...</p>;
