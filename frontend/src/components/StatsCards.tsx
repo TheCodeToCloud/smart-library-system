@@ -72,8 +72,12 @@ function StudentStatsCards() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 pt-5 pl-5 pr-5">
             {studentStatConfig.map((cfg) => {
                 const val = stats[cfg.key as keyof StudentStats];
+                let tab = "All";
+                if (cfg.key === "currently_borrowed" || cfg.key === "due_soon") tab = "Issued";
+                if (cfg.key === "overdue") tab = "Overdue";
+                
                 return (
-                    <Link to="/issue-return" key={cfg.key} className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 font-nav hover:shadow-md transition-shadow cursor-pointer block">
+                    <Link to={`/issue-return?tab=${tab}`} key={cfg.key} className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 font-nav hover:shadow-md transition-shadow cursor-pointer block">
                         <div className="flex items-center gap-4">
                             <div className={`${cfg.col} rounded-xl flex items-center justify-center w-14 h-14 shrink-0 shadow-sm`}>
                                 <img src={cfg.img} alt={cfg.title} className="w-7 h-7" />

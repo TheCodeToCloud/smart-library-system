@@ -335,18 +335,31 @@ function AdminIssueView() {
 
 function StudentIssueView() {
     const { data, loading, refresh } = useMyBorrowHistory();
+    const [searchParams, setSearchParams] = useSearchParams();
     const [search, setSearch] = useState("");
-    const [activeTab, setActiveTab] = useState(TAB_ALL);
+    const [activeTab, setActiveTab] = useState(searchParams.get("tab") || TAB_ALL);
+
+    useEffect(() => {
+        if (searchParams.has("tab")) {
+            setSearchParams({});
+        }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
 
     const issuedRecords = useMemo(() => data.filter(r => r.status === "issued"), [data]);
     const pendingRecords = useMemo(() => data.filter(r => r.status === "pending"), [data]);
     const returnedRecords = useMemo(() => data.filter(r => r.status === "returned"), [data]);
+    const overdueRecords = useMemo(() => {
+        const today = new Date().toISOString().split('T')[0];
+        return data.filter(r => r.status === "issued" && r.due_date && r.due_date < today);
+    }, [data]);
 
     const filtered = useMemo(() => {
         let source: IssueBookRecord[];
         switch (activeTab) {
             case TAB_ISSUED:   source = issuedRecords; break;
             case TAB_PENDING:  source = pendingRecords; break;
+            case TAB_OVERDUE:  source = overdueRecords; break;
             case TAB_RETURNED: source = returnedRecords; break;
             default:           source = data;
         }
@@ -354,7 +367,7 @@ function StudentIssueView() {
         if (!search) return source;
         const q = search.toLowerCase();
         return source.filter(r => r.book.title.toLowerCase().includes(q) || r.book.author.toLowerCase().includes(q));
-    }, [activeTab, search, data, issuedRecords, pendingRecords, returnedRecords]);
+    }, [activeTab, search, data, issuedRecords, pendingRecords, overdueRecords, returnedRecords]);
 
     return (
         <div className="p-5 font-nav2">
@@ -369,10 +382,11 @@ function StudentIssueView() {
             </div>
 
             {/* Summary cards acting as tabs */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
+            <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-5">
                 <SummaryCard label="Total Borrowed" value={data.length} color="text-purple-600" bg="bg-purple-50" active={activeTab === TAB_ALL} onClick={() => setActiveTab(TAB_ALL)} />
                 <SummaryCard label="Currently Issued" value={issuedRecords.length} color="text-blue-600" bg="bg-blue-50" active={activeTab === TAB_ISSUED} onClick={() => setActiveTab(TAB_ISSUED)} />
                 <SummaryCard label="Pending Approval" value={pendingRecords.length} color="text-yellow-600" bg="bg-yellow-50" active={activeTab === TAB_PENDING} onClick={() => setActiveTab(TAB_PENDING)} />
+                <SummaryCard label="Overdue" value={overdueRecords.length} color="text-red-600" bg="bg-red-50" active={activeTab === TAB_OVERDUE} onClick={() => setActiveTab(TAB_OVERDUE)} />
                 <SummaryCard label="Returned" value={returnedRecords.length} color="text-green-600" bg="bg-green-50" active={activeTab === TAB_RETURNED} onClick={() => setActiveTab(TAB_RETURNED)} />
             </div>
 
