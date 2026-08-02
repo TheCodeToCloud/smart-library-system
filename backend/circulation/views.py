@@ -214,6 +214,23 @@ class ApproveBorrowRequestView(APIView):
         book.available_copies -= 1
         book.save()
 
+        # Send Email Notification
+        from dashboard.models import SystemSettings
+        from django.core.mail import send_mail
+        from django.conf import settings
+        sys_settings = SystemSettings.load()
+        if sys_settings.email_on_issue:
+            try:
+                send_mail(
+                    subject="Book Borrow Request Approved",
+                    message=f"Dear {issue.member.username},\n\nYour request to borrow '{book.title}' has been approved. The book is due on {issue.due_date.date()}.\n\nThank you,\nLibrary Management System",
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    recipient_list=[issue.member.email],
+                    fail_silently=True
+                )
+            except Exception:
+                pass
+
         return Response(
             {
                 "message": "Borrow request approved successfully."
@@ -356,6 +373,23 @@ class DirectIssueView(generics.CreateAPIView):
         book.available_copies -= 1
         book.save()
 
+        # Send Email Notification
+        from dashboard.models import SystemSettings
+        from django.core.mail import send_mail
+        from django.conf import settings
+        sys_settings = SystemSettings.load()
+        if sys_settings.email_on_issue:
+            try:
+                send_mail(
+                    subject="Book Issued",
+                    message=f"Dear {member.username},\n\nThe book '{book.title}' has been issued to you. It is due on {issue.due_date.date()}.\n\nThank you,\nLibrary Management System",
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    recipient_list=[member.email],
+                    fail_silently=True
+                )
+            except Exception:
+                pass
+
         return Response(
             {
                 "message": "Book issued successfully.",
@@ -423,6 +457,24 @@ class ReturnBookView(APIView):
         book = issue.book
         book.available_copies += 1
         book.save()
+
+        # Send Email Notification
+        from dashboard.models import SystemSettings
+        from django.core.mail import send_mail
+        from django.conf import settings
+        sys_settings = SystemSettings.load()
+        if sys_settings.email_on_return:
+            try:
+                fine_msg = f" A fine of Rs. {fine} was applied." if fine > 0 else ""
+                send_mail(
+                    subject="Book Returned Successfully",
+                    message=f"Dear {issue.member.username},\n\nYou have successfully returned '{book.title}'.{fine_msg}\n\nThank you,\nLibrary Management System",
+                    from_email=settings.DEFAULT_FROM_EMAIL,
+                    recipient_list=[issue.member.email],
+                    fail_silently=True
+                )
+            except Exception:
+                pass
 
         return Response(
             {

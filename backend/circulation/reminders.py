@@ -5,6 +5,11 @@ from django.core.mail import send_mail
 from .models import IssueBook
 
 def send_overdue_reminders():
+    from dashboard.models import SystemSettings
+    sys_settings = SystemSettings.load()
+    if not sys_settings.email_on_overdue:
+        return "Overdue emails are disabled in system settings."
+
     # Find overdue books that are issued
     overdue_books = IssueBook.objects.filter(
         status='issued',
@@ -80,6 +85,11 @@ Library Management System"""
 
 def send_overdue_reminders_force():
     """Force send - bypasses the 24h cooldown. For testing only."""
+    from dashboard.models import SystemSettings
+    sys_settings = SystemSettings.load()
+    if not sys_settings.email_on_overdue:
+        return {"error": "Overdue emails are disabled in system settings."}
+
     overdue_books = IssueBook.objects.filter(
         status='issued',
         due_date__lt=datetime.date.today()
