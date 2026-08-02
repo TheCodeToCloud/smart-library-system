@@ -11,23 +11,31 @@ function AdminStatsCards() {
     if (loading) return <p className="p-5 text-gray-400">Loading stats...</p>;
     return (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 pt-5 pl-5 pr-5">
-            {stats.map((stat) => (
-                <div key={stat.id} className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 font-nav hover:shadow-md transition-shadow">
-                    <div className="flex items-center gap-4">
-                        <div className={`${stat.col} rounded-xl flex items-center justify-center w-14 h-14 shrink-0 shadow-sm`}>
-                            <img src={stat.img} alt={stat.title} className="w-7 h-7" />
+            {stats.map((stat) => {
+                let route = "/dashboard";
+                if (stat.title === "Total Books") route = "/books";
+                if (stat.title === "Total Members") route = "/members";
+                if (stat.title === "Books Issued") route = "/issue-return?tab=Issued";
+                if (stat.title === "Overdue Books") route = "/issue-return?tab=Overdue";
+
+                return (
+                    <Link to={route} key={stat.id} className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 font-nav hover:shadow-md transition-shadow block cursor-pointer">
+                        <div className="flex items-center gap-4">
+                            <div className={`${stat.col} rounded-xl flex items-center justify-center w-14 h-14 shrink-0 shadow-sm`}>
+                                <img src={stat.img} alt={stat.title} className="w-7 h-7" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                                <h3 className="text-sm text-gray-500 font-medium truncate">{stat.title}</h3>
+                                <p className="text-2xl font-bold text-gray-900 mt-1">{stat.value}</p>
+                                <p className="text-xs text-gray-500 flex items-center gap-1 mt-1 truncate">
+                                    <span className={`${stat.parCol} font-semibold`}>{stat.parVal}</span>
+                                    <span>{stat.par}</span>
+                                </p>
+                            </div>
                         </div>
-                        <div className="flex-1 min-w-0">
-                            <h3 className="text-sm text-gray-500 font-medium truncate">{stat.title}</h3>
-                            <p className="text-2xl font-bold text-gray-900 mt-1">{stat.value}</p>
-                            <p className="text-xs text-gray-500 flex items-center gap-1 mt-1 truncate">
-                                <span className={`${stat.parCol} font-semibold`}>{stat.parVal}</span>
-                                <span>{stat.par}</span>
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            ))}
+                    </Link>
+                );
+            })}
         </div>
     );
 }

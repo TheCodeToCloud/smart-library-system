@@ -52,10 +52,16 @@ export function useCategoryData() {
                 const sum = data.reduce((acc: number, item: ApiCategory) => acc + item.total, 0);
                 setTotal(sum);
 
-                // Map to chart format
-                const mapped = data.map((item: ApiCategory, i: number) => ({
-                    label: item.category,
-                    pct: Math.round((item.total / sum) * 100),
+                // Map to chart format, aggregating case-insensitive categories
+                const normalizedData: Record<string, number> = {};
+                data.forEach((item: ApiCategory) => {
+                    const cat = item.category.charAt(0).toUpperCase() + item.category.slice(1).toLowerCase();
+                    normalizedData[cat] = (normalizedData[cat] || 0) + item.total;
+                });
+                
+                const mapped = Object.entries(normalizedData).map(([category, count], i) => ({
+                    label: category,
+                    pct: Math.round((count / sum) * 100),
                     color: COLORS[i % COLORS.length],
                 }));
 
