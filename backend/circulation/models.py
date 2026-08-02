@@ -32,26 +32,26 @@ class IssueBook(models.Model):
     )
 
     # Date when student submitted borrow request
-    request_date = models.DateField(
+    request_date = models.DateTimeField(
         auto_now_add=True
     )
 
     # Date when librarian approved and issued the book
     # Empty while request is pending
-    issue_date = models.DateField(
+    issue_date = models.DateTimeField(
         null=True,
         blank=True
     )
 
     # Expected return date
     # Set when book is issued
-    due_date = models.DateField(
+    due_date = models.DateTimeField(
         null=True,
         blank=True
     )
 
     # Actual date when student returned the book
-    return_date = models.DateField(
+    return_date = models.DateTimeField(
         null=True,
         blank=True
     )

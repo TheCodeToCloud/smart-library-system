@@ -41,10 +41,10 @@ class DashboardStatsView(APIView):
             status='issued'
         ).count()
 
-        # Overdue books
+        from django.utils import timezone
         overdue_books = IssueBook.objects.filter(
             status='issued',
-            due_date__lt=date.today()
+            due_date__lt=timezone.now()
         ).count()
 
         total_members = total_students + total_librarians
@@ -56,7 +56,7 @@ class DashboardStatsView(APIView):
         new_members_this_month = User.objects.filter(date_joined__year=current_year, date_joined__month=current_month).exclude(role="admin").count()
         
         issued_this_month = IssueBook.objects.filter(issue_date__year=current_year, issue_date__month=current_month).count()
-        overdue_this_month = IssueBook.objects.filter(status='issued', due_date__lt=date.today(), due_date__year=current_year, due_date__month=current_month).count()
+        overdue_this_month = IssueBook.objects.filter(status='issued', due_date__lt=timezone.now(), due_date__year=current_year, due_date__month=current_month).count()
 
         return Response({
             "total_students": total_students,
@@ -174,10 +174,11 @@ class NotificationsView(APIView):
                 "date": issue.return_date,
             })      
         
+        from django.utils import timezone
         # 3. Overdue Books
         overdue_books = IssueBook.objects.filter(
             status='issued',
-            due_date__lt=date.today()
+            due_date__lt=timezone.now()
         )
 
         for issue in overdue_books:

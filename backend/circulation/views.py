@@ -33,13 +33,16 @@ class StudentStatsView(APIView):
         all_borrows = IssueBook.objects.filter(member=user)
 
         currently_borrowed = all_borrows.filter(status="issued").count()
+        from django.utils import timezone
+        now = timezone.now()
+
         overdue_count = all_borrows.filter(
-            status="issued", due_date__lt=today
+            status="issued", due_date__lt=now
         ).count()
         due_soon_count = all_borrows.filter(
             status="issued",
-            due_date__gte=today,
-            due_date__lte=today + timedelta(days=3)
+            due_date__gte=now,
+            due_date__lte=now + timedelta(days=3)
         ).count()
         total_fine = sum(
             b.fine_amount for b in all_borrows.filter(fine_amount__gt=0)
@@ -196,11 +199,13 @@ class ApproveBorrowRequestView(APIView):
         # Approve the request
         issue.status = "issued"
 
-        # Book issued today
-        issue.issue_date = date.today()
+        # Book issued now
+        from django.utils import timezone
+        now = timezone.now()
+        issue.issue_date = now
 
         # Student must return within 14 days
-        issue.due_date = date.today() + timedelta(days=14)
+        issue.due_date = now + timedelta(days=14)
 
         issue.save()
 
@@ -337,12 +342,14 @@ class DirectIssueView(generics.CreateAPIView):
             )
 
         # Create issue record
+        from django.utils import timezone
+        now = timezone.now()
         issue = IssueBook.objects.create(
             book=book,
             member=member,
             status="issued",
-            issue_date=date.today(),
-            due_date=date.today() + timedelta(days=14)
+            issue_date=now,
+            due_date=now + timedelta(days=14)
         )
 
         # Reduce available copies
@@ -388,21 +395,22 @@ class ReturnBookView(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        # Today's date
-        today = date.today()
+        # Today's date and time
+        from django.utils import timezone
+        now = timezone.now()
 
         # Update issue record
         issue.status = "returned"
-        issue.return_date = today
+        issue.return_date = now
 
         # Fine Calculation
         fine = 0
 
         # Check if returned after due date
-        if today > issue.due_date:
+        if now > issue.due_date:
 
             # Number of late days
-            overdue_days = (today - issue.due_date).days
+            overdue_days = (now.date() - issue.due_date.date()).days
 
             # Fine = Rs. 5 per day
             fine = overdue_days * 5
@@ -471,10 +479,10 @@ class OverdueBooksView(generics.ListAPIView):
     permission_classes = [IsAdminOrLibrarian]
 
     def get_queryset(self):
-
+        from django.utils import timezone
         return IssueBook.objects.filter(
             status="issued",
-            due_date__lt=date.today()
+            due_date__lt=timezone.now()
         ).order_by("due_date")
 
 class AllRecordsView(generics.ListAPIView):
