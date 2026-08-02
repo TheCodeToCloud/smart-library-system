@@ -124,7 +124,7 @@ export default function Header({ isOpen, setIsOpen }: NavProps) {
                         </span>
                         <input
                             type="text"
-                            placeholder="Search books, members...."
+                            placeholder={user?.role === 'student' ? "Search books..." : "Search books, members...."}
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             onKeyDown={handleSearch}
