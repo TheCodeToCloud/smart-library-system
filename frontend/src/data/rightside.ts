@@ -47,6 +47,14 @@ export function useNewArrivals() {
     return { books, loading };
 }
 
+const timeAgo = (dateStr?: string) => {
+    if (!dateStr) return "";
+    const diff = Math.floor((Date.now() - new Date(dateStr).getTime()) / 60000);
+    if (diff < 60) return `${diff}m ago`;
+    if (diff < 1440) return `${Math.floor(diff / 60)}h ago`;
+    return `${Math.floor(diff / 1440)}d ago`;
+};
+
 export function useAnnouncements() {
     const [announcements, setAnnouncements] = useState<Announcement[]>([]);
     const [loading, setLoading] = useState(true);
@@ -58,7 +66,7 @@ export function useAnnouncements() {
                     const data = res.data.map((item: ApiNotification, i: number) => ({
                         id: i + 1,
                         text: item.message,
-                        date: new Date(item.date).toLocaleDateString("en-US", { day: "numeric", month: "short", year: "numeric" }),
+                        date: timeAgo(item.date),
                         color: typeStyles[item.type]?.color ?? "bg-blue-50 border-blue-200",
                         icon: typeStyles[item.type]?.icon ?? "🔔",
                         type: item.type,

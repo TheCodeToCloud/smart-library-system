@@ -145,32 +145,31 @@ class NotificationsView(APIView):
          
         notifications = []
 
-        # 1. Issued Books
+        is_student = request.user.role == 'student'
 
-        recent_issues = IssueBook.objects.filter(
-            status='issued'
-        ).order_by('-id')
+        # 1. Issued Books
+        recent_issues = IssueBook.objects.filter(status='issued')
+        if is_student:
+            recent_issues = recent_issues.filter(member=request.user)
+        recent_issues = recent_issues.order_by('-id')
 
         for issue in recent_issues:
-
             notifications.append({
                 "type": "issued",
-                "message":
-                f"{issue.member.full_name} issued '{issue.book.title}'",
+                "message": f"{'You' if is_student else issue.member.full_name} issued '{issue.book.title}'",
                 "date": issue.issue_date,
             })
 
         # 2. Returned Books
-        returned_books = IssueBook.objects.filter(
-                status='returned'
-        ).order_by('-id')
+        returned_books = IssueBook.objects.filter(status='returned')
+        if is_student:
+            returned_books = returned_books.filter(member=request.user)
+        returned_books = returned_books.order_by('-id')
 
         for issue in returned_books:
-
             notifications.append({
                 "type": "returned",
-                "message":
-                f"{issue.member.full_name} returned '{issue.book.title}'",
+                "message": f"{'You' if is_student else issue.member.full_name} returned '{issue.book.title}'",
                 "date": issue.return_date,
             })      
         
@@ -180,35 +179,32 @@ class NotificationsView(APIView):
             status='issued',
             due_date__lt=timezone.now()
         )
+        if is_student:
+            overdue_books = overdue_books.filter(member=request.user)
 
         for issue in overdue_books:
-
             notifications.append({
-
                 "type": "overdue",
-
-                "message":
-                f"'{issue.book.title}' is overdue for {issue.member.full_name}",
-
+                "message": f"'{issue.book.title}' is overdue{' for ' + issue.member.full_name if not is_student else ''}",
                 "date": issue.due_date
-
             })
 
-        # 4. Low Stock Books
-        low_stock_books = Book.objects.filter(
-            available_copies__lte=1
-        )
+        # 4. Low Stock Books (Only show to admin/librarian)
+        if not is_student:
+            low_stock_books = Book.objects.filter(
+                available_copies__lte=1
+            )
 
-        for book in low_stock_books:
+            for book in low_stock_books:
 
-            notifications.append({
+                notifications.append({
 
-                "type": "low_stock",
+                    "type": "low_stock",
 
-                "message":
-                f"Only {book.available_copies} copy left of '{book.title}'"
+                    "message":
+                    f"Only {book.available_copies} copy left of '{book.title}'"
 
-            })
+                })
             
         # Sort latest activity first
         notifications.sort(
