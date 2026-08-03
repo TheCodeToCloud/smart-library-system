@@ -87,6 +87,15 @@ class BookListCreateView(generics.ListCreateAPIView):
         return [IsAdminOrLibrarian()]
 
     def post(self, request, *args, **kwargs):
+        title = request.data.get('title')
+        author = request.data.get('author')
+        if title and author:
+            # Prevent duplicate books with the exact same title and author
+            if Book.objects.filter(title__iexact=title.strip(), author__iexact=author.strip()).exists():
+                return Response(
+                    {"detail": f"The book '{title}' by {author} already exists in the library. If you want to add more copies, please edit the existing book instead."}, 
+                    status=status.HTTP_400_BAD_REQUEST
+                )
         try:
             return super().post(request, *args, **kwargs)
         except Exception as e:
