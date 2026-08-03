@@ -116,9 +116,6 @@ export default function BookModal({ isOpen, onClose, onSuccess, mode = "add", in
                 }
             }
             
-            // Auto set default copies to 20
-            setTotalCopies(20);
-            
             let kws = res.data.keywords;
             if (Array.isArray(kws)) {
                 kws = kws.join(", ");
