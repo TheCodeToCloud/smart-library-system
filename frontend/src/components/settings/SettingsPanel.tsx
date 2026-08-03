@@ -139,7 +139,6 @@ export default function SettingsPanel({
                             { label: "Email on Book Issue",  key: "emailOnIssue"   },
                             { label: "Email on Book Return", key: "emailOnReturn"  },
                             { label: "Email on Overdue",     key: "emailOnOverdue" },
-                            { label: "SMS on Overdue",       key: "smsOnOverdue"   },
                         ].map((f) => (
                             <div key={f.key} className="flex items-center justify-between border border-gray-100 rounded-xl px-4 py-3">
                                 <span className="text-sm font-medium text-gray-700">{f.label}</span>
