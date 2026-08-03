@@ -133,14 +133,21 @@ class AIAutoFillView(APIView):
             
         try:
             genai.configure(api_key=api_key)
-            model = genai.GenerativeModel('gemini-1.5-flash')
             prompt = f"""
             You are a librarian assistant. I have a book titled '{title}' by '{author}'.
             Please provide a short description (2-3 sentences), the best fitting standard library category (like Fiction, Science, History, Technology, Self-Help, etc), and 3-5 keywords.
             Format the response strictly as a JSON object with keys: "description", "category", "keywords".
             Do not include markdown blocks, just the JSON.
             """
-            response = model.generate_content(prompt)
+            
+            try:
+                model = genai.GenerativeModel('gemini-1.5-flash')
+                response = model.generate_content(prompt)
+            except Exception as model_err:
+                print("Gemini 1.5 Flash failed, falling back to gemini-pro:", model_err)
+                model = genai.GenerativeModel('gemini-pro')
+                response = model.generate_content(prompt)
+                
             text = response.text.strip()
             if text.startswith('```json'):
                 text = text[7:-3].strip()
