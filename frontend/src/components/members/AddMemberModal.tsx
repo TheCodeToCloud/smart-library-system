@@ -112,9 +112,20 @@ export default function AddMemberModal({ isOpen, onClose, onAdded }: { isOpen: b
                         <div className="flex gap-4">
                             <div className="flex-1">
                                 <label className="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wide">Department</label>
-                                <input required type="text" value={department} onChange={e => setDepartment(e.target.value)}
-                                    className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-200 transition"
-                                />
+                                <select required value={department} onChange={e => setDepartment(e.target.value)}
+                                    className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-200 transition appearance-none"
+                                >
+                                    <option value="" disabled>Select Department</option>
+                                    <option value="Computer Science">Computer Science</option>
+                                    <option value="Civil Engineering">Civil Engineering</option>
+                                    <option value="Mechanical Engineering">Mechanical Engineering</option>
+                                    <option value="Electrical Engineering">Electrical Engineering</option>
+                                    <option value="Electronics Engineering">Electronics Engineering</option>
+                                    <option value="Architecture">Architecture</option>
+                                    <option value="BCA">BCA</option>
+                                    <option value="BBA">BBA</option>
+                                    <option value="Other">Other</option>
+                                </select>
                             </div>
                             <div className="flex-1">
                                 <label className="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wide">Initial Password</label>
