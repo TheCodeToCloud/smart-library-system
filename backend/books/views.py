@@ -140,27 +140,26 @@ class AIAutoFillView(APIView):
             Do not include markdown blocks, just the JSON.
             """
             
-            models_to_try = [
-                'gemini-2.5-flash', 
-                'gemini-2.0-flash', 
-                'gemini-1.5-flash-latest', 
-                'gemini-1.5-flash', 
-                'gemini-pro'
-            ]
-            response = None
-            last_error = None
-            
-            for model_name in models_to_try:
-                try:
-                    model = genai.GenerativeModel(model_name)
-                    response = model.generate_content(prompt)
-                    break  # Success!
-                except Exception as model_err:
-                    print(f"Model {model_name} failed: {model_err}")
-                    last_error = model_err
-                    
+            try:
+                available_models = []
+                for m in genai.list_models():
+                    if 'generateContent' in m.supported_generation_methods:
+                        available_models.append(m.name.replace('models/', ''))
+                
+                if not available_models:
+                    raise Exception("Your API key does not have access to any Gemini models. Please ensure the Generative Language API is enabled in your Google Cloud Project.")
+                
+                # Pick the best available model
+                chosen_model = next((m for m in available_models if 'flash' in m), available_models[0])
+                
+                model = genai.GenerativeModel(chosen_model)
+                response = model.generate_content(prompt)
+                
+            except Exception as model_err:
+                raise Exception(f"Model generation failed. Available models were {available_models}. Error: {str(model_err)}")
+                
             if not response:
-                raise Exception(f"All models failed. Last error: {last_error}")
+                raise Exception("Failed to get a response from the AI.")
                 
             text = response.text.strip()
             if text.startswith('```json'):
