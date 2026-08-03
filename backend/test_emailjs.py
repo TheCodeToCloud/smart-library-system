@@ -6,10 +6,10 @@ payload = {
     "template_id": "template_qs49rdd",
     "user_id": "loow2YPEiKxZ_qIR-",
     "template_params": {
-        "to_name": "Yogesh Rai",
+        "to_name": "Biplov Tumbapo",
         "to_email": "yrai0054@gmail.com",
-        "subject": "Test EmailJS Script",
-        "message": "If you see this, EmailJS API is perfectly working."
+        "subject": "Welcome to the Library System",
+        "message": "Your library account has been successfully created by the librarian! You are already verified and can start borrowing books immediately. \n\nYour Username: test\nYour Password: password123"
     }
 }
 

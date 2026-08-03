@@ -36,7 +36,7 @@ export default function AddMemberModal({ isOpen, onClose, onAdded }: { isOpen: b
             await api.post("/api/accounts/admin-create-member/", payload);
             
             // Send welcome email via EmailJS using the existing template
-            sendEmailJS(
+            await sendEmailJS(
                 `${firstName} ${lastName}`,
                 email,
                 "Welcome to the Library System",
