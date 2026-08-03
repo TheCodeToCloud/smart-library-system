@@ -11,7 +11,6 @@ type NavProps = {
 };
 
 export default function Header({ isOpen, setIsOpen }: NavProps) {
-    const [searchQuery, setSearchQuery] = useState("");
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const [profileModalOpen, setProfileModalOpen] = useState(false);
     const [isUploading, setIsUploading] = useState(false);
@@ -103,11 +102,7 @@ export default function Header({ isOpen, setIsOpen }: NavProps) {
         }
     };
 
-    const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
-        if (e.key === "Enter" && searchQuery.trim()) {
-            navigate(`/books?q=${encodeURIComponent(searchQuery.trim())}`);
-        }
-    };
+
 
     return (
         <Fragment>
@@ -119,25 +114,7 @@ export default function Header({ isOpen, setIsOpen }: NavProps) {
                     </button>
                 </div>
 
-                {/* Search bar */}
-                <div className="flex flex-1 justify-center px-2">
-                    <div className="relative w-full max-w-xs md:max-w-sm">
-                        <span
-                            className="absolute cursor-pointer right-4 top-1/2 -translate-y-1/2"
-                            onClick={() => { if (searchQuery.trim()) navigate(`/books?q=${encodeURIComponent(searchQuery.trim())}`); }}
-                        >
-                            <img src="search.svg" alt="search" className="h-4 w-4" />
-                        </span>
-                        <input
-                            type="text"
-                            placeholder={user?.role === 'student' ? "Search books..." : "Search books, members...."}
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            onKeyDown={handleSearch}
-                            className="w-full px-4 py-2 pr-10 pl-5 rounded-xl border bg-white font-nav2 text-sm"
-                        />
-                    </div>
-                </div>
+
 
                 <div className="flex-1 sm:hidden" />
 
