@@ -1,6 +1,6 @@
 export async function sendEmailJS(toName: string, toEmail: string, subject: string, message: string) {
     const serviceId = "service_qhi38c2";
-    const templateId = "template_goozcmn";
+    const templateId = "template_qs49rdd";
     const publicKey = "loow2YPEiKxZ_qIR-";
 
     const payload = {
