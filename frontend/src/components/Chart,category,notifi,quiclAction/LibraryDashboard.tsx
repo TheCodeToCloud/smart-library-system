@@ -17,7 +17,7 @@ export default function LibraryDashboard() {
                 <CategoryCard />
             </div>
             <RecentIssues />
-            {user?.role === 'librarian' && (
+            {user?.role !== 'student' && (
                 <div className="flex flex-col md:flex-row gap-5">
                     <div className="w-full md:w-auto"><QuickAction /></div>
                 </div>
