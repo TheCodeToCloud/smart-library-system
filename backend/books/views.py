@@ -147,19 +147,30 @@ class AIAutoFillView(APIView):
                         available_models.append(m.name.replace('models/', ''))
                 
                 if not available_models:
-                    raise Exception("Your API key does not have access to any Gemini models. Please ensure the Generative Language API is enabled in your Google Cloud Project.")
+                    raise Exception("Your API key does not have access to any Gemini models. Please ensure the Generative Language API is enabled.")
                 
-                # Pick the best available model
-                chosen_model = next((m for m in available_models if 'flash' in m), available_models[0])
+                # Sort models to try newest 'flash' models first (e.g., gemini-3.6-flash before 2.5)
+                flash_models = [m for m in available_models if 'flash' in m]
+                flash_models.sort(reverse=True) 
+                models_to_try = flash_models + [m for m in available_models if m not in flash_models]
                 
-                model = genai.GenerativeModel(chosen_model)
-                response = model.generate_content(prompt)
+                response = None
+                last_error = None
                 
-            except Exception as model_err:
-                raise Exception(f"Model generation failed. Available models were {available_models}. Error: {str(model_err)}")
+                for m_name in models_to_try:
+                    try:
+                        model = genai.GenerativeModel(m_name)
+                        response = model.generate_content(prompt)
+                        break # Success!
+                    except Exception as e:
+                        last_error = str(e)
+                        continue
+                        
+                if not response:
+                    raise Exception(f"Tried {len(models_to_try)} models, all failed. Last error: {last_error}")
                 
-            if not response:
-                raise Exception("Failed to get a response from the AI.")
+            except Exception as outer_err:
+                raise Exception(f"Generation failed: {str(outer_err)}")
                 
             text = response.text.strip()
             if text.startswith('```json'):
