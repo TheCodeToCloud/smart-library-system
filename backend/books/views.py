@@ -141,44 +141,53 @@ class AIAutoFillView(APIView):
             """
             
             try:
+                import requests
                 available_models = []
                 for m in genai.list_models():
                     if 'generateContent' in m.supported_generation_methods:
-                        available_models.append(m.name.replace('models/', ''))
+                        available_models.append(m.name)
                 
                 if not available_models:
                     raise Exception("Your API key does not have access to any Gemini models. Please ensure the Generative Language API is enabled.")
                 
-                # Sort models to try newest 'flash' models first (e.g., gemini-3.6-flash before 2.5)
+                # Sort models to try newest 'flash' models first
                 flash_models = [m for m in available_models if 'flash' in m and 'preview' not in m]
                 flash_models.sort(reverse=True) 
-                
-                # Only try the top 2 stable flash models to avoid 60-second timeouts
                 models_to_try = flash_models[:2]
-                
-                # Fallback to the absolute newest if no stable flash models exist
                 if not models_to_try:
                     models_to_try = available_models[:2]
                 
-                response = None
+                response_text = None
                 last_error = None
                 
                 for m_name in models_to_try:
                     try:
-                        model = genai.GenerativeModel(m_name)
-                        response = model.generate_content(prompt)
-                        break # Success!
+                        model_id = m_name.replace('models/', '')
+                        url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_id}:generateContent?key={api_key}"
+                        payload = {
+                            "contents": [{"parts": [{"text": prompt}]}]
+                        }
+                        # Strict 8 second timeout to prevent hanging connections
+                        res = requests.post(url, json=payload, headers={'Content-Type': 'application/json'}, timeout=8)
+                        
+                        if res.status_code == 200:
+                            data = res.json()
+                            response_text = data['candidates'][0]['content']['parts'][0]['text']
+                            break
+                        else:
+                            last_error = f"HTTP {res.status_code}: {res.text}"
+                    except requests.exceptions.Timeout:
+                        last_error = f"Model {model_id} timed out after 8 seconds."
                     except Exception as e:
                         last_error = str(e)
-                        continue
                         
-                if not response:
-                    raise Exception(f"Tried {len(models_to_try)} models, all failed. Last error: {last_error}")
+                if not response_text:
+                    raise Exception(f"Failed. Last error: {last_error}")
                 
             except Exception as outer_err:
                 raise Exception(f"Generation failed: {str(outer_err)}")
                 
-            text = response.text.strip()
+            text = response_text.strip()
             if text.startswith('```json'):
                 text = text[7:-3].strip()
             elif text.startswith('```'):
