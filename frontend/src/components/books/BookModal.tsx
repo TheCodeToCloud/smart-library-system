@@ -89,6 +89,19 @@ export default function BookModal({ isOpen, onClose, onSuccess, mode = "add", in
             const res = await api.post("/api/books/ai-autofill/", { title, author });
             if (res.data.category) setCategory(res.data.category);
             
+            if (res.data.isbn) {
+                setIsbn(res.data.isbn);
+                // Attempt to auto-fetch cover image from OpenLibrary using the ISBN
+                const cleanIsbn = String(res.data.isbn).replace(/[^0-9]/g, '');
+                if (cleanIsbn.length >= 10) {
+                    setCoverImageUrl(`https://covers.openlibrary.org/b/isbn/${cleanIsbn}-L.jpg`);
+                    setImageMode("url");
+                }
+            }
+            
+            // Auto set default copies to 20
+            setTotalCopies(20);
+            
             let kws = res.data.keywords;
             if (Array.isArray(kws)) {
                 kws = kws.join(", ");

@@ -135,8 +135,8 @@ class AIAutoFillView(APIView):
             genai.configure(api_key=api_key)
             prompt = f"""
             You are a librarian assistant. I have a book titled '{title}' by '{author}'.
-            Please provide a short description (2-3 sentences), the best fitting standard library category (like Fiction, Science, History, Technology, Self-Help, etc), and 3-5 keywords.
-            Format the response strictly as a JSON object with keys: "description", "category", "keywords".
+            Please provide a short description (2-3 sentences), the best fitting standard library category (like Fiction, Science, History, Technology, Self-Help, etc), 3-5 keywords, and the real ISBN-13 if you know it (otherwise generate a believable fake 13-digit ISBN starting with 978).
+            Format the response strictly as a JSON object with keys: "description", "category", "keywords", "isbn".
             Do not include markdown blocks, just the JSON.
             """
             
