@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import api from "../../data/api";
 import { useBooks } from "../../data/books";
 import QRScanner from "./QRScanner";
+import { sendEmailJS } from "../../utils/emailjs";
 
 interface Member {
     id: number;
@@ -54,6 +55,19 @@ export default function IssueBookModal({ isOpen, onClose, onSuccess }: IssueBook
             });
             onSuccess();
             onClose();
+
+            // Send Email Notification
+            const memberObj = members.find(m => m.id === parseInt(selectedMember));
+            const bookObj = books.find(b => b.id === parseInt(selectedBook));
+            if (memberObj && bookObj) {
+                sendEmailJS(
+                    memberObj.full_name || memberObj.username,
+                    memberObj.email,
+                    "Book Issued Successfully",
+                    `The book '${bookObj.title}' has been successfully issued to you. Please return it within 14 days.`
+                );
+            }
+
             setSelectedMember("");
             setSelectedBook("");
         } catch (err: any) {

@@ -12,6 +12,7 @@ import { useSearchParams } from "react-router-dom";
 import IssueBookModal from "./IssueBookModal";
 import { toast } from "react-toastify";
 import ConfirmModal from "../ConfirmModal";
+import { sendEmailJS } from "../../utils/emailjs";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -51,16 +52,20 @@ function ActionButtons({ row, onDone }: { row: IssueBookRecord; onDone: () => vo
 
     const executeAction = async () => {
         if (!confirmAction) return;
-        const { fn, label } = confirmAction;
+        const { fn, label, emailCallback } = confirmAction;
         setConfirmAction(null);
         setBusy(true);
-        try { await fn(); onDone(); }
+        try { 
+            await fn(); 
+            if (emailCallback) emailCallback();
+            onDone(); 
+        }
         catch (e: any) { toast.error(e.response?.data?.error || `${label} failed`); }
         finally { setBusy(false); }
     };
 
-    function act(fn: () => Promise<any>, label: string) {
-        setConfirmAction({ fn, label });
+    function act(fn: () => Promise<any>, label: string, emailCallback?: () => void) {
+        setConfirmAction({ fn, label, emailCallback });
     }
 
     const modal = (
@@ -74,7 +79,14 @@ function ActionButtons({ row, onDone }: { row: IssueBookRecord; onDone: () => vo
 
     if (row.status === "pending") return (
         <div className="flex gap-1">
-            <button disabled={busy} onClick={() => act(() => approveRequest(row.id), "Approve this request")}
+            <button disabled={busy} onClick={() => act(() => approveRequest(row.id), "Approve this request", () => {
+                sendEmailJS(
+                    row.member.full_name || row.member.username,
+                    row.member.email,
+                    "Book Borrow Request Approved",
+                    `Your request to borrow '${row.book.title}' has been approved. Please return it within 14 days.`
+                );
+            })}
                 className="px-2 py-1 text-xs font-semibold bg-green-100 text-green-700 rounded-lg hover:bg-green-200 disabled:opacity-50 transition">
                 ✓ Approve
             </button>
@@ -88,7 +100,14 @@ function ActionButtons({ row, onDone }: { row: IssueBookRecord; onDone: () => vo
 
     if (row.status === "issued" || row.status === "overdue") return (
         <div>
-            <button disabled={busy} onClick={() => act(() => returnBook(row.id), "Mark as Returned")}
+            <button disabled={busy} onClick={() => act(() => returnBook(row.id), "Mark as Returned", () => {
+                sendEmailJS(
+                    row.member.full_name || row.member.username,
+                    row.member.email,
+                    "Book Returned Successfully",
+                    `You have successfully returned '${row.book.title}'. Thank you for returning it.`
+                );
+            })}
                 className="px-2 py-1 text-xs font-semibold bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 disabled:opacity-50 transition">
                 ↩ Return
             </button>
