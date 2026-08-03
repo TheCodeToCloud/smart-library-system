@@ -160,14 +160,19 @@ export default function BookRow({ book, index, onKycRequired, onView, onEdit, on
                             </button>
                         </>
                     ) : (
-                        <button 
-                            onClick={handleBorrow} 
-                            className="p-1.5 rounded-lg text-green-500 hover:bg-green-50 transition-colors flex items-center gap-1 text-xs font-semibold" 
-                            title="Borrow this book"
-                        >
-                            <LibraryBig size={15} />
-                            Borrow
-                        </button>
+                        <>
+                            <button onClick={() => onView(book)} className="p-1.5 rounded-lg text-blue-400 hover:bg-blue-50 transition-colors" title="View Details & AI Insights">
+                                <Eye size={15} />
+                            </button>
+                            <button 
+                                onClick={handleBorrow} 
+                                className="p-1.5 rounded-lg text-green-500 hover:bg-green-50 transition-colors flex items-center gap-1 text-xs font-semibold" 
+                                title="Borrow this book"
+                            >
+                                <LibraryBig size={15} />
+                                Borrow
+                            </button>
+                        </>
                     )}
                 </div>
             </td>
