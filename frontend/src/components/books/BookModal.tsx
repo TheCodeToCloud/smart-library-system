@@ -88,9 +88,19 @@ export default function BookModal({ isOpen, onClose, onSuccess, mode = "add", in
         try {
             const res = await api.post("/api/books/ai-autofill/", { title, author });
             if (res.data.category) setCategory(res.data.category);
+            
+            let kws = res.data.keywords;
+            if (Array.isArray(kws)) {
+                kws = kws.join(", ");
+            } else if (!kws) {
+                kws = "";
+            } else {
+                kws = String(kws);
+            }
+            
             setAiInsights({
-                description: res.data.description,
-                keywords: res.data.keywords
+                description: res.data.description || "No description provided.",
+                keywords: kws
             });
         } catch (err: any) {
             setError("AI Auto-Fill failed: " + (err.response?.data?.error || err.message));
@@ -197,11 +207,15 @@ export default function BookModal({ isOpen, onClose, onSuccess, mode = "add", in
                             </p>
                             <p className="text-gray-700 mb-2 leading-relaxed">{aiInsights.description}</p>
                             <div className="flex flex-wrap gap-1.5">
-                                {aiInsights.keywords.split(',').map((kw, i) => (
-                                    <span key={i} className="px-2 py-0.5 bg-white border border-purple-200 text-purple-600 rounded-full text-xs font-medium">
-                                        {kw.trim()}
-                                    </span>
-                                ))}
+                                {aiInsights.keywords.split(',').map((kw, i) => {
+                                    const trimmed = kw.trim();
+                                    if (!trimmed) return null;
+                                    return (
+                                        <span key={i} className="px-2 py-0.5 bg-white border border-purple-200 text-purple-600 rounded-full text-xs font-medium">
+                                            {trimmed}
+                                        </span>
+                                    );
+                                })}
                             </div>
                         </div>
                     )}
