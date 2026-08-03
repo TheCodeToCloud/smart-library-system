@@ -140,13 +140,27 @@ class AIAutoFillView(APIView):
             Do not include markdown blocks, just the JSON.
             """
             
-            try:
-                model = genai.GenerativeModel('gemini-1.5-flash')
-                response = model.generate_content(prompt)
-            except Exception as model_err:
-                print("Gemini 1.5 Flash failed, falling back to gemini-pro:", model_err)
-                model = genai.GenerativeModel('gemini-pro')
-                response = model.generate_content(prompt)
+            models_to_try = [
+                'gemini-2.5-flash', 
+                'gemini-2.0-flash', 
+                'gemini-1.5-flash-latest', 
+                'gemini-1.5-flash', 
+                'gemini-pro'
+            ]
+            response = None
+            last_error = None
+            
+            for model_name in models_to_try:
+                try:
+                    model = genai.GenerativeModel(model_name)
+                    response = model.generate_content(prompt)
+                    break  # Success!
+                except Exception as model_err:
+                    print(f"Model {model_name} failed: {model_err}")
+                    last_error = model_err
+                    
+            if not response:
+                raise Exception(f"All models failed. Last error: {last_error}")
                 
             text = response.text.strip()
             if text.startswith('```json'):
