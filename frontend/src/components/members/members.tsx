@@ -31,7 +31,7 @@ export default function Members() {
     const [statusFilter, setStatusFilter] = useState("All Status");
     const [currentPage, setCurrentPage] = useState(1);
     const [busyId, setBusyId] = useState<number | null>(null);
-    const [confirmAction, setConfirmAction] = useState<{userId: number, action: "approve" | "reject"} | null>(null);
+    const [confirmAction, setConfirmAction] = useState<{userId: number, action: "approve" | "reject" | "delete"} | null>(null);
     const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
     const filtered = members.filter(m => {
@@ -83,18 +83,23 @@ export default function Members() {
         setConfirmAction(null); // Close modal
         setBusyId(userId);
         try {
-            await api.post(`/api/accounts/kyc/${userId}/${action}/`);
-            toast.success(`Status ${action === "approve" ? "Approved" : "Rejected"} successfully!`);
+            if (action === "delete") {
+                await api.delete(`/api/accounts/delete-member/${userId}/`);
+                toast.success("Member deleted successfully!");
+            } else {
+                await api.post(`/api/accounts/kyc/${userId}/${action}/`);
+                toast.success(`Status ${action === "approve" ? "Approved" : "Rejected"} successfully!`);
+            }
             refreshMembers();
         } catch (e: any) {
             console.error("KYC Action error:", e);
-            toast.error(e.response?.data?.error || "Status action failed.");
+            toast.error(e.response?.data?.error || "Action failed.");
         } finally {
             setBusyId(null);
         }
     };
 
-    function handleKYC(userId: number, action: "approve" | "reject") {
+    function handleKYC(userId: number, action: "approve" | "reject" | "delete") {
         setConfirmAction({ userId, action });
     }
 
@@ -246,6 +251,14 @@ export default function Members() {
                         {m.role !== "student" && (
                             <span className="text-xs text-gray-400">—</span>
                         )}
+                        {/* Always show delete button */}
+                        <button
+                            disabled={busyId === m.id || m.email === user?.email}
+                            onClick={() => handleKYC(m.id, "delete")}
+                            className="px-2 py-1 text-xs font-semibold bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 disabled:opacity-50 transition"
+                        >
+                            🗑️ Delete
+                        </button>
                     </div>
                 </div>
             ))}
@@ -263,7 +276,9 @@ export default function Members() {
 
             <ConfirmModal
                 isOpen={confirmAction !== null}
-                message={`Are you sure you want to ${confirmAction?.action === "approve" ? "approve" : "reject"} this student's status?`}
+                message={confirmAction?.action === "delete" 
+                    ? "Are you sure you want to permanently delete this member? This action cannot be undone."
+                    : `Are you sure you want to ${confirmAction?.action === "approve" ? "approve" : "reject"} this student's status?`}
                 onConfirm={executeKYCAction}
                 onCancel={() => setConfirmAction(null)}
             />

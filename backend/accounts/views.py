@@ -54,7 +54,24 @@ class MeView(APIView):
             response_serializer = UserSerializer(user, context={'request': request})
             return Response(response_serializer.data, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    
+
+class DeleteMemberView(APIView):
+    permission_classes = [IsAdminOrLibrarian]
+
+    def delete(self, request, pk):
+        try:
+            user_to_delete = User.objects.get(pk=pk)
+            if user_to_delete == request.user:
+                return Response({"error": "You cannot delete your own account."}, status=status.HTTP_400_BAD_REQUEST)
+            if user_to_delete.role == 'admin' and request.user.role == 'librarian':
+                return Response({"error": "Librarians cannot delete admin accounts."}, status=status.HTTP_403_FORBIDDEN)
+            user_to_delete.delete()
+            return Response({"message": "Member deleted successfully."}, status=status.HTTP_200_OK)
+        except User.DoesNotExist:
+            return Response({"error": "Member not found."}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 class UserListView(generics.ListAPIView):
     queryset = User.objects.all().order_by('id')
     serializer_class = UserSerializer

@@ -4,35 +4,15 @@ import django
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'library.settings')
 django.setup()
 
-from rest_framework.test import APIRequestFactory
-from accounts.views import AdminCreateMemberView
 from accounts.models import User
 
-# First, get admin
-admin = User.objects.filter(role='admin').first()
+emails_to_delete = ['alokrajgupta63@gmail.com', 'BIPLOVTUMBAPOMBBT183780@mbman.edu.np']
+for email in emails_to_delete:
+    deleted, _ = User.objects.filter(email=email).delete()
+    if deleted:
+        print(f"Deleted {email}")
+    else:
+        print(f"{email} not found")
 
-# Clean dummy user
-User.objects.filter(email='BIPLOVTUMBAPOMBBT183780@mbman.edu.np').delete()
+print("Cleanup complete!")
 
-factory = APIRequestFactory()
-request = factory.post('/api/accounts/admin-create-member/', {
-    'first_name': 'Biplov',
-    'last_name': 'Tumbapo',
-    'email': 'BIPLOVTUMBAPOMBBT183780@mbman.edu.np',
-    'username': 'BIPLOVTUMBAPOMBBT183780',
-    'phone': '9708611427',
-    'department': 'Computer Science',
-    'roll_no': '33',
-    'password': 'password123'
-}, format='json')
-
-from rest_framework.test import force_authenticate
-force_authenticate(request, user=admin)
-view = AdminCreateMemberView.as_view()
-try:
-    response = view(request)
-    print("STATUS CODE:", response.status_code)
-    print("RESPONSE DATA:", response.data)
-except Exception as e:
-    import traceback
-    print("EXCEPTION:", traceback.format_exc())
