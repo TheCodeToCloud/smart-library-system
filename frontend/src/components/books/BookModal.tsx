@@ -94,8 +94,13 @@ export default function BookModal({ isOpen, onClose, onSuccess, mode = "add", in
                 // Attempt to auto-fetch cover image from OpenLibrary using the ISBN
                 const cleanIsbn = String(res.data.isbn).replace(/[^0-9]/g, '');
                 if (cleanIsbn.length >= 10) {
-                    setCoverImageUrl(`https://covers.openlibrary.org/b/isbn/${cleanIsbn}-L.jpg`);
-                    setImageMode("url");
+                    const testImgUrl = `https://covers.openlibrary.org/b/isbn/${cleanIsbn}-L.jpg?default=false`;
+                    const img = new Image();
+                    img.onload = () => {
+                        setCoverImageUrl(testImgUrl);
+                        setImageMode("url");
+                    };
+                    img.src = testImgUrl;
                 }
             }
             
