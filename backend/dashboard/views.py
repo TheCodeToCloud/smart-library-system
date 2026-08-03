@@ -148,10 +148,10 @@ class NotificationsView(APIView):
         is_student = request.user.role == 'student'
 
         # 1. Issued Books
-        recent_issues = IssueBook.objects.filter(status='issued')
+        recent_issues = IssueBook.objects.filter(issue_date__isnull=False)
         if is_student:
             recent_issues = recent_issues.filter(member=request.user)
-        recent_issues = recent_issues.order_by('-id')
+        recent_issues = recent_issues.order_by('-issue_date')[:20]
 
         for issue in recent_issues:
             notifications.append({
@@ -164,7 +164,7 @@ class NotificationsView(APIView):
         returned_books = IssueBook.objects.filter(status='returned')
         if is_student:
             returned_books = returned_books.filter(member=request.user)
-        returned_books = returned_books.order_by('-id')
+        returned_books = returned_books.order_by('-return_date')[:20]
 
         for issue in returned_books:
             notifications.append({

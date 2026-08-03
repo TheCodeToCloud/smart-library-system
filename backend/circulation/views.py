@@ -220,16 +220,19 @@ class ApproveBorrowRequestView(APIView):
         from django.conf import settings
         sys_settings = SystemSettings.load()
         if sys_settings.email_on_issue:
-            try:
-                send_mail(
-                    subject="Book Borrow Request Approved",
-                    message=f"Dear {issue.member.username},\n\nYour request to borrow '{book.title}' has been approved. The book is due on {issue.due_date.date()}.\n\nThank you,\nLibrary Management System",
-                    from_email=settings.DEFAULT_FROM_EMAIL,
-                    recipient_list=[issue.member.email],
-                    fail_silently=True
-                )
-            except Exception:
-                pass
+            import threading
+            def send_issue_email():
+                try:
+                    send_mail(
+                        subject="Book Borrow Request Approved",
+                        message=f"Dear {issue.member.username},\n\nYour request to borrow '{book.title}' has been approved. The book is due on {issue.due_date.date()}.\n\nThank you,\nLibrary Management System",
+                        from_email=settings.DEFAULT_FROM_EMAIL,
+                        recipient_list=[issue.member.email],
+                        fail_silently=True
+                    )
+                except Exception:
+                    pass
+            threading.Thread(target=send_issue_email).start()
 
         return Response(
             {
@@ -379,16 +382,19 @@ class DirectIssueView(generics.CreateAPIView):
         from django.conf import settings
         sys_settings = SystemSettings.load()
         if sys_settings.email_on_issue:
-            try:
-                send_mail(
-                    subject="Book Issued",
-                    message=f"Dear {member.username},\n\nThe book '{book.title}' has been issued to you. It is due on {issue.due_date.date()}.\n\nThank you,\nLibrary Management System",
-                    from_email=settings.DEFAULT_FROM_EMAIL,
-                    recipient_list=[member.email],
-                    fail_silently=True
-                )
-            except Exception:
-                pass
+            import threading
+            def send_direct_issue_email():
+                try:
+                    send_mail(
+                        subject="Book Issued",
+                        message=f"Dear {member.username},\n\nThe book '{book.title}' has been issued to you. It is due on {issue.due_date.date()}.\n\nThank you,\nLibrary Management System",
+                        from_email=settings.DEFAULT_FROM_EMAIL,
+                        recipient_list=[member.email],
+                        fail_silently=True
+                    )
+                except Exception:
+                    pass
+            threading.Thread(target=send_direct_issue_email).start()
 
         return Response(
             {
@@ -464,17 +470,20 @@ class ReturnBookView(APIView):
         from django.conf import settings
         sys_settings = SystemSettings.load()
         if sys_settings.email_on_return:
-            try:
-                fine_msg = f" A fine of Rs. {fine} was applied." if fine > 0 else ""
-                send_mail(
-                    subject="Book Returned Successfully",
-                    message=f"Dear {issue.member.username},\n\nYou have successfully returned '{book.title}'.{fine_msg}\n\nThank you,\nLibrary Management System",
-                    from_email=settings.DEFAULT_FROM_EMAIL,
-                    recipient_list=[issue.member.email],
-                    fail_silently=True
-                )
-            except Exception:
-                pass
+            import threading
+            def send_return_email():
+                try:
+                    fine_msg = f" A fine of Rs. {fine} was applied." if fine > 0 else ""
+                    send_mail(
+                        subject="Book Returned Successfully",
+                        message=f"Dear {issue.member.username},\n\nYou have successfully returned '{book.title}'.{fine_msg}\n\nThank you,\nLibrary Management System",
+                        from_email=settings.DEFAULT_FROM_EMAIL,
+                        recipient_list=[issue.member.email],
+                        fail_silently=True
+                    )
+                except Exception:
+                    pass
+            threading.Thread(target=send_return_email).start()
 
         return Response(
             {
