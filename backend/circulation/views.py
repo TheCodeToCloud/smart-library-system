@@ -731,3 +731,23 @@ class ForceRemindersView(APIView):
         from .reminders import send_overdue_reminders_force
         result = send_overdue_reminders_force()
         return Response(result)
+
+class TestEmailView(APIView):
+    """Debug endpoint to test email sending"""
+    authentication_classes = []
+    permission_classes = []
+    def get(self, request):
+        from django.core.mail import send_mail
+        from django.conf import settings
+        target_email = request.query_params.get('email', 'yrai0054@gmail.com')
+        try:
+            send_mail(
+                "Django Test Email",
+                "If you see this, Django email configuration is perfectly working!",
+                settings.DEFAULT_FROM_EMAIL,
+                [target_email],
+                fail_silently=False
+            )
+            return Response({"success": True, "message": f"Email sent to {target_email}!"})
+        except Exception as e:
+            return Response({"success": False, "error": str(e)})

@@ -4,7 +4,7 @@ from .views import (BorrowRequestView, IssuedBooksView, MyBorrowHistoryView, Ove
                     PendingBorrowRequestView, RecentTransactionsView, ReturnBookView, SendReminderView,
                     ApproveBorrowRequestView, RejectBorrowRequestView, DirectIssueView, StudentStatsView,
                     AllFinesView, MyFinesView, PayFineView, WaiveFineView, RecommendationsView, DebugBackdateView,
-                    TriggerRemindersWebhookView, ForceRemindersView, ResetBooksView, AllRecordsView)
+                    TriggerRemindersWebhookView, ForceRemindersView, ResetBooksView, AllRecordsView, TestEmailView)
 
 urlpatterns = [
     # Borrow / Approve / Reject / Return
@@ -26,7 +26,10 @@ urlpatterns = [
     path('my-stats/',                   StudentStatsView.as_view(),          name='student-stats'),
     path('recommendations/',            RecommendationsView.as_view(),       name='smart-recommendations'),
     path('send-reminders/',             SendReminderView.as_view(),          name='send-reminders'),
-    path('trigger-reminders/',          TriggerRemindersWebhookView.as_view(), name='trigger-reminders'),
+    path('webhook/trigger-reminders/',  TriggerRemindersWebhookView.as_view(), name='webhook-trigger-reminders'),
+    path('force-reminders/',            ForceRemindersView.as_view(),        name='force-reminders'),
+    path('debug-backdate/',             DebugBackdateView.as_view(),         name='debug-backdate'),
+    path('test-email/',                 TestEmailView.as_view(),             name='test-email'),
 
     # Fines
     path('fines/',                      AllFinesView.as_view(),              name='all-fines'),
@@ -35,7 +38,6 @@ urlpatterns = [
     path('waive-fine/<int:issue_id>/',  WaiveFineView.as_view(),             name='waive-fine'),
     
     # Debug
-    path('debug-backdate/',             DebugBackdateView.as_view(),         name='debug-backdate'),
     path('force-reminders/',            ForceRemindersView.as_view(),        name='force-reminders'),
     path('reset-books/',                ResetBooksView.as_view(),            name='reset-books'),
 ]
