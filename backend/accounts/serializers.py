@@ -100,6 +100,53 @@ class RegisterSerializer(serializers.ModelSerializer):
                 })
 
         return attrs
+
+class AdminCreateMemberSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True)
+    roll_no = serializers.CharField(required=True)
+    department = serializers.CharField(required=True)
+
+    class Meta:
+        model = User
+        fields = [
+            "id", "username", "email", "password", 
+            "first_name", "last_name", "phone", 
+            "roll_no", "department"
+        ]
+
+    def validate_email(self, value):
+        if User.objects.filter(email=value).exists():
+            raise serializers.ValidationError("This email address is already registered.")
+        return value
+
+    def validate_phone(self, value):
+        if value and User.objects.filter(phone=value).exists():
+            raise serializers.ValidationError("This phone number is already registered.")
+        if value:
+            import re
+            if not re.match(r'^\d{10}$', value.strip()):
+                raise serializers.ValidationError("Phone number must be exactly 10 digits.")
+        return value
+
+    def validate_roll_no(self, value):
+        if value and StudentProfile.objects.filter(roll_no=value).exists():
+            raise serializers.ValidationError("This Roll Number is already registered.")
+        return value
+
+    def create(self, validated_data):
+        roll_no = validated_data.pop("roll_no")
+        department = validated_data.pop("department")
+        validated_data["role"] = "student"
+        
+        user = User.objects.create_user(**validated_data)
+        
+        StudentProfile.objects.create(
+            user=user,
+            roll_no=roll_no,
+            department=department,
+            kyc_status='approved'
+        )
+        return user
    
 class UserSerializer(serializers.ModelSerializer):
     full_name = serializers.SerializerMethodField()

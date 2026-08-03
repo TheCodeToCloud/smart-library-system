@@ -4,7 +4,7 @@ from google.auth.transport import requests
 
 from rest_framework import generics
 from accounts.permissions import IsAdmin, IsAdminOrLibrarian
-from .serializers import RegisterSerializer, UserSerializer, LoginSerializer, GoogleLoginSerializer, MemberSerializer, SubmitKYCSerializer
+from .serializers import RegisterSerializer, UserSerializer, LoginSerializer, GoogleLoginSerializer, MemberSerializer, SubmitKYCSerializer, AdminCreateMemberSerializer
 from .models import User, StudentProfile, EmailOTP
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework import status
@@ -21,6 +21,11 @@ class RegisterView(generics.CreateAPIView):
     serializer_class = RegisterSerializer
     parser_classes = [MultiPartParser, FormParser]
 
+
+class AdminCreateMemberView(generics.CreateAPIView):
+    queryset = User.objects.all()
+    serializer_class = AdminCreateMemberSerializer
+    permission_classes = [IsAdminOrLibrarian]
 
 
 class MeView(APIView):
