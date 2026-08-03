@@ -26,9 +26,9 @@ export default function Dashboard() {
             {/* Smart insights section */}
             {user?.role === "student" ? (
                 <>
-                    <div className="px-5 w-full"><QuickAction /></div>
                     <RecommendedBooks />
                     <TrendingBooks />
+                    <div className="px-5 pb-5 w-full"><QuickAction /></div>
                 </>
             ) : (
                 <TrendingBooks />
