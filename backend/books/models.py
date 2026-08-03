@@ -43,6 +43,10 @@ class Book(models.Model):
 
     available_copies = models.IntegerField()
     
+    # AI generated fields
+    description = models.TextField(blank=True, null=True)
+    keywords = models.CharField(max_length=500, blank=True, null=True)
+    
     # Book cover image — can be either a URL or uploaded file (stored in Cloudinary)
     cover_image = models.URLField(blank=True, null=True)
     cover_image_file = models.ImageField(

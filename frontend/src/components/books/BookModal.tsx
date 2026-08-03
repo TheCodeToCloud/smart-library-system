@@ -38,7 +38,19 @@ export default function BookModal({ isOpen, onClose, onSuccess, mode = "add", in
             setIsbn(initialData.isbn || "");
             setTotalCopies(initialData.total_copies || 1);
             setCoverImageUrl(initialData.cover_image || "");
-            setAiInsights(null);
+            
+            // Load AI insights if they were saved in the DB
+            const desc = (initialData as any).description;
+            const kw = (initialData as any).keywords;
+            if (desc || kw) {
+                setAiInsights({
+                    description: desc || "No description provided.",
+                    keywords: kw || ""
+                });
+            } else {
+                setAiInsights(null);
+            }
+            
             if (initialData.best_cover) {
                 setImagePreview(initialData.best_cover);
                 setImageMode(initialData.cover_image ? "url" : "upload");
@@ -148,6 +160,14 @@ export default function BookModal({ isOpen, onClose, onSuccess, mode = "add", in
             // available_copies auto-set to total_copies for new books; backend keeps track on issue/return
             if (mode === "add") {
                 formData.append("available_copies", String(totalCopies));
+            }
+            
+            // Append AI insights if they exist
+            if (aiInsights?.description) {
+                formData.append("description", aiInsights.description);
+            }
+            if (aiInsights?.keywords) {
+                formData.append("keywords", aiInsights.keywords);
             }
 
             if (imageMode === "upload" && coverImageFile) {

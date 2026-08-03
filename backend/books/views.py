@@ -108,7 +108,7 @@ class BookDetailView(generics.RetrieveUpdateDestroyAPIView):
 
 import os
 import json
-import google.generativeai as genai
+
 from rest_framework.views import APIView
 
 class AIAutoFillView(APIView):
@@ -143,9 +143,13 @@ class AIAutoFillView(APIView):
             try:
                 import requests
                 available_models = []
-                for m in genai.list_models():
-                    if 'generateContent' in m.supported_generation_methods:
-                        available_models.append(m.name)
+                # Fetch models using REST API to avoid SDK DLL issues
+                models_url = f"https://generativelanguage.googleapis.com/v1beta/models?key={api_key}"
+                models_res = requests.get(models_url, timeout=5)
+                if models_res.status_code == 200:
+                    for m in models_res.json().get('models', []):
+                        if 'generateContent' in m.get('supportedGenerationMethods', []):
+                            available_models.append(m['name'].replace('models/', ''))
                 
                 if not available_models:
                     raise Exception("Your API key does not have access to any Gemini models. Please ensure the Generative Language API is enabled.")
