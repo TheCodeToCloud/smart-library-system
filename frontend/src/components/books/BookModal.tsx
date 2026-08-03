@@ -27,6 +27,9 @@ export default function BookModal({ isOpen, onClose, onSuccess, mode = "add", in
     const fileInputRef = useRef<HTMLInputElement>(null);
     const isViewOnly = mode === "view";
 
+    const [isAiLoading, setIsAiLoading] = useState(false);
+    const [aiInsights, setAiInsights] = useState<{description: string, keywords: string} | null>(null);
+
     React.useEffect(() => {
         if (isOpen && initialData && (mode === "edit" || mode === "view")) {
             setTitle(initialData.title || "");
@@ -35,6 +38,7 @@ export default function BookModal({ isOpen, onClose, onSuccess, mode = "add", in
             setIsbn(initialData.isbn || "");
             setTotalCopies(initialData.total_copies || 1);
             setCoverImageUrl(initialData.cover_image || "");
+            setAiInsights(null);
             if (initialData.best_cover) {
                 setImagePreview(initialData.best_cover);
                 setImageMode(initialData.cover_image ? "url" : "upload");
@@ -45,6 +49,7 @@ export default function BookModal({ isOpen, onClose, onSuccess, mode = "add", in
             // Reset for add
             setTitle(""); setAuthor(""); setCategory(""); setIsbn("");
             setTotalCopies(1);
+            setAiInsights(null);
             clearImage();
         }
     }, [isOpen, initialData, mode]);
@@ -71,6 +76,27 @@ export default function BookModal({ isOpen, onClose, onSuccess, mode = "add", in
         setImagePreview(null);
         setCoverImageUrl("");
         if (fileInputRef.current) fileInputRef.current.value = "";
+    };
+
+    const handleAiAutoFill = async () => {
+        if (!title || !author) {
+            setError("Please enter both Title and Author first to use AI Auto-Fill.");
+            return;
+        }
+        setIsAiLoading(true);
+        setError("");
+        try {
+            const res = await api.post("/api/books/ai-autofill/", { title, author });
+            if (res.data.category) setCategory(res.data.category);
+            setAiInsights({
+                description: res.data.description,
+                keywords: res.data.keywords
+            });
+        } catch (err: any) {
+            setError("AI Auto-Fill failed: " + (err.response?.data?.error || err.message));
+        } finally {
+            setIsAiLoading(false);
+        }
     };
 
     const handleClose = () => {
@@ -149,6 +175,36 @@ export default function BookModal({ isOpen, onClose, onSuccess, mode = "add", in
                             <input type="text" required disabled={isViewOnly} value={author} onChange={(e) => setAuthor(e.target.value)} className={inputClass} placeholder="Author name" />
                         </div>
                     </div>
+
+                    {!isViewOnly && (
+                        <div className="flex justify-end">
+                            <button 
+                                type="button" 
+                                onClick={handleAiAutoFill} 
+                                disabled={isAiLoading || !title || !author}
+                                className="flex items-center gap-1.5 text-xs font-medium text-purple-600 bg-purple-50 hover:bg-purple-100 px-3 py-1.5 rounded-lg transition-colors disabled:opacity-50"
+                            >
+                                {isAiLoading ? <span className="animate-spin text-lg">⏳</span> : <span className="text-lg">✨</span>}
+                                Auto-Fill with AI
+                            </button>
+                        </div>
+                    )}
+
+                    {aiInsights && (
+                        <div className="bg-gradient-to-r from-purple-50 to-indigo-50 border border-purple-100 rounded-xl p-3 text-sm">
+                            <p className="font-semibold text-purple-800 flex items-center gap-1 mb-1">
+                                <span>✨</span> AI Insights
+                            </p>
+                            <p className="text-gray-700 mb-2 leading-relaxed">{aiInsights.description}</p>
+                            <div className="flex flex-wrap gap-1.5">
+                                {aiInsights.keywords.split(',').map((kw, i) => (
+                                    <span key={i} className="px-2 py-0.5 bg-white border border-purple-200 text-purple-600 rounded-full text-xs font-medium">
+                                        {kw.trim()}
+                                    </span>
+                                ))}
+                            </div>
+                        </div>
+                    )}
 
                     {/* Category + ISBN */}
                     <div className="grid grid-cols-2 gap-3">

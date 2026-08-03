@@ -105,3 +105,50 @@ class BookDetailView(generics.RetrieveUpdateDestroyAPIView):
             return [IsAuthenticated()]
 
         return [IsAdminOrLibrarian()]
+
+import os
+import json
+import google.generativeai as genai
+from rest_framework.views import APIView
+
+class AIAutoFillView(APIView):
+    permission_classes = [IsAdminOrLibrarian]
+
+    def post(self, request):
+        title = request.data.get('title')
+        author = request.data.get('author')
+        
+        if not title or not author:
+            return Response({"error": "Title and author are required"}, status=400)
+            
+        api_key = os.getenv("GEMINI_API_KEY")
+        
+        if not api_key:
+            # Fallback to mock data if no API key is provided
+            return Response({
+                "description": f"An insightful exploration by {author} titled '{title}'. This book provides deep perspectives and valuable knowledge for its readers.",
+                "category": "General Knowledge",
+                "keywords": "knowledge, reading, general"
+            })
+            
+        try:
+            genai.configure(api_key=api_key)
+            model = genai.GenerativeModel('gemini-1.5-flash')
+            prompt = f"""
+            You are a librarian assistant. I have a book titled '{title}' by '{author}'.
+            Please provide a short description (2-3 sentences), the best fitting standard library category (like Fiction, Science, History, Technology, Self-Help, etc), and 3-5 keywords.
+            Format the response strictly as a JSON object with keys: "description", "category", "keywords".
+            Do not include markdown blocks, just the JSON.
+            """
+            response = model.generate_content(prompt)
+            text = response.text.strip()
+            if text.startswith('```json'):
+                text = text[7:-3].strip()
+            elif text.startswith('```'):
+                text = text[3:-3].strip()
+                
+            data = json.loads(text)
+            return Response(data)
+            
+        except Exception as e:
+            return Response({"error": str(e)}, status=500)
