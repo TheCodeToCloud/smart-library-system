@@ -150,9 +150,15 @@ class AIAutoFillView(APIView):
                     raise Exception("Your API key does not have access to any Gemini models. Please ensure the Generative Language API is enabled.")
                 
                 # Sort models to try newest 'flash' models first (e.g., gemini-3.6-flash before 2.5)
-                flash_models = [m for m in available_models if 'flash' in m]
+                flash_models = [m for m in available_models if 'flash' in m and 'preview' not in m]
                 flash_models.sort(reverse=True) 
-                models_to_try = flash_models + [m for m in available_models if m not in flash_models]
+                
+                # Only try the top 2 stable flash models to avoid 60-second timeouts
+                models_to_try = flash_models[:2]
+                
+                # Fallback to the absolute newest if no stable flash models exist
+                if not models_to_try:
+                    models_to_try = available_models[:2]
                 
                 response = None
                 last_error = None
