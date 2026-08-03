@@ -4,6 +4,7 @@ import BooksPagination from "../books/BooksPagination";
 import api from "../../data/api";
 import { toast } from "react-toastify";
 import ConfirmModal from "../ConfirmModal";
+import AddMemberModal from "./AddMemberModal";
 
 const ITEMS_PER_PAGE = 10;
 
@@ -31,6 +32,7 @@ export default function Members() {
     const [currentPage, setCurrentPage] = useState(1);
     const [busyId, setBusyId] = useState<number | null>(null);
     const [confirmAction, setConfirmAction] = useState<{userId: number, action: "approve" | "reject"} | null>(null);
+    const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
     const filtered = members.filter(m => {
         const matchSearch =
@@ -109,6 +111,12 @@ export default function Members() {
                     <p className="text-sm text-gray-400">Manage and organize library members</p>
                 </div>
                 <div className="flex gap-3">
+                    <button 
+                        onClick={() => setIsAddModalOpen(true)}
+                        className="flex items-center gap-2 bg-purple-600 text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-purple-700 transition"
+                    >
+                        + Add Member
+                    </button>
                     <button onClick={handleExport} className="flex items-center gap-2 border border-gray-300 px-4 py-2 rounded-xl text-sm font-semibold hover:bg-gray-50">
                         ↓ Export
                     </button>
@@ -258,6 +266,12 @@ export default function Members() {
                 message={`Are you sure you want to ${confirmAction?.action === "approve" ? "approve" : "reject"} this student's status?`}
                 onConfirm={executeKYCAction}
                 onCancel={() => setConfirmAction(null)}
+            />
+
+            <AddMemberModal 
+                isOpen={isAddModalOpen}
+                onClose={() => setIsAddModalOpen(false)}
+                onAdded={() => refreshMembers()}
             />
         </div>
     );
