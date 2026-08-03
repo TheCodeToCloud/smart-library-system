@@ -103,8 +103,8 @@ class RegisterSerializer(serializers.ModelSerializer):
 
 class AdminCreateMemberSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True)
-    roll_no = serializers.CharField(required=True)
-    department = serializers.CharField(required=True)
+    roll_no = serializers.CharField(required=True, write_only=True)
+    department = serializers.CharField(required=True, write_only=True)
 
     class Meta:
         model = User
