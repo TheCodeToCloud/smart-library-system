@@ -17,6 +17,7 @@ const iconMap: Record<string, { icon: string; color: string }> = {
 const timeAgo = (dateStr?: string) => {
     if (!dateStr) return "";
     const diff = Math.floor((Date.now() - new Date(dateStr).getTime()) / 60000);
+    if (diff <= 0) return "Just now";
     if (diff < 60) return `${diff}m ago`;
     if (diff < 1440) return `${Math.floor(diff / 60)}h ago`;
     return `${Math.floor(diff / 1440)}d ago`;
