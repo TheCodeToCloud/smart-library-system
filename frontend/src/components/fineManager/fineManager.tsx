@@ -4,6 +4,7 @@ import { useFines, useMyFines, payFine, waiveFine, type FineRecord } from "../..
 import { useAuth } from "../../data/useAuth";
 import { toast } from "react-toastify";
 import ConfirmModal from "../ConfirmModal";
+import { sendEmailJS } from "../../utils/emailjs";
 
 const statusStyles: Record<string, string> = {
     "unpaid": "bg-red-100 text-red-500",
@@ -53,16 +54,20 @@ function ActionButtons({ row, onDone }: { row: FineRecord; onDone: () => void })
 
     const executeAction = async () => {
         if (!confirmAction) return;
-        const { fn, label } = confirmAction;
+        const { fn, label, emailCallback } = confirmAction;
         setConfirmAction(null);
         setBusy(true);
-        try { await fn(); onDone(); }
+        try { 
+            await fn(); 
+            if (emailCallback) emailCallback();
+            onDone(); 
+        }
         catch (e: any) { toast.error(e.response?.data?.error || `${label} failed`); }
         finally { setBusy(false); }
     };
 
-    function act(fn: () => Promise<any>, label: string) {
-        setConfirmAction({ fn, label });
+    function act(fn: () => Promise<any>, label: string, emailCallback?: () => void) {
+        setConfirmAction({ fn, label, emailCallback });
     }
 
     const modal = (
@@ -77,7 +82,14 @@ function ActionButtons({ row, onDone }: { row: FineRecord; onDone: () => void })
     if (row.fine_status === "unpaid") {
         return (
             <div className="flex flex-col gap-1">
-                <button disabled={busy} onClick={() => act(() => payFine(row.id), "Mark this fine as paid")}
+                <button disabled={busy} onClick={() => act(() => payFine(row.id), "Mark this fine as paid", () => {
+                    sendEmailJS(
+                        row.member.full_name || row.member.username,
+                        row.member.email,
+                        "Fine Payment Received",
+                        `We have successfully received your fine payment of Rs. ${parseFloat(row.fine_amount).toFixed(2)} for the book '${row.book.title}'. Thank you!`
+                    );
+                })}
                     className="px-2 py-1 text-xs font-semibold bg-green-100 text-green-700 rounded-lg hover:bg-green-200 disabled:opacity-50 transition">
                     Mark Paid
                 </button>

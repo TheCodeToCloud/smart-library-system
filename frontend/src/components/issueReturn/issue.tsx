@@ -90,7 +90,14 @@ function ActionButtons({ row, onDone }: { row: IssueBookRecord; onDone: () => vo
                 className="px-2 py-1 text-xs font-semibold bg-green-100 text-green-700 rounded-lg hover:bg-green-200 disabled:opacity-50 transition">
                 ✓ Approve
             </button>
-            <button disabled={busy} onClick={() => act(() => rejectRequest(row.id), "Reject this request")}
+            <button disabled={busy} onClick={() => act(() => rejectRequest(row.id), "Reject this request", () => {
+                sendEmailJS(
+                    row.member.full_name || row.member.username,
+                    row.member.email,
+                    "Book Borrow Request Rejected",
+                    `Your request to borrow '${row.book.title}' has been rejected by the librarian.`
+                );
+            })}
                 className="px-2 py-1 text-xs font-semibold bg-red-100 text-red-600 rounded-lg hover:bg-red-200 disabled:opacity-50 transition">
                 ✗ Reject
             </button>
@@ -298,6 +305,28 @@ function AdminIssueView() {
                             className="bg-purple-600 text-white px-4 py-2 rounded-xl text-sm font-semibold hover:bg-purple-700 transition"
                         >
                             + Issue Book
+                        </button>
+                        <button 
+                            onClick={() => {
+                                if (overdueRecords.length === 0) {
+                                    toast.info("No overdue books to send reminders for.");
+                                    return;
+                                }
+                                let sentCount = 0;
+                                overdueRecords.forEach(r => {
+                                    sendEmailJS(
+                                        r.member.full_name || r.member.username,
+                                        r.member.email,
+                                        "Overdue Book Reminder",
+                                        `This is a reminder that the book '${r.book.title}' was due on ${fmt(r.due_date)}. Please return it as soon as possible to avoid further fines.`
+                                    );
+                                    sentCount++;
+                                });
+                                toast.success(`Sent reminders to ${sentCount} members!`);
+                            }} 
+                            className="bg-red-100 text-red-600 px-4 py-2 rounded-xl text-sm font-semibold hover:bg-red-200 transition"
+                        >
+                            ✉ Send Reminders
                         </button>
                         <button onClick={handleExport} className="border border-gray-300 px-4 py-2 rounded-xl text-sm font-semibold hover:bg-gray-50">
                             ↓ Export
