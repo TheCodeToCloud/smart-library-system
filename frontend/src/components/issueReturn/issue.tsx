@@ -13,6 +13,7 @@ import IssueBookModal from "./IssueBookModal";
 import { toast } from "react-toastify";
 import ConfirmModal from "../ConfirmModal";
 import { sendEmailJS } from "../../utils/emailjs";
+import api from "../../data/api";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -327,6 +328,22 @@ function AdminIssueView() {
                             className="bg-red-100 text-red-600 px-4 py-2 rounded-xl text-sm font-semibold hover:bg-red-200 transition"
                         >
                             ✉ Send Reminders
+                        </button>
+                        
+                        <button 
+                            onClick={async () => {
+                                try {
+                                    const res = await api.get('/api/circulation/debug-backdate/');
+                                    toast.success(res.data.message || "Books made overdue!");
+                                    refreshAll();
+                                } catch (e) {
+                                    toast.error("Failed to make books overdue");
+                                }
+                            }}
+                            className="bg-orange-100 text-orange-600 px-4 py-2 rounded-xl text-sm font-semibold hover:bg-orange-200 transition"
+                            title="Makes all issued books 10 days overdue for testing"
+                        >
+                            ⏳ Demo Overdue
                         </button>
                         <button onClick={handleExport} className="border border-gray-300 px-4 py-2 rounded-xl text-sm font-semibold hover:bg-gray-50">
                             ↓ Export
