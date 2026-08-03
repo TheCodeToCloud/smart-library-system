@@ -5,6 +5,12 @@ export const quickActions = [
     { id: 4, label: "Return Book", icon: "📥", color: "text-orange-500", path: "/issue-return?tab=Issued" },
 ];
 
+export const studentQuickActions = [
+    { id: 1, label: "Browse Books", icon: "🔍", color: "text-blue-500", path: "/books" },
+    { id: 2, label: "My Borrowed Books", icon: "📖", color: "text-green-500", path: "/issue-return" },
+    { id: 3, label: "E-Library", icon: "🌐", color: "text-purple-500", path: "/elibrary" },
+];
+
 export const notifications = [
     { id: 1, text: "86 books are overdue", sub: "Please collect overdue books", time: "10m ago", color: "bg-red-100" },
     { id: 2, text: "New member registration", sub: "5 new members joined today", time: "1h ago", color: "bg-yellow-100" },

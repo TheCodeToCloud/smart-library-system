@@ -1,6 +1,8 @@
 import { useAuth } from "../data/useAuth";
 import { RecommendedBooks, TrendingBooks } from "./SmartInsights";
 
+import QuickAction from "./noti , quickAction ,recent issue/quickAction";
+
 export default function Dashboard() {
     const { user } = useAuth();
 
@@ -12,7 +14,7 @@ export default function Dashboard() {
             : "Here's what's happening in the library today.";
 
     return (
-        <div>
+        <div className="space-y-4">
             {/* Welcome — only here, not in Header */}
             <div className="pl-8 py-2">
                 <h1 className="text-3xl font-semibold font-nav2 text-fuchsia-600 pb-1">
@@ -24,6 +26,7 @@ export default function Dashboard() {
             {/* Smart insights section */}
             {user?.role === "student" ? (
                 <>
+                    <div className="px-5 w-full"><QuickAction /></div>
                     <RecommendedBooks />
                     <TrendingBooks />
                 </>
