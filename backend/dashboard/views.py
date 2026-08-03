@@ -299,3 +299,34 @@ class SystemSettingsView(APIView):
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+from .models import Announcement
+from .serializers import AnnouncementSerializer
+
+class AnnouncementListView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        announcements = Announcement.objects.all().order_by('-created_at')
+        serializer = AnnouncementSerializer(announcements, many=True)
+        return Response(serializer.data)
+
+    def post(self, request):
+        if request.user.role == 'student':
+            return Response({"error": "Unauthorized"}, status=403)
+        serializer = AnnouncementSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(created_by=request.user)
+            return Response(serializer.data, status=201)
+        return Response(serializer.errors, status=400)
+
+class AnnouncementDetailView(APIView):
+    permission_classes = [IsAdminOrLibrarian]
+
+    def delete(self, request, pk):
+        try:
+            announcement = Announcement.objects.get(pk=pk)
+            announcement.delete()
+            return Response({"message": "Deleted successfully"}, status=200)
+        except Announcement.DoesNotExist:
+            return Response({"error": "Not found"}, status=404)

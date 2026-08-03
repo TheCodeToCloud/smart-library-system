@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import api from "./books";
 
 type Announcement = {
@@ -86,4 +86,42 @@ export function useAnnouncements() {
     }, []);
 
     return { announcements, loading };
+}
+
+export type RealAnnouncement = {
+    id: number;
+    message: string;
+    created_at: string;
+    created_by_name: string;
+    created_by_role: string;
+};
+
+export function useRealAnnouncements() {
+    const [realAnnouncements, setRealAnnouncements] = useState<RealAnnouncement[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    const fetchAnnouncements = useCallback(() => {
+        api.get("/api/dashboard/real-announcements/")
+            .then((res) => {
+                setRealAnnouncements(res.data);
+            })
+            .catch(() => {})
+            .finally(() => setLoading(false));
+    }, []);
+
+    useEffect(() => {
+        fetchAnnouncements();
+    }, [fetchAnnouncements]);
+
+    const addAnnouncement = async (message: string) => {
+        await api.post("/api/dashboard/real-announcements/", { message });
+        fetchAnnouncements();
+    };
+
+    const deleteAnnouncement = async (id: number) => {
+        await api.delete(`/api/dashboard/real-announcements/${id}/`);
+        fetchAnnouncements();
+    };
+
+    return { realAnnouncements, loading, addAnnouncement, deleteAnnouncement, timeAgo };
 }
