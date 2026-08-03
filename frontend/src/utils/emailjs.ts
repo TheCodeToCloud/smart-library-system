@@ -1,7 +1,7 @@
 export async function sendEmailJS(toName: string, toEmail: string, subject: string, message: string) {
     const serviceId = "service_qhi38c2";
     const templateId = "template_goozcmn";
-    const publicKey = "Ioow2YPEiKxZ_qlR-";
+    const publicKey = "loow2YPEiKxZ_qIR-";
 
     const payload = {
         service_id: serviceId,
