@@ -738,16 +738,34 @@ class TestEmailView(APIView):
     permission_classes = []
     def get(self, request):
         from django.core.mail import send_mail
+        from django.core.mail.backends.smtp import EmailBackend
         from django.conf import settings
+        
         target_email = request.query_params.get('email', 'yrai0054@gmail.com')
+        use_port_465 = request.query_params.get('port') == '465'
+        
         try:
+            if use_port_465:
+                # Custom backend using SSL on port 465
+                backend = EmailBackend(
+                    host=settings.EMAIL_HOST,
+                    port=465,
+                    username=settings.EMAIL_HOST_USER,
+                    password=settings.EMAIL_HOST_PASSWORD,
+                    use_tls=False,
+                    use_ssl=True
+                )
+            else:
+                backend = None # Uses default (587 TLS)
+
             send_mail(
                 "Django Test Email",
-                "If you see this, Django email configuration is perfectly working!",
+                f"If you see this, Django email configuration is working on port {'465 SSL' if use_port_465 else '587 TLS'}!",
                 settings.DEFAULT_FROM_EMAIL,
                 [target_email],
-                fail_silently=False
+                fail_silently=False,
+                connection=backend
             )
-            return Response({"success": True, "message": f"Email sent to {target_email}!"})
+            return Response({"success": True, "message": f"Email sent to {target_email} on port {'465' if use_port_465 else '587'}!"})
         except Exception as e:
             return Response({"success": False, "error": str(e)})
