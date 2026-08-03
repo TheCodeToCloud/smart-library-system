@@ -241,11 +241,11 @@ class IssueReturnChartView(APIView):
             day_name = target_date.strftime("%a")  # e.g., 'Mon', 'Tue'
             
             issued = IssueBook.objects.filter(
-                issue_date=target_date
+                issue_date__date=target_date
             ).count()
             
             returned = IssueBook.objects.filter(
-                return_date=target_date,
+                return_date__date=target_date,
                 status='returned'
             ).count()
             
