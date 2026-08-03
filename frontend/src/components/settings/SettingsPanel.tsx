@@ -19,7 +19,6 @@ const tabs: { label: Tab; icon: React.ReactNode }[] = [
     { label: "General",       icon: <Settings2 size={16} /> },
     { label: "Library Info",  icon: <Building2 size={16} /> },
     { label: "Notifications", icon: <Bell size={16} /> },
-    { label: "Backup",        icon: <HardDrive size={16} /> },
 ];
 
 type PanelProps = {
@@ -169,47 +168,7 @@ export default function SettingsPanel({
                     </div>
                 )}
 
-                {/* Backup Tab */}
-                {activeTab === "Backup" && (
-                    <div className="flex flex-col gap-5">
-                        <div className="flex items-center justify-between border border-gray-100 rounded-xl px-4 py-3">
-                            <div>
-                                <p className="text-sm font-medium text-gray-700">Auto Backup</p>
-                                <p className="text-xs text-gray-400">Automatically backup your data</p>
-                            </div>
-                            <Toggle enabled={backup.autoBackup} onToggle={() => setBackup({ ...backup, autoBackup: !backup.autoBackup })} />
-                        </div>
-                        <div className="grid grid-cols-2 gap-5">
-                            <div>
-                                <label className="text-sm font-medium text-gray-700 mb-1.5 block">Backup Frequency</label>
-                                <select value={backup.backupFrequency}
-                                    onChange={(e) => setBackup({ ...backup, backupFrequency: e.target.value })}
-                                    className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-purple-200 bg-white">
-                                    {["Daily", "Weekly", "Monthly"].map((o) => <option key={o}>{o}</option>)}
-                                </select>
-                            </div>
-                            <div>
-                                <label className="text-sm font-medium text-gray-700 mb-1.5 block">Backup Location</label>
-                                <select value={backup.backupLocation}
-                                    onChange={(e) => setBackup({ ...backup, backupLocation: e.target.value })}
-                                    className="w-full border border-gray-200 rounded-lg px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-purple-200 bg-white">
-                                    {["Cloud Storage", "Local Storage", "Both"].map((o) => <option key={o}>{o}</option>)}
-                                </select>
-                            </div>
-                        </div>
-                        <div className="bg-green-50 border border-green-200 rounded-xl px-4 py-3 flex items-center gap-3">
-                            <span className="text-green-500 text-xl">✅</span>
-                            <div>
-                                <p className="text-sm font-semibold text-green-700">Last Backup</p>
-                                <p className="text-xs text-green-600">{backup.lastBackup} — Backup completed successfully</p>
-                            </div>
-                        </div>
-                        <button className="flex items-center gap-2 border border-purple-200 text-purple-600 bg-purple-50 hover:bg-purple-100 text-sm font-medium px-4 py-2.5 rounded-lg transition-colors w-fit">
-                            <HardDrive size={15} />
-                            Run Manual Backup Now
-                        </button>
-                    </div>
-                )}
+
             </div>
         </div>
     );
