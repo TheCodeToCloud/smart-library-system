@@ -23,7 +23,7 @@ export default function Nav({ isOpen, setIsOpen }: NavProps) {
 
   const handleLogout = () => {
     logout();
-    navigate("/login", { replace: true });
+    navigate("/", { replace: true });
   };
 
   return (

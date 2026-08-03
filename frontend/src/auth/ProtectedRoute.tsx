@@ -18,7 +18,7 @@ export function ProtectedRoute({ allowedRoles }: ProtectedRouteProps) {
     }
 
     if (!isAuthenticated) {
-        return <Navigate to="/register" replace />;
+        return <Navigate to="/" replace />;
     }
 
     if (allowedRoles && user && !allowedRoles.includes(user.role)) {

@@ -61,7 +61,7 @@ export default function Header({ isOpen, setIsOpen }: NavProps) {
 
     const handleLogout = () => {
         logout();
-        navigate("/login", { replace: true });
+        navigate("/", { replace: true });
     };
 
     const handleProfilePicChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
