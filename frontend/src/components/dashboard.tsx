@@ -1,7 +1,6 @@
 import { useAuth } from "../data/useAuth";
 import { RecommendedBooks, TrendingBooks } from "./SmartInsights";
 
-import QuickAction from "./noti , quickAction ,recent issue/quickAction";
 
 export default function Dashboard() {
     const { user } = useAuth();
@@ -28,7 +27,6 @@ export default function Dashboard() {
                 <>
                     <RecommendedBooks />
                     <TrendingBooks />
-                    <div className="px-5 pb-5 w-full"><QuickAction /></div>
                 </>
             ) : (
                 <TrendingBooks />

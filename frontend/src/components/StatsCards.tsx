@@ -3,6 +3,7 @@ import { useAuth } from "../data/useAuth";
 import api from "../data/api";
 import { useStats } from "../data/statCard";
 import { Link } from "react-router-dom";
+import QuickAction from "./noti , quickAction ,recent issue/quickAction";
 
 // ── Admin / Librarian stats (existing) ──────────────────────────────────────
 
@@ -77,30 +78,33 @@ function StudentStatsCards() {
     if (!stats) return null;
 
     return (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 pt-5 pl-5 pr-5">
-            {studentStatConfig.map((cfg) => {
-                const val = stats[cfg.key as keyof StudentStats];
-                let tab = "All";
-                if (cfg.key === "currently_borrowed" || cfg.key === "due_soon") tab = "Issued";
-                if (cfg.key === "overdue") tab = "Overdue";
-                
-                return (
-                    <Link to={`/issue-return?tab=${tab}`} key={cfg.key} className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 font-nav hover:shadow-md transition-shadow cursor-pointer block">
-                        <div className="flex items-center gap-4">
-                            <div className={`${cfg.col} rounded-xl flex items-center justify-center w-14 h-14 shrink-0 shadow-sm`}>
-                                <img src={cfg.img} alt={cfg.title} className="w-7 h-7" />
+        <div className="space-y-5 pb-5">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 pt-5 pl-5 pr-5">
+                {studentStatConfig.map((cfg) => {
+                    const val = stats[cfg.key as keyof StudentStats];
+                    let tab = "All";
+                    if (cfg.key === "currently_borrowed" || cfg.key === "due_soon") tab = "Issued";
+                    if (cfg.key === "overdue") tab = "Overdue";
+                    
+                    return (
+                        <Link to={`/issue-return?tab=${tab}`} key={cfg.key} className="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 font-nav hover:shadow-md transition-shadow cursor-pointer block">
+                            <div className="flex items-center gap-4">
+                                <div className={`${cfg.col} rounded-xl flex items-center justify-center w-14 h-14 shrink-0 shadow-sm`}>
+                                    <img src={cfg.img} alt={cfg.title} className="w-7 h-7" />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                    <h3 className="text-sm text-gray-500 font-medium truncate">{cfg.title}</h3>
+                                    <p className="text-2xl font-bold text-gray-900 mt-1">
+                                        {cfg.key === "total_fine" ? `Rs. ${val}` : val}
+                                    </p>
+                                    <p className={`text-xs ${cfg.parCol} font-semibold mt-1 truncate`}>{cfg.par}</p>
+                                </div>
                             </div>
-                            <div className="flex-1 min-w-0">
-                                <h3 className="text-sm text-gray-500 font-medium truncate">{cfg.title}</h3>
-                                <p className="text-2xl font-bold text-gray-900 mt-1">
-                                    {cfg.key === "total_fine" ? `Rs. ${val}` : val}
-                                </p>
-                                <p className={`text-xs ${cfg.parCol} font-semibold mt-1 truncate`}>{cfg.par}</p>
-                            </div>
-                        </div>
-                    </Link>
-                );
-            })}
+                        </Link>
+                    );
+                })}
+            </div>
+            <div className="px-5 w-full"><QuickAction /></div>
         </div>
     );
 }
