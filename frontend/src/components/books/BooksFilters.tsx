@@ -1,7 +1,6 @@
-import { Search, Filter } from "lucide-react";
-// ← removed: import { books } from "../../data/books";
+import { Search } from "lucide-react";
 
-const statuses = ["All Status", "Available", "Issued", "Overdue"];
+const statuses = ["All Status", "Available", "Out of Stock"];
 
 type Props = {
     search: string;
@@ -10,7 +9,7 @@ type Props = {
     onCategory: (value: string) => void;
     selectedStatus: string;
     onStatus: (value: string) => void;
-    categories: string[];  // ← added: receive from parent
+    categories: string[];
 };
 
 export default function BooksFilters({
@@ -20,7 +19,7 @@ export default function BooksFilters({
     onCategory,
     selectedStatus,
     onStatus,
-    categories,  // ← added
+    categories,
 }: Props) {
     return (
         <div className="flex items-center gap-3 p-4 border-b border-gray-100">
@@ -51,11 +50,6 @@ export default function BooksFilters({
                 >
                     {statuses.map((s) => <option key={s}>{s}</option>)}
                 </select>
-
-                <button className="flex items-center gap-1.5 border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-600 bg-white hover:bg-gray-50 transition-colors">
-                    <Filter size={14} />
-                    Filters
-                </button>
             </div>
         </div>
     );
