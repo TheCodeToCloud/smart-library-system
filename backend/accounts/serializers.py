@@ -106,12 +106,14 @@ class AdminCreateMemberSerializer(serializers.ModelSerializer):
     roll_no = serializers.CharField(required=True, write_only=True)
     department = serializers.CharField(required=True, write_only=True)
 
+    id_proof = serializers.FileField(required=False, write_only=True)
+
     class Meta:
         model = User
         fields = [
             "id", "username", "email", "password", 
             "first_name", "last_name", "phone", 
-            "roll_no", "department"
+            "roll_no", "department", "id_proof"
         ]
 
     def validate_email(self, value):
@@ -136,6 +138,7 @@ class AdminCreateMemberSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         roll_no = validated_data.pop("roll_no")
         department = validated_data.pop("department")
+        id_proof = validated_data.pop("id_proof", None)
         validated_data["role"] = "student"
         
         user = User.objects.create_user(**validated_data)
@@ -144,6 +147,7 @@ class AdminCreateMemberSerializer(serializers.ModelSerializer):
             user=user,
             roll_no=roll_no,
             department=department,
+            id_proof=id_proof,
             kyc_status='approved'
         )
         return user

@@ -14,6 +14,7 @@ export default function AddMemberModal({ isOpen, onClose, onAdded }: { isOpen: b
     const [department, setDepartment] = useState("");
     const [rollNo, setRollNo] = useState("");
     const [password, setPassword] = useState("");
+    const [idCard, setIdCard] = useState<File | null>(null);
 
     if (!isOpen) return null;
 
@@ -21,19 +22,23 @@ export default function AddMemberModal({ isOpen, onClose, onAdded }: { isOpen: b
         e.preventDefault();
         setBusy(true);
 
-        const payload = {
-            first_name: firstName,
-            last_name: lastName,
-            email: email,
-            username: email.split("@")[0],
-            phone: phone,
-            department: department,
-            roll_no: rollNo,
-            password: password
-        };
+        const formData = new FormData();
+        formData.append("first_name", firstName);
+        formData.append("last_name", lastName);
+        formData.append("email", email);
+        formData.append("username", email.split("@")[0]);
+        formData.append("phone", phone);
+        formData.append("department", department);
+        formData.append("roll_no", rollNo);
+        formData.append("password", password);
+        if (idCard) {
+            formData.append("id_proof", idCard);
+        }
 
         try {
-            await api.post("/api/accounts/admin-create-member/", payload);
+            await api.post("/api/accounts/admin-create-member/", formData, {
+                headers: { "Content-Type": "multipart/form-data" }
+            });
             
             // Send welcome email via EmailJS using the existing template
             await sendEmailJS(
@@ -133,6 +138,13 @@ export default function AddMemberModal({ isOpen, onClose, onAdded }: { isOpen: b
                                     className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-200 transition"
                                 />
                             </div>
+                        </div>
+
+                        <div>
+                            <label className="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wide">ID Card <span className="text-gray-400 normal-case font-normal">(Optional)</span></label>
+                            <input type="file" accept="image/*,.pdf" onChange={e => setIdCard(e.target.files?.[0] || null)}
+                                className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-200 transition file:mr-4 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-purple-50 file:text-purple-700 hover:file:bg-purple-100"
+                            />
                         </div>
 
                         <div className="mt-4 flex gap-3">
