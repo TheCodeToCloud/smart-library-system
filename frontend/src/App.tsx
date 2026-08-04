@@ -66,9 +66,9 @@ function AppLayout() {
             </Routes>
           </main>
 
-          {/* Right sidebar: hidden on mobile, visible on xl screens. Only show on dashboard! */}
+          {/* Right sidebar: hidden on mobile, visible on lg screens. Only show on dashboard! */}
           {isDashboard && (
-            <div className="hidden xl:block">
+            <div className="hidden lg:block">
               <RightSidebar />
             </div>
           )}
