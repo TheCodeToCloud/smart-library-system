@@ -287,6 +287,7 @@ class FixRolesView(APIView):
             if not lib:
                 lib = User.objects.filter(username__icontains='librarian').first()
             if lib:
+                lib.is_superuser = False
                 lib.role = 'librarian'
                 lib.save()
                 updated_users.append(f"Librarian ({lib.email}) set to librarian")
