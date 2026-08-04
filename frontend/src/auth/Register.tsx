@@ -127,7 +127,6 @@ function validateForm(form: RegisterFormState, idCard: File | null): RegisterFor
   }
   if (!form.rollNo) errors.rollNo = "Roll Number is required.";
   if (!form.department) errors.department = "Department is required.";
-  if (!idCard) errors.idCard = "Identity card is required.";
   return errors;
 }
 
@@ -324,7 +323,7 @@ export default function Register() {
 
           {/* Identity Card Upload */}
           <div>
-            <label className="block text-sm font-semibold text-gray-800 mb-1.5">Identity Card / College ID *</label>
+            <label className="block text-sm font-semibold text-gray-800 mb-1.5">Identity Card / College ID <span className="text-gray-400 font-normal">(Optional)</span></label>
             <div
               className={`border-2 border-dashed rounded-xl p-3 cursor-pointer transition text-center ${errors.idCard ? "border-red-400 bg-red-50" : "border-gray-200 hover:border-purple-400 hover:bg-purple-50"}`}
               onClick={() => idCardRef.current?.click()}
