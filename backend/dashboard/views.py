@@ -78,7 +78,9 @@ class RecentIssuesView(APIView):
 
     def get(self, request):
 
-        issues = IssueBook.objects.order_by(
+        issues = IssueBook.objects.filter(
+            issue_date__isnull=False
+        ).order_by(
             '-issue_date'
         )[:5]
 
