@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import api from "../../data/api";
 import { toast } from "react-toastify";
 import { sendEmailJS } from "../../utils/emailjs";
+import { Eye, EyeOff } from "lucide-react";
 
 export default function AddMemberModal({ isOpen, onClose, onAdded }: { isOpen: boolean, onClose: () => void, onAdded: () => void }) {
     const [busy, setBusy] = useState(false);
@@ -14,6 +15,7 @@ export default function AddMemberModal({ isOpen, onClose, onAdded }: { isOpen: b
     const [department, setDepartment] = useState("");
     const [rollNo, setRollNo] = useState("");
     const [password, setPassword] = useState("");
+    const [showPassword, setShowPassword] = useState(false);
     const [idCard, setIdCard] = useState<File | null>(null);
 
     if (!isOpen) return null;
@@ -134,9 +136,19 @@ export default function AddMemberModal({ isOpen, onClose, onAdded }: { isOpen: b
                             </div>
                             <div className="flex-1">
                                 <label className="block text-xs font-semibold text-gray-600 mb-1.5 uppercase tracking-wide">Initial Password</label>
-                                <input required type="password" minLength={8} value={password} onChange={e => setPassword(e.target.value)}
-                                    className="w-full px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-200 transition"
-                                />
+                                <div className="relative">
+                                    <input required type={showPassword ? "text" : "password"} minLength={8} value={password} onChange={e => setPassword(e.target.value)}
+                                        className="w-full px-3 py-2 pr-10 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-200 transition"
+                                    />
+                                    <button 
+                                        type="button" 
+                                        onClick={() => setShowPassword(!showPassword)} 
+                                        className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none"
+                                        tabIndex={-1}
+                                    >
+                                        {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                                    </button>
+                                </div>
                             </div>
                         </div>
 
