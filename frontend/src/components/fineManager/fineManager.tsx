@@ -181,10 +181,6 @@ function FineTable({ data, loading, showActions, onDone }: { data: FineRecord[],
                     <option>Paid</option>
                     <option>Waived</option>
                 </select>
-                <button className="flex items-center gap-1.5 border border-gray-200 rounded-lg px-3 py-2 text-sm text-gray-600 bg-white hover:bg-gray-50">
-                    <Filter size={14} />
-                    Filters
-                </button>
             </div>
 
             {/* Table */}
