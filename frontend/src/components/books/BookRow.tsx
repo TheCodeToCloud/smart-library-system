@@ -153,9 +153,11 @@ export default function BookRow({ book, index, onKycRequired, onView, onEdit, on
                             <button onClick={() => onEdit(book)} className="p-1.5 rounded-lg text-amber-400 hover:bg-amber-50 transition-colors" title="Edit">
                                 <Pencil size={15} />
                             </button>
-                            <button onClick={() => onDelete(book)} className="p-1.5 rounded-lg text-red-400 hover:bg-red-50 transition-colors" title="Delete">
-                                <Trash2 size={15} />
-                            </button>
+                            {user?.role === 'admin' && (
+                                <button onClick={() => onDelete(book)} className="p-1.5 rounded-lg text-red-400 hover:bg-red-50 transition-colors" title="Delete">
+                                    <Trash2 size={15} />
+                                </button>
+                            )}
                         </>
                     ) : (
                         <>
