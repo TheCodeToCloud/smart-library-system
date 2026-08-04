@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useLocation } from "react-router-dom";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -27,6 +27,8 @@ import Unauthorized from "./auth/Unauthorized";
 
 function AppLayout() {
   const [isOpen, setIsOpen] = useState(false);
+  const location = useLocation();
+  const isDashboard = location.pathname === "/dashboard";
 
   return (
     <div className="bg-stone-100 min-h-screen flex">
@@ -64,10 +66,12 @@ function AppLayout() {
             </Routes>
           </main>
 
-          {/* Right sidebar: hidden on mobile, visible on xl screens */}
-          <div className="hidden xl:block">
-            <RightSidebar />
-          </div>
+          {/* Right sidebar: hidden on mobile, visible on xl screens. Only show on dashboard! */}
+          {isDashboard && (
+            <div className="hidden xl:block">
+              <RightSidebar />
+            </div>
+          )}
         </div>
 
         <footer className="text-center text-xs text-gray-600 border-t border-gray-200 py-3 px-3">
