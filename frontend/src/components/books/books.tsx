@@ -59,9 +59,19 @@ export default function Books() {
                 b.author.toLowerCase().includes(search.toLowerCase()) ||
                 b.isbn.includes(search);
             const matchCat = selectedCategory === "All Categories" || b.category === selectedCategory;
-            return matchSearch && matchCat;  // ← removed status filter (API has no status field)
+            
+            // Status filter logic
+            let matchStatus = true;
+            if (selectedStatus === "Available") {
+                matchStatus = b.available_copies > 0;
+            } else if (selectedStatus === "Out of Stock" || selectedStatus === "Overdue" || selectedStatus === "Issued") {
+                // If user selects Out of Stock (or old dropdown options)
+                matchStatus = b.available_copies === 0;
+            }
+
+            return matchSearch && matchCat && matchStatus;
         });
-    }, [books, search, selectedCategory]);  // ← added books as dependency
+    }, [books, search, selectedCategory, selectedStatus]);
 
     const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
     const paginated = filtered.slice(

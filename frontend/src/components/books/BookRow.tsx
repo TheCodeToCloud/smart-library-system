@@ -4,17 +4,15 @@ import { useAuth } from "../../data/useAuth";
 import api from "../../data/api";
 import { toast } from "react-toastify";
 
-// Derive status from available_copies since API has no status field
-function getStatus(book: Book): "Available" | "Issued" | "Overdue" {
-    if (book.available_copies === 0) return "Overdue";
-    if (book.available_copies < book.total_copies) return "Issued";
+// Derive status from available_copies
+function getStatus(book: Book): "Available" | "Out of Stock" {
+    if (book.available_copies === 0) return "Out of Stock";
     return "Available";
 }
 
 const statusStyles = {
     Available: "bg-green-100 text-green-600",
-    Issued: "bg-orange-100 text-orange-500",
-    Overdue: "bg-red-100 text-red-500",
+    "Out of Stock": "bg-red-100 text-red-500",
 };
 
 const categoryColors: Record<string, string> = {
