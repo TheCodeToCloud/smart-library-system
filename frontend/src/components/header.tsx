@@ -28,24 +28,7 @@ export default function Header({ isOpen, setIsOpen }: NavProps) {
     const [notiDropdownOpen, setNotiDropdownOpen] = useState(false);
     const notiRef = useRef<HTMLDivElement>(null);
 
-    // Fetch notifications
-    useEffect(() => {
-        const fetchNotifs = () => {
-            api.get("/api/dashboard/notifications/")
-                .then(res => {
-                    // Filter only overdue and low_stock as requested by user
-                    const alerts = res.data.filter((n: any) => n.type === "overdue" || n.type === "low_stock");
-                    setNotifications(alerts);
-                })
-                .catch(err => console.error("Failed to fetch notifications", err));
-        };
-
-        fetchNotifs();
-        const timer = setInterval(fetchNotifs, 15000);
-        return () => clearInterval(timer);
-    }, []);
-
-    // Close dropdown when clicking outside
+    // Fetch notifications removed    // Close dropdown when clicking outside
     useEffect(() => {
         const handler = (e: MouseEvent) => {
             if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
@@ -120,63 +103,7 @@ export default function Header({ isOpen, setIsOpen }: NavProps) {
 
                 {/* Right icons */}
                 <div className="flex items-center justify-end gap-3 md:gap-5 ml-auto">
-                    {/* Notification Bell */}
-                    <div ref={notiRef} className="relative hidden sm:block mt-1">
-                        <button 
-                            className="cursor-pointer relative"
-                            onClick={() => setNotiDropdownOpen(!notiDropdownOpen)}
-                        >
-                            <img src="../bnoti.svg" alt="notification-icon" />
-                            {notifications.length > 0 && (
-                                <span className="absolute -top-1 -right-1 flex h-3 w-3">
-                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                                    <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
-                                </span>
-                            )}
-                        </button>
-
-                        {notiDropdownOpen && (
-                            <div className="absolute right-0 mt-2 w-72 bg-white rounded-xl shadow-lg border border-gray-100 z-50 overflow-hidden">
-                                <div className="p-3 border-b border-gray-100 flex justify-between items-center bg-gray-50">
-                                    <h3 className="font-semibold text-gray-700 text-sm">Notifications</h3>
-                                    <span className="bg-purple-100 text-purple-700 text-xs px-2 py-0.5 rounded-full font-medium">
-                                        {notifications.length} New
-                                    </span>
-                                </div>
-                                <div className="max-h-80 overflow-y-auto">
-                                    {notifications.length === 0 ? (
-                                        <div className="p-4 text-center text-gray-500 text-sm">
-                                            No new notifications
-                                        </div>
-                                    ) : (
-                                        notifications.map((noti, index) => (
-                                            <div 
-                                                key={index} 
-                                                className={`p-3 border-b border-gray-50 hover:bg-gray-50 transition ${noti.type === 'overdue' ? 'bg-red-50/50' : noti.type === 'low_stock' ? 'bg-orange-50/50' : ''}`}
-                                            >
-                                                <div className="flex gap-3 items-start">
-                                                    <div className="mt-0.5">
-                                                        {noti.type === 'overdue' && <span className="text-red-500 text-lg">⚠️</span>}
-                                                        {noti.type === 'low_stock' && <span className="text-orange-500 text-lg">📉</span>}
-                                                    </div>
-                                                    <div>
-                                                        <p className={`text-sm ${noti.type === 'overdue' ? 'text-red-700 font-medium' : noti.type === 'low_stock' ? 'text-orange-700 font-medium' : 'text-gray-700'}`}>
-                                                            {noti.message}
-                                                        </p>
-                                                        {noti.date && (
-                                                            <span className="text-xs text-gray-400 block mt-1">
-                                                                {new Date(noti.date).toLocaleDateString()}
-                                                            </span>
-                                                        )}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        ))
-                                    )}
-                                </div>
-                            </div>
-                        )}
-                    </div>
+                    {/* Notification Bell removed */}
 
                     {/* Profile dropdown */}
                     <div ref={dropdownRef} className="relative">

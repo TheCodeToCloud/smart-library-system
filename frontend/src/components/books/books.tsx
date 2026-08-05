@@ -148,7 +148,9 @@ export default function Books() {
         <div className="p-6 min-h-screen font-sans">
             <div className="flex items-center justify-between mb-5">
                 <div>
+                    <div className="flex items-center gap-3">
                     <h1 className="text-2xl font-bold text-violet-600 tracking-tight">Books</h1>
+                </div>
                     <p className="text-sm text-gray-400 mt-0.5">Manage and organize all library books</p>
                 </div>
                 <div className="flex gap-2">

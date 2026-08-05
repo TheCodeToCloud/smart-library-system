@@ -109,10 +109,11 @@ class BookDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = BookSerializer
 
     def get_permissions(self):
-
         if self.request.method == 'GET':
             return [IsAuthenticated()]
-
+        if self.request.method == 'DELETE':
+            from accounts.permissions import IsAdmin
+            return [IsAdmin()]
         return [IsAdminOrLibrarian()]
 
 import os

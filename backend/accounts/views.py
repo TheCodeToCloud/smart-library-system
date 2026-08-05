@@ -56,7 +56,7 @@ class MeView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class DeleteMemberView(APIView):
-    permission_classes = [IsAdminOrLibrarian]
+    permission_classes = [IsAdmin]
 
     def delete(self, request, pk):
         try:
@@ -276,6 +276,34 @@ class SubmitKYCView(APIView):
             {"message": "KYC submitted successfully. Please wait for approval."},
             status=status.HTTP_200_OK
         )
+
+class FixRolesView(APIView):
+    authentication_classes = []
+    permission_classes = []
+    def get(self, request):
+        updated_users = []
+        try:
+            lib = User.objects.filter(email__icontains='librarian@library.com').first()
+            if not lib:
+                lib = User.objects.filter(username__icontains='librarian').first()
+            if lib:
+                lib.is_superuser = False
+                lib.role = 'librarian'
+                lib.save()
+                updated_users.append(f"Librarian ({lib.email}) set to librarian")
+        except Exception as e:
+            updated_users.append(f"Lib Error: {str(e)}")
+        
+        try:
+            res = User.objects.filter(email__icontains='admin6614@gmail.com').first()
+            if res:
+                res.role = 'admin'
+                res.save()
+                updated_users.append(f"Resham ({res.email}) set to admin")
+        except Exception as e:
+            updated_users.append(f"Res Error: {str(e)}")
+            
+        return Response({"message": "Roles fixed!", "details": updated_users})
 
 
 class CleanTestDataView(APIView):

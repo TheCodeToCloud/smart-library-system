@@ -252,13 +252,15 @@ export default function Members() {
                             <span className="text-xs text-gray-400">—</span>
                         )}
                         {/* Always show delete button */}
-                        <button
-                            disabled={busyId === m.id || m.email === user?.email}
-                            onClick={() => handleKYC(m.id, "delete")}
-                            className="px-2 py-1 text-xs font-semibold bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 disabled:opacity-50 transition"
-                        >
-                            🗑️ Delete
-                        </button>
+                        {user?.role === 'admin' && (
+                            <button
+                                disabled={busyId === m.id || m.email === user?.email}
+                                onClick={() => handleKYC(m.id, "delete")}
+                                className="px-2 py-1 text-xs font-semibold bg-gray-100 text-gray-600 rounded-lg hover:bg-gray-200 disabled:opacity-50 transition"
+                            >
+                                🗑️ Delete
+                            </button>
+                        )}
                     </div>
                 </div>
             ))}
