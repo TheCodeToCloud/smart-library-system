@@ -3,6 +3,7 @@ import MiniCalendar from "./miniCalendar";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../data/useAuth";
+import QuickAction from "../noti , quickAction ,recent issue/quickAction";
 import { toast } from "react-toastify";
 
 export default function RightSidebar() {
@@ -213,6 +214,11 @@ export default function RightSidebar() {
                             </button>
                         </div>
                     </div>
+                </div>
+            )}
+            {user?.role !== 'student' && (
+                <div className="flex flex-col md:flex-row gap-5">
+                    <div className="w-full md:w-auto"><QuickAction /></div>
                 </div>
             )}
         </div>
